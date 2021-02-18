@@ -1,0 +1,7 @@
+
+  Usage:
+    {%bold $0%}: [SRC] [...] [OPTIONS] -- [EXEC] [...]
+
+  Options:
+$1
+
