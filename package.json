@@ -38,17 +38,6 @@
   "author": "Alvaro Cabrera <yo@soypache.co>",
   "license": "MIT",
   "bundleDependencies": [
-    "asciidoctor.js",
-    "coffeescript",
-    "ejs",
-    "handlebars",
-    "kramed",
-    "less",
-    "liquid",
-    "node-sass",
-    "postcss",
-    "pug",
-    "styl",
     "talavera",
     "esbuild",
     "chokidar",
@@ -57,11 +46,9 @@
   "devDependencies": {
     "asciidoctor.js": "^1.5.9",
     "chai": "^4.3.0",
-    "chokidar": "^3.5.1",
     "codecov": "^3.8.1",
     "coffeescript": "^2.5.1",
     "ejs": "^3.1.6",
-    "esbuild": "^0.8.53",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.22.1",
@@ -74,7 +61,6 @@
     "less": "^4.1.1",
     "less-plugin-autoprefix": "^2.0.0",
     "liquid": "^5.1.1",
-    "live-server": "^1.2.1",
     "log-pose": "^0.4.4",
     "micromatch": "^4.0.2",
     "mocha": "^8.3.0",
@@ -87,9 +73,14 @@
     "rewrite-imports": "^2.0.3",
     "styl": "^0.2.9",
     "svelte": "^3.32.3",
-    "talavera": "^0.9.5",
     "testdouble": "^3.16.1",
     "tosource": "^2.0.0-alpha.2",
     "wargs": "^0.9.3"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.1",
+    "esbuild": "^0.8.54",
+    "live-server": "^1.2.1",
+    "talavera": "^0.9.6"
   }
 }
