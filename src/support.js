@@ -224,18 +224,19 @@ function filters(any, filter) {
 }
 
 function configure(flags, pkg) {
-  if (pkg.bundle) {
-    flags.external = array(flags.external, pkg.bundle.external);
-    flags.alias = array(flags.alias, pkg.bundle.alias);
-    flags.copy = array(flags.copy, pkg.bundle.copy);
+  if (pkg.mortero) {
+    if (pkg.mortero.external) flags.external = array(flags.external, pkg.mortero.external);
+    if (pkg.mortero.extensions) flags.ext = array(flags.ext, pkg.mortero.extensions);
+    if (pkg.mortero.aliases) flags.alias = array(flags.alias, pkg.mortero.aliases);
+    if (pkg.mortero.copy) flags.copy = array(flags.copy, pkg.mortero.copy);
+    if (pkg.mortero.rename) flags.rename = array(flags.rename, pkg.mortero.rename);
+    if (pkg.mortero.filter) flags.filter = array(flags.filter, pkg.mortero.filter);
+    if (pkg.mortero.ignore) flags.ignore = array(flags.ignore, pkg.mortero.ignore);
+    if (pkg.mortero.exclude) flags.exclude = array(flags.exclude, pkg.mortero.exclude);
 
-    if (pkg.bundle.rename) {
-      flags.rename = array(flags.rename, pkg.bundle.rename);
-    }
-
-    Object.keys(pkg.bundle.options).forEach(key => {
+    Object.keys(pkg.mortero.options).forEach(key => {
       if (typeof flags[key] === 'undefined') {
-        flags[key] = pkg.bundle.options;
+        flags[key] = pkg.mortero.options[key];
       }
     });
   }
@@ -255,9 +256,9 @@ function configure(flags, pkg) {
   }, {});
 
   const filterInput = array(flags.filter || '**').concat(array(flags.exclude).map(x => {
-    if (x.indexOf('*') > -1) return `!${x}`;
-    if (x.substr(0, 1) === '.') return `!**/*${x}`;
-    if (x.indexOf('.') > -1) return `!**/${x}`;
+    if (x.charAt() === '.') return `!**/*${x}`;
+    if (x.includes('*')) return `!${x}`;
+    if (x.includes('.')) return `!**/${x}`;
     return `!**/${x}/**`;
   }));
 
@@ -281,7 +282,7 @@ function configure(flags, pkg) {
 
       if (offset === -1) {
         memo.push(`**/${x}`);
-        if (x.indexOf('.') === -1 && x.indexOf('*') === -1) {
+        if (!(x.includes('.') || x.includes('*'))) {
           memo.push(`**/${x}/**`);
           memo.push(`${x}/**`);
         }
