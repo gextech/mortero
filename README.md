@@ -1,4 +1,4 @@
-<img src="mortero.png" alt="Mortero" width="320">
+<img src="https://github.com/pateketrueke/mortero/raw/master/mortero.png" alt="Mortero" width="320">
 
 [![Build status](https://github.com/pateketrueke/mortero/actions/workflows/testing.yml/badge.svg)](https://github.com/pateketrueke/mortero/actions/workflows/testing.yml)
 [![NPM version](https://badge.fury.io/js/mortero.svg)](http://badge.fury.io/js/mortero)
@@ -15,8 +15,8 @@ Available options:
                         default is ./build
     -o, --show          Sets the limit for displaying files on build,
                         default is 3
-    -y, --only          Use to filter out non-matching sources,
-                        e.g. `-ymain` or ` --only app`, etc.
+    -y, --only          Used to filter out non-matching sources,
+                        e.g. `-ymain` or `--only app`, etc.
 
     -e, --ext           Enforce preprocessing through virtual extensions,
                         i.e. `-ecss.less` render .css files with LESS.js
@@ -26,7 +26,7 @@ Available options:
                         also appends directories to watch
     -B, --bundle        Enforce bundling on matching sources,
                         e.g. `-B "**/{app,main}"`
-    -r, --rename        Configure the rename strategy,
+    -r, --rename        Configure the renaming rules,
                         i.e. `-r "**/app/**:{filepath/1}"` will
                         strip the first directory segment from its filepath
     -T, --timeout       Sets the timeout for compiling between changes,
@@ -41,10 +41,10 @@ Available options:
     -I, --ignore-from   Extract and set ignore rules from any given files,
                         e.g. `-I.gitignore`
     -X, --exclude       Files matching exclude rules are not processed,
-                        e.g. `-X{lib,shared,components}`
+                        e.g. `-X "{lib,shared,components}"`
 
     -M, --modules       Enable web_modules and sets the destination folder,
-                        on this mode all bundling is disabled
+                        also on this mode all bundling gets disabled
         --paths         Configure additional folders to lookup imports,
                         e.g. `-Mweb_components;vendor`
 
