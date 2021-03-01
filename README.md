@@ -1,4 +1,4 @@
-<img src="https://github.com/pateketrueke/mortero/raw/master/mortero.png" alt="Mortero" width="320">
+<img src="https://github.com/pateketrueke/mortero/raw/master/mortero.png" alt="Mortero" width="210">
 
 [![Build status](https://github.com/pateketrueke/mortero/actions/workflows/testing.yml/badge.svg)](https://github.com/pateketrueke/mortero/actions/workflows/testing.yml)
 [![NPM version](https://badge.fury.io/js/mortero.svg)](http://badge.fury.io/js/mortero)
