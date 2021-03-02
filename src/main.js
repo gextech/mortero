@@ -325,7 +325,7 @@ function watch(src, dest, flags, filter, callback) {
     }
   }
 
-  puts('{%yellowBright watch%} %s', sources.map(x => `./${relative(x)}`).join(', '));
+  puts('\r{%yellowBright watch%} %s', sources.map(x => `./${relative(x)}`).join(', '));
   callback(() => {
     compile();
     puts('\n');
