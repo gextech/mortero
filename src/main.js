@@ -566,7 +566,7 @@ async function main({
         const diff = srcFiles.length - limit;
 
         puts('\r{%blue render%} %s (and %s file%s more)\n', files, diff, diff === 1 ? '' : 's');
-      } else {
+      } else if (files) {
         puts('\r{%blue render%} %s\n', files);
       }
     }
