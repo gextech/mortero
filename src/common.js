@@ -80,6 +80,10 @@ function copy(src, dest) {
   fs.copySync(src, dest);
 }
 
+function size(src) {
+  return fs.statSync(src).size;
+}
+
 function exists(src) {
   return src && fs.existsSync(src);
 }
@@ -192,6 +196,15 @@ function fetch(_url, filepath) {
   });
 }
 
+function bytes(n) {
+  if (n >= 1048576) n = `${(n / 1048576).toFixed(2)} MB`;
+  else if (n >= 1024) n = `${(n / 1024).toFixed(2)} KB`;
+  else if (n > 1) n = `${n} bytes`;
+  else if (n === 1) n = `${n} byte`;
+  else n = '0 bytes';
+  return n;
+}
+
 function isMarkup(src) {
   return MARKUP.includes(path.extname(src).substr(1));
 }
@@ -199,6 +212,7 @@ function isMarkup(src) {
 module.exports = {
   ms,
   npm,
+  size,
   expr,
   copy,
   puts,
@@ -209,6 +223,7 @@ module.exports = {
   mtime,
   raise,
   defer,
+  bytes,
   fetch,
   exists,
   unlink,

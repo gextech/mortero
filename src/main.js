@@ -12,9 +12,11 @@ const Source = require('./source');
 
 const {
   ms,
+  size,
   puts,
   keys,
   copy,
+  bytes,
   defer,
   mtime,
   raise,
@@ -22,6 +24,7 @@ const {
   array,
   exists,
   unlink,
+  lsFiles,
   resolve,
   basename,
   relative,
@@ -126,13 +129,17 @@ function json(entry) {
   };
 }
 
+let total = 0;
 function debug(deferred) {
   return deferred.then(tpl => {
     if (tpl.destination && !tpl.options.quiet) {
+      const length = size(tpl.destination);
       const end = tpl.options.progress !== false ? '\n' : '';
 
-      puts('\r{%cyan write%} %s {%gray (%s)%}', relative(tpl.destination), ms(tpl.worktime));
+      puts('\r{%cyan write%} %s {%magenta.arrow. %s%} {%gray (%s)%}', relative(tpl.destination), bytes(length), ms(tpl.worktime));
       puts(end);
+
+      total += length;
     }
     cache[tpl.filepath] = json(tpl);
     return tpl;
@@ -145,6 +152,7 @@ function write(set, dest, flags, deferred) {
     result.filter(Array.isArray).forEach(([group, changes]) => {
       const start = new Date();
 
+      let all = 0;
       let diff = 0;
       changes.forEach(file => {
         const destFile = resolve(flags.rename(file.dest));
@@ -184,14 +192,19 @@ function write(set, dest, flags, deferred) {
           copy(file.src, destFile);
         }
 
-        if (!flags.quiet) puts(`\r${kind} %s`, relative(destFile));
+        const length = size(destFile);
+
+        if (!flags.quiet) puts(`\r${kind} %s {%magenta.arrow. %s%}`, relative(destFile), bytes(length));
         if (!flags.quiet && flags.progress !== false) puts('\n');
+
+        all += length;
         return true;
       });
 
+      total += all;
       changed = true;
       if (!flags.quiet) {
-        puts('\r{% gray. %s: +%s file%s (%s)%}\n', group, diff, diff === 1 ? '' : 's', ms(Date.now() - start));
+        puts('\r{% gray. %s: +%s file%s (%s)%} {%magenta.arrow. %s%}\n', group, diff, diff === 1 ? '' : 's', ms(Date.now() - start), bytes(all));
       }
     });
     if (!changed) set.length = 0;
@@ -348,23 +361,41 @@ function watch(src, dest, flags, filter, callback) {
   });
 }
 
-function init(src, dest, flags) {
+function init(src, dest, flags, length) {
   if (!process.silent) {
-    puts('\r{%gray. %s (%s — %s)%}\n', process.name, ms(Date.now() - process.start), process.env.NODE_ENV || 'development');
+    puts('\r{%gray. %s (%s — %s)%}\n', process.name, ms(Date.now() - process.start), process.env.NODE_ENV || 'development',);
   }
 
   if (!flags.quiet) {
-    puts('\r{%yellow. from%} %s\n', src.map(x => `./${relative(x)}`).join(', '));
+    const dirs = src.map(x => `./${relative(x)}`).join(', ');
+
+    if (length >= 0 && flags.progress === false) {
+      puts('\r{%gray. %s file%s from %s%}\n', length, length === 1 ? '' : 's', dirs);
+    } else {
+      puts(`\r{%yellow. from%} %s${length >= 0 ? ` {%gray. (%s file%s)%}` : ''}\n`, dirs, length, length === 1 ? '' : 's');
+    }
+  } else if (length >= 0) {
+    puts('\r{%gray. processing %s file%s...%}', length, length === 1 ? '' : 's');
   }
 
+  let count = 0;
   array(flags.copy).forEach(x => {
     const [_src, _dest] = x.split(':');
+    const _length = lsFiles(resolve(_src)).reduce((prev, cur) => prev + size(cur), 0);
 
-    if (!flags.quiet) {
-      puts('\r{%cyanBright copy%} %s\n', _src);
+    total += _length;
+    count += 1;
+
+    if (!flags.quiet && flags.progress !== false) {
+      puts('\r{%cyanBright copy%} %s {%magenta.arrow. %s%}\n', _src, bytes(_length));
     }
+
     copy(resolve(_src), joinPath(dest, _dest));
   });
+
+  if (!flags.quiet && flags.progress === false) {
+    puts('\r{%gray. %s source%s copied %} {%magenta.arrow. %s%}\n', count, count === 1 ? '' : 's', bytes(total));
+  }
 }
 
 async function main({
@@ -556,17 +587,17 @@ async function main({
       return false;
     });
 
-    init(src, dest, flags);
+    init(src, dest, flags, srcFiles.length);
 
     if (!flags.quiet && flags.progress === false) {
-      const limit = Math.max(1, flags.show ? parseInt(flags.show, 10) : 3);
+      const limit = Math.max(0, flags.show ? parseInt(flags.show, 10) : 3);
       const files = srcFiles.slice(0, limit).map(file => basename(file)).join(', ');
 
-      if (srcFiles.length > limit) {
+      if (srcFiles.length > limit && limit > 0) {
         const diff = srcFiles.length - limit;
 
         puts('\r{%blue render%} %s (and %s file%s more)\n', files, diff, diff === 1 ? '' : 's');
-      } else if (files) {
+      } else if (files && limit > 0) {
         puts('\r{%blue render%} %s\n', files);
       }
     }
@@ -579,9 +610,9 @@ async function main({
         if (srcFiles.length || missed.length) {
           const count = srcFiles.length + missed.length;
           const plus = count > srcFiles.length ? '+' : '';
-          const msg = flags.quiet ? `${count}${plus} file${count === 1 ? '' : 's'} processed` : 'done';
+          const msg = flags.quiet ? `${count}${plus} file${count === 1 ? '' : 's'} written` : 'done';
 
-          status = `{%gray. ${msg} in ${ms(Date.now() - start)}%}`;
+          status = `{%gray. ${msg} in ${ms(Date.now() - start)}%} {%magenta.arrow. ${bytes(total)}%}`;
         }
         if (!process.silent) puts(`\r${status}\n`);
       });

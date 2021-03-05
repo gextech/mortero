@@ -411,11 +411,11 @@ async function modules(src, entry, isHook) {
 
     let timer;
     let done;
-    let ms = 500;
+    let d = 500;
     if (!entry.options.quiet) {
       ;(function tick() { // eslint-disable-line
-        if (!done) timer = setTimeout(tick, ms);
-        ms *= 1.5;
+        if (!done) timer = setTimeout(tick, d);
+        d *= 1.5;
         puts('.');
       })();
     }
