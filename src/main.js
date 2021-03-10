@@ -622,7 +622,7 @@ async function main({
 module.exports = argv => {
   const options = wargs(argv, {
     boolean: 'qwfdVSWEARO',
-    string: 'CeDbcyopPsaBriIFXLTNM',
+    string: 'CeDbcyopPsaBriIFXLTNUH',
     alias: {
       C: 'cwd',
       e: 'ext',
@@ -639,6 +639,7 @@ module.exports = argv => {
       a: 'alias',
       f: 'force',
       d: 'debug',
+      H: 'paths',
       B: 'bundle',
       r: 'rename',
       i: 'ignore',
@@ -646,7 +647,7 @@ module.exports = argv => {
       F: 'filter',
       X: 'exclude',
       L: 'plugins',
-      M: 'modules',
+      U: 'modules',
       T: 'timeout',
       V: 'verbose',
       N: 'external',

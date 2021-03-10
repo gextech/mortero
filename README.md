@@ -43,10 +43,10 @@ Available options:
     -X, --exclude       Files matching exclude rules are not processed,
                         e.g. `-X "{lib,shared,components}"`
 
-    -M, --modules       Enable web_modules and sets the destination folder,
+    -U, --modules       Enable web_modules and sets the destination folder,
                         also on this mode all bundling gets disabled
-        --paths         Configure additional folders to lookup imports,
-                        e.g. `-Mweb_components;vendor`
+    -H, --paths         Configure additional folders to lookup imports,
+                        e.g. `-Hweb_components,vendor`
 
     -a, --alias         Configure esbuild aliases, e.g. `-afoo:./bar`
     -N, --external      Configure esbuild externals, e.g. `-Nlodash`
@@ -73,8 +73,8 @@ Available options:
     -S, --no-serve      Disable live-server on --watch
     -W, --no-write      Disable writing files to disk
     -E, --no-embed      Disable resource inlining on .html files
+    -A, --no-install    Disable automatic installs during development
     -R, --no-rewrite    Disable import/export rewrites on .js files,
                         only when --target=cjs or if --modules are unset
-    -A, --no-install    Disable automatic installs during development
     -O, --no-progress   Disable extended logging from compilations
 ```
