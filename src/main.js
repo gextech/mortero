@@ -363,7 +363,7 @@ function watch(src, dest, flags, filter, callback) {
 
 function init(src, dest, flags, length) {
   if (!process.silent) {
-    puts('\r{%gray. %s (%s — %s)%}\n', process.name, ms(Date.now() - process.start), process.env.NODE_ENV || 'development',);
+    puts('\r{%gray. %s (%s — %s)%}\n', process.name, ms(Date.now() - process.start), process.env.NODE_ENV || 'development');
   }
 
   if (!flags.quiet) {
@@ -372,7 +372,7 @@ function init(src, dest, flags, length) {
     if (length >= 0 && flags.progress === false) {
       puts('\r{%gray. %s file%s from %s%}\n', length, length === 1 ? '' : 's', dirs);
     } else {
-      puts(`\r{%yellow. from%} %s${length >= 0 ? ` {%gray. (%s file%s)%}` : ''}\n`, dirs, length, length === 1 ? '' : 's');
+      puts(`\r{%yellow. from%} %s${length >= 0 ? ' {%gray. (%s file%s)%}' : ''}\n`, dirs, length, length === 1 ? '' : 's');
     }
   } else if (length >= 0) {
     puts('\r{%gray. processing %s file%s...%}', length, length === 1 ? '' : 's');

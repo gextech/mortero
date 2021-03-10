@@ -27,7 +27,7 @@
     "test": "npm run test:run --",
     "pretest": "npm run lint",
     "prepare": "npm run build:fast",
-    "build": "esbuild src/index.js --bundle --outfile=bin/cli.js --platform=node --external:esbuild --external:chokidar --external:live-server --external:talavera --target=node10.23 --log-level=error --error-limit=0",
+    "build": "esbuild src/index.js --bundle --outfile=bin/cli.js --platform=node --external:esbuild --external:chokidar --external:live-server --external:talavera --target=node10.23 --log-level=error --log-limit=0",
     "build:fast": "npm run build -- --external:kramed --external:coffeescript --external:asciidoctor.js --external:handlebars --external:liquid --external:node-sass --external:postcss --external:styl --external:less --external:pug --external:ejs --external:svelte"
   },
   "keywords": [
@@ -69,8 +69,9 @@
     "postcss": "^8.2.6",
     "pug": "^3.0.0",
     "redent": "^3.0.0",
-    "rewrite-exports": "^0.0.18",
+    "rewrite-exports": "^0.0.23",
     "rewrite-imports": "^2.0.3",
+    "somedom": "^0.3.1",
     "styl": "^0.2.9",
     "svelte": "^3.32.3",
     "testdouble": "^3.16.1",
@@ -79,7 +80,7 @@
   },
   "dependencies": {
     "chokidar": "^3.5.1",
-    "esbuild": "^0.8.54",
+    "esbuild": "^0.9.0",
     "live-server": "^1.2.1",
     "talavera": "^0.9.6"
   }
