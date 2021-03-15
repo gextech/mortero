@@ -26,6 +26,7 @@ const {
   unlink,
   lsFiles,
   resolve,
+  dirname,
   basename,
   relative,
   isMarkup,
@@ -371,8 +372,10 @@ function init(src, dest, flags, length) {
 
     if (length >= 0 && flags.progress === false) {
       puts('\r{%gray. %s file%s from %s%}\n', length, length === 1 ? '' : 's', dirs);
+    } else if (length >= 0) {
+      puts(`\r{%yellow. from%} %s {%gray. (%s file%s)%}\n`, dirs, length, length === 1 ? '' : 's');
     } else {
-      puts(`\r{%yellow. from%} %s${length >= 0 ? ' {%gray. (%s file%s)%}' : ''}\n`, dirs, length, length === 1 ? '' : 's');
+      puts(`\r{%yellow. from%} %s\n`, dirs);
     }
   } else if (length >= 0) {
     puts('\r{%gray. processing %s file%s...%}', length, length === 1 ? '' : 's');
@@ -492,7 +495,7 @@ async function main({
   });
 
   Object.assign(getHooks(), {
-    import: ({ props }, ctx) => array(props.from).reduce((prev, cur) => {
+    import: ({ tpl, props }, ctx) => array(props.from).reduce((prev, cur) => {
       const chunk = ctx.locate(cur);
 
       if (chunk.dest) {
@@ -501,11 +504,16 @@ async function main({
           : ctx.include(chunk.dest);
 
         prev += asset;
-      }
-      if (chunk.path) {
+      } else if (chunk.path) {
         prev += chunk.path.includes('.svg')
           ? svg(readFile(chunk.path), props, ctx)
           : readFile(chunk.path);
+      } else {
+        const file = joinPath(dirname(tpl.filepath), chunk.src);
+
+        prev += chunk.src.includes('.svg')
+          ? svg(readFile(file), props, ctx)
+          : readFile(file);
       }
       return prev;
     }, ''),
