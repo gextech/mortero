@@ -35,7 +35,6 @@ function markdown(params, next) {
       : 'highlight.js';
 
     let className = '';
-
     if (opts.highlight && typeof opts.highlight !== 'function') {
       opts.highlight = (code, lang, end) => {
         try {

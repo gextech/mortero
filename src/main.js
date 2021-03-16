@@ -25,6 +25,7 @@ const {
   exists,
   unlink,
   lsFiles,
+  inspect,
   resolve,
   dirname,
   basename,
@@ -495,38 +496,52 @@ async function main({
   });
 
   Object.assign(getHooks(), {
-    import: ({ tpl, props }, ctx) => array(props.from).reduce((prev, cur) => {
-      const chunk = ctx.locate(cur);
-
-      if (chunk.dest) {
-        const asset = chunk.dest.includes('.svg')
-          ? svg(readFile(joinPath(dest, chunk.dest)), props, ctx)
-          : ctx.include(chunk.dest);
-
-        prev += asset;
-      } else if (chunk.path) {
-        prev += chunk.path.includes('.svg')
-          ? svg(readFile(chunk.path), props, ctx)
-          : readFile(chunk.path);
-      } else {
-        const file = joinPath(dirname(tpl.filepath), chunk.src);
-
-        prev += chunk.src.includes('.svg')
-          ? svg(readFile(file), props, ctx)
-          : readFile(file);
+    import: ({ tpl, props }, ctx) => {
+      if (!props.from) {
+        throw new Error(`Missing 'from' attribute, given ${inspect(props)}`);
       }
-      return prev;
-    }, ''),
+
+      return array(props.from).reduce((prev, cur) => {
+        const chunk = ctx.locate(cur);
+
+        if (chunk.dest) {
+          const asset = chunk.dest.includes('.svg')
+            ? svg(readFile(joinPath(dest, chunk.dest)), props, ctx)
+            : ctx.include(chunk.dest);
+
+          prev += asset;
+        } else if (chunk.path) {
+          prev += chunk.path.includes('.svg')
+            ? svg(readFile(chunk.path), props, ctx)
+            : readFile(chunk.path);
+        } else {
+          const file = joinPath(dirname(tpl.filepath), chunk.src);
+
+          prev += chunk.src.includes('.svg')
+            ? svg(readFile(file), props, ctx)
+            : readFile(file);
+        }
+        return prev;
+      }, '');
+    },
     alink: ({ tpl, props, content }, ctx) => {
+      if (!props.for) {
+        throw new Error(`Missing 'for' attribute, given ${inspect(props)}`);
+      }
+
+      if (!tpl.options.tmp[tpl.filepath]) {
+        throw new Error(`Missing destination for '${relative(tpl.filepath)}'`);
+      }
+
       const { self, ROOT } = tpl.locals;
-      const segment = self && self.parent.split('/').slice(2).join('/').replace(/\.\w+$/, '');
-      const url = `/${segment === 'index' ? '' : segment || ''}`;
       const base = props.for.split('#')[0].split('?')[0];
 
       props.href = props.for.indexOf('://') === -1 ? `${ROOT || ''}${props.for}` : props.for;
       props.target = props.target || props.external ? '_blank' : undefined;
 
       const attrs = ctx.attributes(props, ['for', 'text', 'external']);
+      const rel = relative(tpl.options.tmp[tpl.filepath].destination, tpl.directory);
+      const url = `/${rel.includes('index.html') ? rel.replace(/\/?index\.html$/, '') : rel || ''}`;
 
       if (base === url) {
         return `<a aria-current="page"${attrs}>${content || props.text}</a>`;

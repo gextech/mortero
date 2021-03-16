@@ -79,7 +79,7 @@ function getHooks(tpl, dest, context) {
           matches = matches || tag === 'image';
           return COMPONENTS._[tag]({ tpl, props, content }, context);
         } catch (_e) {
-          warn('\r{%yellow. %s%} Unable to parse `%s`\n', tag || _, attrs);
+          warn('\r{%yellow. %s%} Unable to parse `%s`\n%s\n', tag || _, attrs, _e.message);
           return _;
         }
       });
@@ -234,11 +234,13 @@ function configure(flags, pkg) {
     if (pkg.mortero.ignore) flags.ignore = array(flags.ignore, pkg.mortero.ignore);
     if (pkg.mortero.exclude) flags.exclude = array(flags.exclude, pkg.mortero.exclude);
 
-    Object.keys(pkg.mortero.options).forEach(key => {
-      if (typeof flags[key] === 'undefined') {
-        flags[key] = pkg.mortero.options[key];
-      }
-    });
+    if (pkg.mortero.options) {
+      Object.keys(pkg.mortero.options).forEach(key => {
+        if (typeof flags[key] === 'undefined') {
+          flags[key] = pkg.mortero.options[key];
+        }
+      });
+    }
   }
 
   const fixedExtensions = array(flags.ext).reduce((memo, cur) => {
@@ -569,7 +571,7 @@ async function embed(tpl, dest, html, render) {
   await defer(embedTasks, () => {
     html = html.replace(/<!--!#@@-->/g, () => comments.shift())
       .replace(/\/\*#!(\w+)\*\//g, (_, key) => data[key])
-      .replace(/\s*\n|<\/style>\s*<style>/g, '\n')
+      .replace(/<\/style>\s*<style>/g, '\n')
       .replace(/<(\w+)>\s*<\/\1>/g, '');
   });
   return html;
