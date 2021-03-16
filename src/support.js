@@ -49,7 +49,7 @@ function getEngines() {
   return require('./engines');
 }
 
-function getHooks(tpl, dest, context) {
+function getHooks(tpl, context) {
   const _keys = Object.keys(COMPONENTS._);
 
   if (_keys.length !== COMPONENTS.length) {
@@ -120,7 +120,7 @@ function include(path) {
     : '?livereload=';
 
   if (path.includes('.css')) return `<link rel="stylesheet" href="${path + suffix}">`;
-  if (path.includes('.js')) return `<script src="${path + suffix}"></script>`;
+  if (path.includes('.js')) return `<script type="module" src="${path + suffix}"></script>`;
 
   throw new Error(`Cannot include '${path}'`);
 }
@@ -141,7 +141,9 @@ function attributes(props, omit) {
   }, '');
 }
 
-function getContext(dest, options) {
+function getContext(options) {
+  const dest = resolve(options.dest, './build');
+
   function locate(path) {
     let destFile = joinPath(dest, path);
     if (exists(destFile)) return { dest: path };
@@ -163,12 +165,12 @@ function getContext(dest, options) {
       const entry = options.tmp[k] || {};
 
       if (typeof entry.filename === 'string' && entry.filename.includes(path)) {
-        if (entry.destination) return { dest: relative(entry.destination, dest), entry };
-        return { path: entry.filepath, entry };
+        return { dest: entry.filename };
       }
 
       if (typeof entry.filepath === 'string' && relative(entry.filepath).includes(path)) {
-        return { path: entry.filepath, entry };
+        if (entry.destination) return { dest: relative(entry.destination, dest) };
+        return { path: entry.filepath };
       }
     }
 
@@ -229,6 +231,7 @@ function configure(flags, pkg) {
     if (pkg.mortero.extensions) flags.ext = array(flags.ext, pkg.mortero.extensions);
     if (pkg.mortero.aliases) flags.alias = array(flags.alias, pkg.mortero.aliases);
     if (pkg.mortero.copy) flags.copy = array(flags.copy, pkg.mortero.copy);
+    if (pkg.mortero.bundle) flags.bundle = array(flags.bundle, pkg.mortero.bundle);
     if (pkg.mortero.rename) flags.rename = array(flags.rename, pkg.mortero.rename);
     if (pkg.mortero.filter) flags.filter = array(flags.filter, pkg.mortero.filter);
     if (pkg.mortero.ignore) flags.ignore = array(flags.ignore, pkg.mortero.ignore);
@@ -395,7 +398,7 @@ function plugins(defaults, options = {}) {
   });
 }
 
-async function modules(src, entry, isHook) {
+async function modules(src, entry, _bundle) {
   const [base, sub] = src.split('/').slice(0, 2);
 
   let pkgName = base;
@@ -431,59 +434,57 @@ async function modules(src, entry, isHook) {
     clearTimeout(timer);
 
     if (!entry.options.quiet) {
-      puts('\r{%magentaBright install%} %s {%gray %s%}', pkgName, `${diff / 1000}s`);
+      puts('\r{%magentaBright install%} %s {%gray %s%}', pkgName, `${diff / 1000}s\n`);
     }
 
     if (stderr.length && !entry.options.quiet) warn(stderr);
     if (stdout.length && !entry.options.quiet) puts(stdout);
   }
+  if (_bundle) return;
 
-  if (!isHook) {
-    const chunks = require.resolve(pkgName).split('/');
-    const offset = chunks.indexOf('node_modules');
-    const pkgDir = chunks.slice(0, offset + 2).join('/');
-    const pkgFile = joinPath(pkgDir, 'package.json');
-    const destDir = resolve(entry.options.dest, './build');
-    const modulesPath = entry.data.$modules || entry.options.modules;
-    const fixedModuleDir = typeof modulesPath === 'string' ? modulesPath : 'web_modules';
+  const chunks = resolve(`./node_modules/${pkgName}`).split('/');
+  const offset = chunks.indexOf('node_modules');
+  const pkgDir = chunks.slice(0, offset + 2).join('/');
+  const pkgFile = joinPath(pkgDir, 'package.json');
+  const destDir = resolve(entry.options.dest, './build');
 
-    try {
-      const pkgInfo = require(pkgFile);
-      const mainFile = pkgInfo.module || pkgInfo.browser || pkgInfo.unpkg;
+  try {
+    const pkgInfo = require(pkgFile);
+    const mainFile = pkgInfo.module || pkgInfo.browser || pkgInfo.unpkg || pkgInfo.main;
 
-      if (mainFile) {
-        const moduleDir = joinPath(destDir, fixedModuleDir, pkgName);
-        const moduleFile = joinPath(moduleDir, mainFile);
+    if (mainFile) {
+      const moduleDir = joinPath(destDir, 'web_modules', pkgName);
+      const moduleFile = joinPath(moduleDir, mainFile);
 
-        copy(joinPath(pkgDir, mainFile), moduleFile);
-        copy(pkgFile, joinPath(moduleDir, 'package.json'));
+      copy(joinPath(pkgDir, mainFile), moduleFile);
+      copy(pkgFile, joinPath(moduleDir, 'package.json'));
 
-        let found;
-        if (!(entry.data.$nofiles || entry.options.nofiles)) {
-          (pkgInfo.files || []).forEach(_src => {
-            lsFiles(joinPath(pkgDir, _src)).forEach(file => {
-              if (exists(file)) {
-                const destFile = joinPath(moduleDir, relative(file, pkgDir));
+      let count = 0;
+      (pkgInfo.files || []).forEach(_src => {
+        lsFiles(joinPath(pkgDir, _src)).forEach(file => {
+          if (exists(file)) {
+            const destFile = joinPath(moduleDir, relative(file, pkgDir));
 
-                if (!entry.options.quiet) puts('\r{%cyanBright copy%} %s\n', relative(destFile));
-                copy(file, destFile);
-                found = true;
-              }
-            });
-          });
-        }
+            if (!entry.options.quiet && entry.options.progress !== false) {
+              puts('\r{%cyanBright copy%} %s', relative(destFile));
+            }
+            copy(file, destFile);
+            count += 1;
+          }
+        });
+      });
 
-        if (found) {
-          return relative(moduleFile, destDir);
-        }
+      if (!entry.options.quiet && entry.options.progress === false) {
+        puts('\r{%cyanBright copy%} %s file%s\n', count, count === 1 ? '' : 's');
       }
-    } catch (e) {
-      // do nothing
+      return relative(moduleFile, destDir);
     }
+  } catch (e) {
+    // do nothing
   }
 }
 
-async function embed(tpl, dest, html, render) {
+async function embed(tpl, html, render) {
   const embedTasks = [];
   const comments = [];
   const data = {};
@@ -507,7 +508,7 @@ async function embed(tpl, dest, html, render) {
     embedTasks.push(async () => {
       const name = _url.split('#')[0].split('?')[0];
       const file = joinPath(TEMP_DIR, key);
-      const local = joinPath(dest, name.replace(base, '.'));
+      const local = joinPath(tpl.directory, name.replace(base, '.'));
       const resource = joinPath(tpl.options.cwd || dirname(tpl.filepath), name);
 
       let out = '';
@@ -550,7 +551,7 @@ async function embed(tpl, dest, html, render) {
       if (sub.includes('<script')) {
         data[key] = `<script>//<![CDATA[\n${out.toString().replace(/<\/script>/g, '<\\/script>')}\n//]]>`;
       } else if (sub.includes('<link')) {
-        out = await embed(tpl, dest, out.toString(), render);
+        out = await embed(tpl, out.toString(), render);
         data[key] = `<style>${out.replace(/\s+/g, ' ').trim()}</style>`;
       } else if (sub.includes('url(')) {
         const ext = _url.match(/\.(\w+)$(?=\?.*?|$)$/)[1];

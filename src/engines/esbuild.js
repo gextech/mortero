@@ -21,7 +21,7 @@ const {
   getExtensions,
 } = require('../support');
 
-const RE_MATCH_IMPORT = /(?<=(?:^|\b)import\s+[^;]*?\bfrom\s+)(["'])(@?[\w-].*?)\1/;
+const RE_MATCH_IMPORT = /(?<=(?:^|\b)import\s+(?:[^;]*?\bfrom\s+)?)(["'])(@?[\w-].*?)\1/;
 const memoized = {};
 
 const Mortero = (entry, external) => ({
@@ -61,7 +61,9 @@ const Mortero = (entry, external) => ({
 
       fixedModule = getModule(fixedModule) || getModule(args.path, [args.resolveDir].concat(paths));
 
-      if (!fixedModule && args.path.charAt() !== '.' && !external.some(x => args.path.includes(x))) {
+      const name = args.path.split('/')[0];
+
+      if (!fixedModule && name.charAt() !== '.' && !external.includes(name)) {
         fixedModule = await modules(args.path, entry, true);
       }
 
@@ -75,13 +77,11 @@ const Mortero = (entry, external) => ({
       if (!/\.(?:[jt]sx?|json)$/.test(path)) {
         let params = Source.get(path);
         if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
-          const dest = resolve(entry.options.dest, './build');
-
           if (!params || !params.instance || !params.input) {
             params = { instance: new Source(path, entry.options) };
           }
 
-          await params.instance.compile(dest);
+          await params.instance.compile();
           if (module.exports[params.instance.extension]) {
             params.instance.loader = params.instance.extension;
           }
@@ -126,17 +126,16 @@ async function rewrite(_module, { src, text, params }) {
       text = reExport(reImport(text)).replace(/await(\s+)import/g, '/* */$1require');
     }
   } else {
-    const destDir = typeof _module === 'string' ? _module : 'web_modules';
     const moduleTasks = [];
 
     text = text.replace(RE_MATCH_IMPORT, (_, qt, name) => {
-      if (params.data.$unpkg || params.options.unpkg) {
-        return `${qt}//unpkg.com/${name}?module${qt}`;
+      if (params.data.$online || params.options.online) {
+        return `${qt}//cdn.skypack.dev/${name}${qt}`;
       }
       if (params.options.write !== false) {
         moduleTasks.push(() => modules(name, params));
       } else {
-        moduleTasks.push(() => `${destDir}/${name}`);
+        moduleTasks.push(() => `web_modules/${name}`);
       }
       return `${qt}/*#!@@mod*/${qt}`;
     });

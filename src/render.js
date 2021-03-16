@@ -5,7 +5,6 @@ const {
   exists,
   dirname,
   resolve,
-  relative,
   joinPath,
   readFile,
 } = require('./common');
@@ -21,15 +20,7 @@ module.exports = function render(params, done) {
     return new Promise((next, reject) => {
       params.next = previous;
       try {
-        const _ctx = { render, parse, data };
-
-        params.locals = params.locals || {};
-        params.locals.self = params.locals.self || {};
-        params.locals.self.cwd = params.locals.self.cwd || resolve('.');
-        params.locals.self.parent = params.locals.self.parent || relative(params.filepath);
-        params.locals.self.filepath = params.locals.self.filepath || relative(params.filepath);
-
-        engine.call(_ctx, params, err => {
+        engine.call({ render, parse, data }, params, err => {
           if (err) reject(err);
           else next();
         });
@@ -58,11 +49,9 @@ module.exports = function render(params, done) {
   });
 
   // clean out special locals
+  delete params.locals.$remote;
   delete params.locals.$modules;
-  delete params.locals.$include;
-  delete params.locals.$nofiles;
   delete params.locals.$render;
-  delete params.locals.$unpkg;
   delete params.locals.$format;
   delete params.locals.$external;
 
@@ -97,10 +86,6 @@ module.exports = function render(params, done) {
 
         _params.locals = { ..._params.locals, ...params.locals };
         _params.locals.yield = params.source;
-        _params.locals.self = _params.locals.self || {};
-        _params.locals.self.cwd = _params.locals.self.cwd || resolve('.');
-        _params.locals.self.parent = _params.locals.self.parent || relative(params.filepath);
-        _params.locals.self.filepath = _params.locals.self.filepath || relative(_params.filepath);
 
         delete params.data.$render;
 

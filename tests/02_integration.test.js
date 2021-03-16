@@ -16,10 +16,10 @@ describe('CLI', () => {
   it('should build given sources', cli('a', '.', ({ stdout, stderr }) => {
     expect(stderr).to.eql('');
     expect(stdout).to.match(/from.*\.\/a/);
-    expect(stdout).to.contain('write build/lib/data.json');
-    expect(stdout).to.contain('write build/lib/module.js');
-    expect(stdout).to.contain('write build/main.js');
-    expect(stdout).to.contain('write build/test/example.js');
+    expect(stdout).to.contain('write build/a/lib/data.json');
+    expect(stdout).to.contain('write build/a/lib/module.js');
+    expect(stdout).to.contain('write build/a/main.js');
+    expect(stdout).to.contain('write build/a/test/example.js');
     expect(stdout).to.contain('done in');
     expect(stdout.split('\n').length).to.eql(8);
   }));

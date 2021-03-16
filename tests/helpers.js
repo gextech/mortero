@@ -20,7 +20,7 @@ const mortero = (filename, source, opts) => {
   }
 
   opts = opts || {};
-  opts.write = false;
+  if (typeof opts.write === 'undefined') opts.write = false;
   opts.force = true;
   opts.watch = true;
   opts.quiet = true;
@@ -48,7 +48,7 @@ const test = (args, cb, locals) => {
     args[offset] = args[offset] || {};
     args[offset].cwd = args[offset].cwd || path.join(__dirname, 'fixtures');
 
-    mortero(...args).render(locals, (err, result) => {
+    mortero(...args)(locals, (err, result) => {
       try {
         if (err && !result.failure) {
           result.failure = err;

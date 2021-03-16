@@ -5,6 +5,7 @@ const {
   puts,
   defer,
   raise,
+  resolve,
   lsFiles,
   isMarkup,
   basename,
@@ -18,6 +19,7 @@ const {
 const {
   embed,
   getHooks,
+  getEngines,
   getContext,
 } = require('./support');
 
@@ -28,49 +30,47 @@ class Source {
     this.locals = {};
     this.install = 0;
     this.worktime = 0;
-    this.extension = null;
-    this.destination = null;
 
     if (typeof input === 'string') {
       Object.assign(this, parse(src, input, opts));
     } else {
       Object.assign(this, parse(src, readFile(src), opts));
     }
+
+    this.directory = resolve(opts.dest, './build');
+    this.extension = (getEngines()[this.parts[0]] || [])[1] || this.parts[0];
+    this.destination = this.rename(joinPath(this.directory, `${this.slug}.${this.extension}`));
   }
 
-  compile(dest, locals, context) {
-    return this.render(dest, locals).then(() => {
+  compile(locals, context) {
+    return this.render(locals).then(() => {
       const compileTasks = isMarkup(this.filepath)
-        ? [getHooks(this, dest, context)]
+        ? [getHooks(this, context)]
         : [];
 
       if (this.extension === 'html' && this.options.embed !== false) {
-        compileTasks.push(() => embed(this, dest, this.source, async (src, parent) => {
+        compileTasks.push(() => embed(this, this.source, async (src, parent) => {
           if (!parent.children.includes(src)) {
             parent.children.push(src);
           }
 
-          return Source.compileFile(src, dest, locals, this.options);
+          return Source.compileFile(src, locals, this.options);
         }).then(html => {
           this.source = html;
         }));
       }
 
-      let destFile = this.destination || (dest && joinPath(dest, `${this.name}.${this.extension}`));
       return defer(compileTasks, () => {
-        if (destFile && this.source !== null && this.options.write !== false) {
-          destFile = writeFile(this.rename(destFile), this.source);
+        if (this.source !== null && this.options.write !== false) {
+          writeFile(this.destination, this.source);
         }
-        this.filename = relative(destFile, dest);
-        this.destination = destFile;
       });
     }).catch(e => {
       this.failure = e;
     }).then(() => this);
   }
 
-  render(dest, locals) {
-    this.directory = dest;
+  render(locals) {
     return Source.render(this, locals);
   }
 
@@ -130,11 +130,11 @@ class Source {
     }
   }
 
-  static compileFile(src, dest, locals, options) {
-    const context = Source[dest] || (Source[dest] = getContext(dest, options));
+  static compileFile(src, locals, options) {
     const now = Date.now();
+    const context = getContext(options);
 
-    return new Source(src, options).compile(dest, locals, context).then(tpl => {
+    return new Source(src, options).compile(locals, context).then(tpl => {
       tpl.worktime = (tpl.worktime || Date.now() - now) - tpl.install;
 
       if (tpl.failure) {

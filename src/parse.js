@@ -4,6 +4,7 @@ const data = require('./data');
 
 const {
   resolve,
+  relative,
   basename,
 } = require('./common');
 
@@ -24,8 +25,10 @@ module.exports = (filepath, source, opts) => {
   const start = source.indexOf(`${delims[0]}\n`);
   const end = source.indexOf(`${delims[1] || delims[0]}\n`, start + delims[0].length);
 
-  const name = parts.shift();
+  parts.shift();
+
   const exts = options.extensions || {};
+  const slug = relative(filepath.replace(/\.[.\w]+$/, ''));
   const hasMkd = parts.some(x => /mk?d|litcoffee/.test(x));
 
   if (parts.length === 1 && exts[parts[0]]) {
@@ -90,7 +93,7 @@ module.exports = (filepath, source, opts) => {
     options,
     source,
     parts,
-    name,
+    slug,
     data: obj || {},
     children: fm ? fm.src : [],
   };

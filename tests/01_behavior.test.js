@@ -1,10 +1,36 @@
 /* eslint-disable no-unused-expressions  */
 
+const fs = require('fs-extra');
 const td = require('testdouble');
 const { expect } = require('chai');
+const Source = require('../src/source');
 const { Mortero, test } = require('./helpers');
 
-/* global beforeEach, describe, it */
+/* global beforeEach, afterEach, describe, it */
+
+beforeEach(() => {
+  td.replace(fs, 'outputFileSync', td.func('write'));
+  td.replace(fs, 'copySync', td.func('copy'));
+});
+afterEach(() => {
+  td.reset();
+});
+
+describe('destination', () => {
+  it('should resolve the output file in a deterministic way', () => {
+    const tpl = new Source('src/x.pug', { write: false, quiet: true }, '');
+
+    expect(tpl.extension).to.eql('html');
+    expect(tpl.directory).to.eql(`${process.cwd()}/build`);
+    expect(tpl.destination).to.eql(`${process.cwd()}/build/src/x.html`);
+
+    const tpl2 = new Source('src/x.pug', { write: false, quiet: true, rename: x => x.replace('/src/', '/') }, '');
+
+    expect(tpl2.extension).to.eql('html');
+    expect(tpl2.directory).to.eql(`${process.cwd()}/build`);
+    expect(tpl2.destination).to.eql(`${process.cwd()}/build/x.html`);
+  });
+});
 
 describe('conditionals', () => {
   test(['should discard code within IF/ENDIF marks', 'x.y', '<!--IF_NOT x-->y<!--ENDIF-->', {
@@ -42,6 +68,7 @@ describe('extensions', () => {
 });
 
 describe('esbuild', () => {
+  // FIXME: modules, remote, and such...
   describe('platform', () => {
     test(['should apply options.platform as output', 'x.js', 'import "./a/test/example"', {
       platform: 'browser',
@@ -121,13 +148,13 @@ describe('esbuild', () => {
       target: 'es5',
       format: 'iife',
     }], result => {
-      expect(result.failure.message).to.contain('Transforming let to the configured target environment is not supported yet');
+      expect(result.failure.message).to.match(/Transforming let to the configured target environment.*is not supported yet/);
     });
 
     test(['should override options.target if $target is given', 'x.js', '/**\n---\n$target: es5\n---\n*/let x = 42; console.log(x)', {
       format: 'cjs',
     }], result => {
-      expect(result.failure.message).to.contain('Transforming let to the configured target environment is not supported yet');
+      expect(result.failure.message).to.match(/Transforming let to the configured target environment.*is not supported yet/);
     });
   });
 
@@ -165,6 +192,18 @@ describe('modules', () => {
     expect(result.source).to.contain('/web_modules/somedom');
   });
 
+  test(['should copy resolved modules into web_modules if enabled', 'x.js', `
+    import { render } from "somedom";
+    import { foo } from "./c/example";
+    console.log(render("x"), foo);
+  `, {
+    modules: true,
+    write: true,
+  }], () => {
+    expect(td.explain(fs.outputFileSync).callCount).to.eql(1);
+    expect(td.explain(fs.copySync).callCount).to.eql(7);
+  });
+
   test(['should override options.modules if $modules is given', 'x.js', `
     /**
     ---
@@ -177,17 +216,17 @@ describe('modules', () => {
     expect(result.source).to.contain('/web_modules/somedom');
   });
 
-  test(['should use unpkg.com if options.unpkg or $unpkg is also given', 'x.js', `
+  test(['should use skypack if options.online or $online is also given', 'x.js', `
     /**
     ---
     $modules: true
-    $unpkg: true
+    $online: true
     ---
     */
     import {render} from "somedom";
     console.log(render("x"))
   `], result => {
-    expect(result.source).to.contain('//unpkg.com/somedom');
+    expect(result.source).to.contain('skypack.dev/somedom');
   });
 });
 

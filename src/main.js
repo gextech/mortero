@@ -227,7 +227,7 @@ function watch(src, dest, flags, filter, callback) {
   });
 
   function enqueue(file, target) {
-    return debug(Source.compileFile(file, dest, null, flags)).then(tpl => {
+    return debug(Source.compileFile(file, null, flags)).then(tpl => {
       Source.set(file, {
         ...target,
         dirty: false,
@@ -350,7 +350,7 @@ function watch(src, dest, flags, filter, callback) {
 
     const watcher = chokidar.watch(sources, {
       ignored: /(^|[/\\])\../,
-      ignoreInitial: true,
+      ignoreInitial: false,
       persistent: true,
     });
 
@@ -374,9 +374,9 @@ function init(src, dest, flags, length) {
     if (length >= 0 && flags.progress === false) {
       puts('\r{%gray. %s file%s from %s%}\n', length, length === 1 ? '' : 's', dirs);
     } else if (length >= 0) {
-      puts(`\r{%yellow. from%} %s {%gray. (%s file%s)%}\n`, dirs, length, length === 1 ? '' : 's');
+      puts('\r{%yellow. from%} %s {%gray. (%s file%s)%}\n', dirs, length, length === 1 ? '' : 's');
     } else {
-      puts(`\r{%yellow. from%} %s\n`, dirs);
+      puts('\r{%yellow. from%} %s\n', dirs);
     }
   } else if (length >= 0) {
     puts('\r{%gray. processing %s file%s...%}', length, length === 1 ? '' : 's');
@@ -529,18 +529,14 @@ async function main({
         throw new Error(`Missing 'for' attribute, given ${inspect(props)}`);
       }
 
-      if (!tpl.options.tmp[tpl.filepath]) {
-        throw new Error(`Missing destination for '${relative(tpl.filepath)}'`);
-      }
-
-      const { self, ROOT } = tpl.locals;
+      const { ROOT } = tpl.locals;
       const base = props.for.split('#')[0].split('?')[0];
 
       props.href = props.for.indexOf('://') === -1 ? `${ROOT || ''}${props.for}` : props.for;
       props.target = props.target || props.external ? '_blank' : undefined;
 
+      const rel = relative(tpl.destination, tpl.directory);
       const attrs = ctx.attributes(props, ['for', 'text', 'external']);
-      const rel = relative(tpl.options.tmp[tpl.filepath].destination, tpl.directory);
       const url = `/${rel.includes('index.html') ? rel.replace(/\/?index\.html$/, '') : rel || ''}`;
 
       if (base === url) {
@@ -627,7 +623,7 @@ async function main({
 
     let status = '{%gray. without changes%}';
     await Promise.resolve().then(() => write(missed, dest, flags, loader(missed, dest, flags)))
-      .then(() => defer(srcFiles.map(x => () => debug(Source.compileFile(x, dest, null, flags)))))
+      .then(() => defer(srcFiles.map(x => () => debug(Source.compileFile(x, null, flags)))))
       .then(() => sync(flags) || (flags.exec && exec(dest, flags)))
       .then(() => {
         if (srcFiles.length || missed.length) {
@@ -644,8 +640,8 @@ async function main({
 
 module.exports = argv => {
   const options = wargs(argv, {
-    boolean: 'qwfdVSWEARO',
-    string: 'CeDbcyopPsaBriIFXLTNUH',
+    boolean: 'nqwfdVSWEAROM',
+    string: 'CeDbcyopPsaBriIFXLTNH',
     alias: {
       C: 'cwd',
       e: 'ext',
@@ -664,16 +660,17 @@ module.exports = argv => {
       d: 'debug',
       H: 'paths',
       B: 'bundle',
+      n: 'online',
+      M: 'modules',
+      N: 'external',
       r: 'rename',
       i: 'ignore',
       I: 'ignore-from',
       F: 'filter',
       X: 'exclude',
       L: 'plugins',
-      U: 'modules',
       T: 'timeout',
       V: 'verbose',
-      N: 'external',
       S: 'no-serve',
       W: 'no-write',
       E: 'no-embed',

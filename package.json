@@ -71,7 +71,6 @@
     "redent": "^3.0.0",
     "rewrite-exports": "^0.0.23",
     "rewrite-imports": "^2.0.3",
-    "somedom": "^0.3.1",
     "styl": "^0.2.9",
     "svelte": "^3.32.3",
     "testdouble": "^3.16.1",
@@ -80,7 +79,7 @@
   },
   "dependencies": {
     "chokidar": "^3.5.1",
-    "esbuild": "^0.9.2",
+    "esbuild": "^0.9.3",
     "live-server": "^1.2.1",
     "talavera": "^0.9.6"
   }
