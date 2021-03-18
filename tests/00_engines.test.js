@@ -47,7 +47,7 @@ describe('meta', () => {
 
 describe('markup', () => {
   describe('AsciiDoc', () => {
-    if (process.env.CI) {
+    if (process.env.CI === 'true') {
       test(['x.adoc', '= Hello world'], result => {
         expect(result.source).to.match(/<h1[<>]*?>Hello world<\/h1>/);
         expect(result.extension).to.eql('html');

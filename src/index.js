@@ -9,13 +9,15 @@ const {
   load,
   plugins,
   getModule,
+  getContext,
 } = require('./support');
 
 function wrap(file, opts, input) {
   return (data, cb = (e, out) => out) => {
+    const ctx = getContext(opts);
     const tpl = new Source(file, opts, input);
 
-    return tpl.compile(data).then(() => cb(undefined, tpl)).catch(e => cb(e, tpl));
+    return tpl.compile(data, ctx).then(() => cb(undefined, tpl)).catch(e => cb(e, tpl));
   };
 }
 

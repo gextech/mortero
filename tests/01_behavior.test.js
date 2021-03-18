@@ -68,7 +68,6 @@ describe('extensions', () => {
 });
 
 describe('esbuild', () => {
-  // FIXME: modules, remote, and such...
   describe('platform', () => {
     test(['should apply options.platform as output', 'x.js', 'import "./a/test/example"', {
       platform: 'browser',
@@ -180,9 +179,21 @@ describe('esbuild', () => {
 });
 
 describe('modules', () => {
-  if (process.env.CI) {
+  if (process.env.CI === 'true') {
     test(['should install missing dependencies', 'x.js', 'import {render} from "somedom";console.log(render("x"))'], result => {
       expect(result.source).to.contain('childNodes');
+    });
+
+    test(['should copy resolved modules into web_modules if enabled', 'x.js', `
+      import { render } from "somedom";
+      import { foo } from "./c/example";
+      console.log(render("x"), foo);
+    `, {
+      modules: true,
+      write: true,
+    }], () => {
+      expect(td.explain(fs.outputFileSync).callCount).to.eql(1);
+      expect(td.explain(fs.copySync).callCount).to.eql(7);
     });
   }
 
@@ -192,16 +203,31 @@ describe('modules', () => {
     expect(result.source).to.contain('/web_modules/somedom');
   });
 
-  test(['should copy resolved modules into web_modules if enabled', 'x.js', `
-    import { render } from "somedom";
-    import { foo } from "./c/example";
-    console.log(render("x"), foo);
-  `, {
-    modules: true,
-    write: true,
-  }], () => {
-    expect(td.explain(fs.outputFileSync).callCount).to.eql(1);
-    expect(td.explain(fs.copySync).callCount).to.eql(7);
+  test(['should allow to reference from generated scripts', 'x.js', 'import x from "./c/js24.png";console.log(x)', {
+    tmp: {
+      'c/js24.png': {
+        filename: 'js24.png',
+        destination: 'dist/c/js24.png',
+      },
+    },
+  }], result => {
+    expect(result.source).to.contain('= "../c/js24.png"');
+  });
+
+  test(['should allow to reference from generated styles', 'x.css', 'body{background:url("./c/js24.png")}', {
+    tmp: {
+      'c/js24.png': {
+        filename: 'js24.png',
+        destination: 'dist/c/js24.png',
+      },
+    },
+  }], result => {
+    expect(result.source).to.contain('("./c/js24.png")');
+  });
+
+  test(['should rewrite imports when bundling for cjs', 'x.js', 'import "./a/main"'], result => {
+    expect(result.source).to.contain('require(');
+    expect(result.source).not.to.contain('import(');
   });
 
   test(['should override options.modules if $modules is given', 'x.js', `

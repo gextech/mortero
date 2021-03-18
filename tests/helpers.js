@@ -20,11 +20,13 @@ const mortero = (filename, source, opts) => {
   }
 
   opts = opts || {};
+  opts.tmp = opts.tmp || {};
+  opts.root = opts.root || [];
   if (typeof opts.write === 'undefined') opts.write = false;
   opts.force = true;
   opts.watch = true;
   opts.quiet = true;
-  opts.install = process.env.NODE_ENV === 'test';
+  opts.install = process.env.CI === 'true';
   opts.progress = false;
 
   const test_file = fixture(filename);

@@ -22,7 +22,7 @@
     "html:report": "nyc report -r html",
     "ci:report": "nyc report -r lcov && npm run cover:up",
     "test:run": "NODE_ENV=test npm run mocha --",
-    "test:bin": "npm run build:fast && bin/cli tests/fixtures -qOfXtest -Xbuild && node build/a/main",
+    "test:bin": "npm run build:fast && bin/cli tests/fixtures -qOfXtest -Xbuild -Xcache.json -r '**:{filepath/2}' && node build/a/main",
     "test:ci": "npm run cover && npm run ci:report",
     "test": "npm run test:run --",
     "pretest": "npm run lint",

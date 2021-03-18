@@ -1,8 +1,17 @@
 const micromatch = require('micromatch');
 const os = require('os');
 
+const RE_SOURCES = /<link[^<>]*?href=(.*?)[^<>]*?>|<script[^<>]*?src=(.*?)[^<>]*?>|(?<=:\s*)url\(.*?\)/g;
 const RE_MACROS = /(?:#|<!--|\/[/*])\s*(IF(?:_?NOT|NDEF)?)\s+([\s\S]*?)(?:#|<!--|\/[/*])\s*ENDIF/;
+const RE_IMPORT = /(?:^|\b)(?:url\(|import\s+(?:([^;]*?)?\s*from\s+)?)(["']?)(.*?)\2/g;
+const RE_LINKS = /(?:(?:href|src)=(["'])(.*?)\1)|url\((["']?)(.*?)\3\)/;
+const RE_INLINE = /\sinline(?:=(["']?)(?:inline|true)\1)?(?:\b|$)/;
 const RE_GLOBAL = /\/\*+\s*global\s+([\s\S]+?)\s*\*+\//g;
+const RE_EXT = /\.(\w+)$(?=\?.*?|$)$/;
+
+const RE_IF = /^\s*(?:#|<!--|\/[/*])\s*IF(?:DEF)?/;
+const RE_END = /^\s*(?:#|<!--|\/[/*])\s*ENDIF/;
+const RE_VALUES = /\s*(?:#|<!--|\/[/*])\s*IF(_?NOT|NDEF)?\s+([a-zA-Z_]+)/;
 
 const TEMP_DIR = os.tmpdir();
 
@@ -152,20 +161,21 @@ function getContext(options) {
       destFile = joinPath(options.root[i], path);
       if (exists(destFile)) return { src: path };
     }
+
     if (exists(path)) {
       const entry = options.tmp[resolve(path)];
 
       if (entry && entry.destination) {
-        return { dest: relative(entry.destination, dest), entry };
+        return { dest: relative(entry.destination, dest) };
       }
-      return { path, entry };
+      return { path };
     }
 
     for (const k in options.tmp) { // eslint-disable-line
       const entry = options.tmp[k] || {};
 
-      if (typeof entry.filename === 'string' && entry.filename.includes(path)) {
-        return { dest: entry.filename };
+      if (typeof entry.filename === 'string' && path.includes(entry.filename)) {
+        return { dest: relative(entry.destination, dest) };
       }
 
       if (typeof entry.filepath === 'string' && relative(entry.filepath).includes(path)) {
@@ -490,10 +500,10 @@ async function embed(tpl, html, render) {
   const data = {};
 
   html = html.replace(/<!--[^]*?-->/g, match => comments.push(match) && '<!--!#@@-->');
-  html = html.replace(/<link[^<>]*?href=(.*?)[^<>]*?>|<script[^<>]*?src=(.*?)[^<>]*?>|url\s*\(.*?\)/g, sub => {
-    if (sub.charAt() === '<' && !/\sinline(?:=(["']?)(?:inline|true)\1)?(?:\b|$)/.test(sub)) return sub;
+  html = html.replace(RE_SOURCES, sub => {
+    if (sub.charAt() === '<' && !RE_INLINE.test(sub)) return sub;
 
-    const src = sub.match(/(?:(?:href|src)=(["'])(.*?)\1)|url\((["']?)(.*?)\3\)/);
+    const src = sub.match(RE_LINKS);
     const base = tpl.options.base || `http://localhost:${process.env.PORT || 8080}`;
 
     let _url = src[2] || src[4];
@@ -554,7 +564,7 @@ async function embed(tpl, html, render) {
         out = await embed(tpl, out.toString(), render);
         data[key] = `<style>${out.replace(/\s+/g, ' ').trim()}</style>`;
       } else if (sub.includes('url(')) {
-        const ext = _url.match(/\.(\w+)$(?=\?.*?|$)$/)[1];
+        const ext = _url.match(RE_EXT)[1];
 
         let type = `image/${ext}`;
         if (ext === 'ttf') {
@@ -697,23 +707,19 @@ function globals(source, vars) {
 }
 
 function replaceMacro(text, _globals) {
-  const ifRegex = /^\s*(?:#|<!--|\/[/*])\s*IF(?:DEF)?/;
-  const endRegex = /^\s*(?:#|<!--|\/[/*])\s*ENDIF/;
-  const getValuesRegex = /\s*(?:#|<!--|\/[/*])\s*IF(_?NOT|NDEF)?\s+([a-zA-Z_]+)/;
-
   const lines = text.replace(/>(?!\n)/g, '>\n').replace(/(?!\n)</g, '\n<').split('\n');
 
   let startFound = 0;
   let endFound = 0;
   for (let i = 0; i <= lines.length; i += 1) {
-    if (ifRegex.test(lines[i])) startFound = i;
-    if (endRegex.test(lines[i])) {
+    if (RE_IF.test(lines[i])) startFound = i;
+    if (RE_END.test(lines[i])) {
       endFound = i;
       break;
     }
   }
 
-  const startMatch = getValuesRegex.exec(lines[startFound]);
+  const startMatch = RE_VALUES.exec(lines[startFound]);
   const flag = _globals[startMatch[2]] === 'true' || _globals[startMatch[2]] === true;
   const keepBlock = startMatch[1] ? !flag : flag;
 
@@ -733,6 +739,7 @@ function conditionals(text, _globals) {
 }
 
 module.exports = {
+  RE_IMPORT,
   getExtensions,
   getEngines,
   getHooks,

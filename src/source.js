@@ -1,3 +1,6 @@
+const reImport = require('rewrite-imports');
+const reExport = require('rewrite-exports');
+
 const render = require('./render');
 const parse = require('./parse');
 
@@ -5,22 +8,23 @@ const {
   puts,
   defer,
   raise,
+  dirname,
   resolve,
   lsFiles,
   isMarkup,
-  basename,
   relative,
   joinPath,
   readFile,
   writeFile,
-  EXTENSIONS,
 } = require('./common');
 
 const {
   embed,
+  modules,
   getHooks,
   getEngines,
   getContext,
+  RE_IMPORT,
 } = require('./support');
 
 let cache;
@@ -58,6 +62,13 @@ class Source {
         }).then(html => {
           this.source = html;
         }));
+      }
+
+      if (this.extension === 'js' || this.extension === 'css') {
+        compileTasks.push(() => Source.rewrite(this, this.source)
+          .then(_result => {
+            this.source = _result;
+          }));
       }
 
       return defer(compileTasks, () => {
@@ -115,19 +126,55 @@ class Source {
     });
   }
 
+  static rewrite(tpl, text) {
+    const moduleTasks = [];
+
+    if (tpl.extension === 'js' && !tpl.isModule && tpl.isBundle) {
+      const test = typeof tpl.data.$rewrite !== 'undefined' ? tpl.data.$rewrite : tpl.options.rewrite;
+
+      if (test !== false) {
+        text = reExport(reImport(text)).replace(/await(\s+)import/g, '/* */$1require');
+      }
+    }
+
+    if (tpl.isModule || tpl.isBundle) {
+      text = text.replace(RE_IMPORT, (_, k, qt, mod) => {
+        if (_.indexOf('url(') === 0) {
+          return `url(${qt}#!@@locate<${mod}>${qt}`;
+        }
+
+        if ('./'.includes(mod.charAt())) {
+          if (!k || k.includes('{')) return _;
+          return `var ${k} = ${qt}#!@@locate<${mod}>${qt}`;
+        }
+
+        if (tpl.data.$online || tpl.options.online) {
+          return `import ${k} from ${qt}//cdn.skypack.dev/${mod}${qt}`;
+        }
+
+        if (tpl.options.write !== false) {
+          moduleTasks.push(() => modules(mod, tpl));
+        } else {
+          moduleTasks.push(() => `web_modules/${mod}`);
+        }
+        return `import ${k} from ${qt}/*#!@@mod*/${qt}`;
+      });
+
+      text = text.replace(/#!@@locate<(.+?)>/g, (_, src) => {
+        return relative(tpl.rename(joinPath(dirname(tpl.filepath), src)), tpl.directory);
+      });
+    }
+
+    return defer(moduleTasks, resolved => {
+      return text.replace(/\/\*#!@@mod\*\//g, () => `/${resolved.shift()}`);
+    });
+  }
+
   static listFiles(cwd) {
     if (Array.isArray(cwd)) {
       return cwd.reduce((prev, cur) => prev.concat(Source.listFiles(cur)), []);
     }
     return lsFiles('**/*.*', { cwd }).map(file => joinPath(cwd, file));
-  }
-
-  static isSupported(src) {
-    const parts = basename(src).split('.');
-
-    for (let i = 1; i < parts.length; i += 1) {
-      if (EXTENSIONS.includes(parts[i])) return true;
-    }
   }
 
   static compileFile(src, locals, options) {

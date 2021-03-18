@@ -1,13 +1,9 @@
-const reImport = require('rewrite-imports');
-const reExport = require('rewrite-exports');
-
 const Source = require('../source');
 
 const {
   expr,
   keys,
   array,
-  defer,
   fetch,
   resolve,
   dirname,
@@ -19,9 +15,9 @@ const {
   modules,
   getModule,
   getExtensions,
+  isSupported,
 } = require('../support');
 
-const RE_MATCH_IMPORT = /(?<=(?:^|\b)import\s+(?:[^;]*?\bfrom\s+)?)(["'])(@?[\w-].*?)\1/;
 const memoized = {};
 
 const Mortero = (entry, external) => ({
@@ -71,6 +67,10 @@ const Mortero = (entry, external) => ({
         memoized[args.resolveDir + args.path] = fixedModule;
         return { path: fixedModule };
       }
+
+      if (name.charAt() === '.' && !isSupported(args.path)) {
+        return { path: args.path, namespace: 'resource' };
+      }
     });
 
     build.onLoad({ filter: getExtensions(true) }, async ({ path }) => {
@@ -104,6 +104,10 @@ const Mortero = (entry, external) => ({
       }
     });
 
+    build.onLoad({ filter: /.*/, namespace: 'resource' }, args => ({
+      contents: `export default "#!@@locate<${args.path}>"`,
+    }));
+
     build.onResolve({ filter: /^https?:\/\// }, args => ({
       path: args.path,
       namespace: 'http-url',
@@ -117,35 +121,6 @@ const Mortero = (entry, external) => ({
     build.onLoad({ filter: /.*/, namespace: 'http-url' }, async args => ({ contents: await fetch(args.path) }));
   },
 });
-
-async function rewrite(_module, { src, text, params }) {
-  if (!_module) {
-    const test = typeof params.data.$rewrite !== 'undefined' ? params.data.$rewrite : params.options.rewrite;
-
-    if (test !== false && src.includes('.js')) {
-      text = reExport(reImport(text)).replace(/await(\s+)import/g, '/* */$1require');
-    }
-  } else {
-    const moduleTasks = [];
-
-    text = text.replace(RE_MATCH_IMPORT, (_, qt, name) => {
-      if (params.data.$online || params.options.online) {
-        return `${qt}//cdn.skypack.dev/${name}${qt}`;
-      }
-      if (params.options.write !== false) {
-        moduleTasks.push(() => modules(name, params));
-      } else {
-        moduleTasks.push(() => `web_modules/${name}`);
-      }
-      return `${qt}/*#!@@mod*/${qt}`;
-    });
-
-    await defer(moduleTasks, resolved => {
-      text = text.replace(/\/\*#!@@mod\*\//g, () => `/${resolved.shift()}`);
-    });
-  }
-  return text;
-}
 
 function esbuild(params, next, ext) {
   const external = array(params.data.$external, params.options.external);
@@ -164,8 +139,10 @@ function esbuild(params, next, ext) {
     ? bundle(relative(params.filepath))
     : bundle;
 
+  params.isModule = _module;
+  params.isBundle = !_module || _bundle;
+
   require('esbuild').build({
-    external,
     resolveExtensions: getExtensions(),
     target: !esnext ? target || 'node10.23' : undefined,
     outdir: esnext ? params.directory : undefined,
@@ -176,8 +153,8 @@ function esbuild(params, next, ext) {
       return memo;
     }, {}),
     logLevel: (params.options.quiet && 'silent') || undefined,
-    splitting: esnext || undefined,
     sourcemap: debug ? 'inline' : undefined,
+    splitting: esnext || undefined,
     platform: platform || 'node',
     format: format || 'esm',
     stdin: {
@@ -188,7 +165,8 @@ function esbuild(params, next, ext) {
     },
     color: true,
     write: false,
-    bundle: !_module || _bundle,
+    bundle: params.isBundle,
+    external: params.isBundle ? external : undefined,
     plugins: [Mortero(params, external)],
   }).then(result => {
     const rewriteTasks = [];
@@ -198,15 +176,14 @@ function esbuild(params, next, ext) {
         const { path, text } = result.outputFiles[i];
 
         if (params.options.write !== false) {
-          rewriteTasks.push([path, rewrite(_module, { src: path, params, text })]);
+          rewriteTasks.push([path, Source.rewrite(params, text)]);
         }
       }
     }
 
     return Promise.all(rewriteTasks.map(([path, deferred]) => deferred.then(_result => writeFile(path, _result))))
-      .then(() => rewrite(_module, { src: params.filepath, text: result.outputFiles[0].text, params }))
-      .then(_result => {
-        params.source = _result;
+      .then(() => {
+        params.source = result.outputFiles[0].text;
         next();
       });
   }).catch(next);

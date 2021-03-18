@@ -1,8 +1,9 @@
 test: deps
-	@rm -rf node_modules/somedom && CI=1 npm test
+	@npm test
 
 ci: deps
-	@npm test && npm run test:bin
+	@rm -rf node_modules/somedom
+	@CI=true npm test && npm run test:bin
 
 dev: deps
 	@npm run build:fast -- --watch & npm run dev
