@@ -584,7 +584,7 @@ async function main({
         }
 
         const server = liveserver.start(opts).on('error', () => {
-          raise('\r{%red.cannot start live-server%}\n');
+          raise('\r{%red. cannot start live-server%}\n');
           process.exit(1);
         }).on('listening', () => {
           const { address, port } = server.address();
