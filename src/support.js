@@ -256,6 +256,23 @@ function configure(flags, pkg) {
     }
   }
 
+  Object.keys(flags).forEach(key => {
+    if (key.includes('.')) {
+      const value = JSON.parse(flags[key]);
+      const keys = key.split('.');
+
+      delete flags[key];
+
+      let obj = flags;
+      while (keys.length > 1) {
+        const prop = keys.shift();
+
+        obj = obj[prop] || (obj[prop] = {});
+      }
+      obj[keys.shift()] = value;
+    }
+  });
+
   const fixedExtensions = array(flags.ext).reduce((memo, cur) => {
     const parts = cur.replace(/^\./, '').split('.');
 
