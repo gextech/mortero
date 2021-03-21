@@ -53,7 +53,7 @@ function markdown(params, next) {
               className = 'hljs';
               end(null, !lang
                 ? require(hi).highlightAuto(code).value
-                : require(hi).highlight(lang, code).value);
+                : require(hi).highlight(code, { language: lang }).value);
               break;
 
             default:
