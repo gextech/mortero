@@ -1,6 +1,13 @@
 const micromatch = require('micromatch');
 const os = require('os');
 
+const RE_COMMENTS_PATTERN = /\/\*.*?\*\//g;
+const RE_TAG_SELECTOR_PATTERN = /<([a-zA-Z][^]*?)>/g;
+const RE_ALL_SELECTORS_PATTERN = /(?:^|\})?\s*([^{}]+)\s*[,{](?![{])/g;
+const RE_EXCLUDED_PATTERNS = /^\s*(?:@media|@keyframes|to|from|@font-face|\d+%)/;
+const RE_SINGLE_SELECTOR = /((?:(?:\[[^\]+]\])|(?:[^\s+>~:]))+)((?:::?[^\s+>~(:]+(?:\([^)]+\))?)*\s*[\s+>~]?)\s*/g;
+const RE_MATCH_SCOPE = /\sscope=(["']?)(.+?)\1/;
+
 const RE_SOURCES = /<link[^<>]*?href=(.*?)[^<>]*?>|<script[^<>]*?src=(.*?)[^<>]*?>|(?<=:\s*)url\(.*?\)/g;
 const RE_MACROS = /(?:#|<!--|\/[/*])\s*(IF(?:_?NOT|NDEF)?)\s+([\s\S]*?)(?:#|<!--|\/[/*])\s*ENDIF/;
 const RE_IMPORT = /(?:^|\b)(?:url\(|import\s+(?:([^;]*?)?\s*from\s+)?)(["']?)(.*?)\2/g;
@@ -148,6 +155,33 @@ function attributes(props, omit) {
     }
     return prev;
   }, '');
+}
+
+function stylesheet(ref, styles) {
+  return styles.replace(RE_COMMENTS_PATTERN, '')
+    .replace(RE_ALL_SELECTORS_PATTERN, (_, $1) => {
+      if (RE_EXCLUDED_PATTERNS.test($1)) {
+        return _;
+      }
+
+      const selectors = $1.split(',').map(s => s.trim());
+      const scoped = selectors.map(s => {
+        const matches = [];
+
+        let match;
+        while (match = RE_SINGLE_SELECTOR.exec(s)) { // eslint-disable-line
+          matches.push([match[0], `${ref} ${match[1]}${match[2]} `]);
+        }
+
+        matches.forEach(m => {
+          s = s.replace(m[0], m[1]);
+        });
+
+        return s;
+      });
+
+      return _.replace($1, scoped.join(', ')).replace(/\s,/g, ',');
+    });
 }
 
 function getContext(options) {
@@ -579,6 +613,13 @@ async function embed(tpl, html, render) {
         data[key] = `<script>//<![CDATA[\n${out.toString().replace(/<\/script>/g, '<\\/script>')}\n//]]>`;
       } else if (sub.includes('<link')) {
         out = await embed(tpl, out.toString(), render);
+
+        const matches = sub.match(RE_MATCH_SCOPE);
+
+        if (matches) {
+          out = stylesheet(matches[2], out);
+        }
+
         data[key] = `<style>${out.replace(/\s+/g, ' ').trim()}</style>`;
       } else if (sub.includes('url(')) {
         const ext = _url.match(RE_EXT)[1];
