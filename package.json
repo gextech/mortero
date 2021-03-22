@@ -82,6 +82,6 @@
     "chokidar": "^3.5.1",
     "esbuild": "^0.9.3",
     "live-server": "^1.2.1",
-    "talavera": "^0.9.6"
+    "talavera": "^0.9.7"
   }
 }
