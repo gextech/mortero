@@ -2,7 +2,6 @@ const micromatch = require('micromatch');
 const os = require('os');
 
 const RE_COMMENTS_PATTERN = /\/\*.*?\*\//g;
-const RE_TAG_SELECTOR_PATTERN = /<([a-zA-Z][^]*?)>/g;
 const RE_ALL_SELECTORS_PATTERN = /(?:^|\})?\s*([^{}]+)\s*[,{](?![{])/g;
 const RE_EXCLUDED_PATTERNS = /^\s*(?:@media|@keyframes|to|from|@font-face|\d+%)/;
 const RE_SINGLE_SELECTOR = /((?:(?:\[[^\]+]\])|(?:[^\s+>~:]))+)((?:::?[^\s+>~(:]+(?:\([^)]+\))?)*\s*[\s+>~]?)\s*/g;
@@ -23,6 +22,7 @@ const RE_VALUES = /\s*(?:#|<!--|\/[/*])\s*IF(_?NOT|NDEF)?\s+([a-zA-Z_]+)/;
 const TEMP_DIR = os.tmpdir();
 
 const {
+  set,
   npm,
   puts,
   warn,
@@ -291,20 +291,7 @@ function configure(flags, pkg) {
   }
 
   Object.keys(flags).forEach(key => {
-    if (key.includes('.')) {
-      const value = JSON.parse(flags[key]);
-      const keys = key.split('.');
-
-      delete flags[key];
-
-      let obj = flags;
-      while (keys.length > 1) {
-        const prop = keys.shift();
-
-        obj = obj[prop] || (obj[prop] = {});
-      }
-      obj[keys.shift()] = value;
-    }
+    if (key.includes('.')) set(flags, key);
   });
 
   const fixedExtensions = array(flags.ext).reduce((memo, cur) => {
@@ -662,7 +649,7 @@ function rename(dest, filter) {
   };
 }
 
-function load(set, dest, flags = {}, cache = {}) {
+function load(all, dest, flags = {}, cache = {}) {
   const cwd = resolve('.');
   const hooks = getHooks();
   const engines = getEngines();
@@ -686,7 +673,7 @@ function load(set, dest, flags = {}, cache = {}) {
     Object.assign(hooks, supported);
   }
 
-  set.reduce((prev, cur) => prev.concat(cur || []), [])
+  all.reduce((prev, cur) => prev.concat(cur || []), [])
     .filter(Boolean)
     .forEach(cb => {
       if (!cb || typeof cb !== 'object') {

@@ -38,6 +38,21 @@ function npm(cmd, opts = {}) {
   });
 }
 
+function set(target, key) {
+  const value = JSON.parse(target[key]);
+  const _keys = key.split('.');
+
+  delete target[key];
+
+  let obj = target;
+  while (_keys.length > 1) {
+    const prop = _keys.shift();
+
+    obj = obj[prop] || (obj[prop] = {});
+  }
+  obj[_keys.shift()] = value;
+}
+
 function expr(value) {
   if (/^-?\d+(?:\.\d+)?$/.test(value)) return value;
   if (value === 'false') return false;
@@ -211,6 +226,7 @@ function isMarkup(src) {
 
 module.exports = {
   ms,
+  set,
   npm,
   size,
   expr,
