@@ -539,7 +539,11 @@ async function main({
       const attrs = ctx.attributes(props, ['for', 'text', 'external']);
       const url = `/${rel.includes('index.html') ? rel.replace(/\/?index\.html$/, '') : rel || ''}`;
 
-      if (base === url) {
+      let matches = props.exact && base === url;
+      if (!props.exact) {
+        matches = url.indexOf(base) === 0 && (base === url || url.charAt(base.length) === '/');
+      }
+      if (matches) {
         return `<a aria-current="page"${attrs}>${content || props.text}</a>`;
       }
       return `<a${attrs}>${content || props.text}</a>`;
