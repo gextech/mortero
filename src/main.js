@@ -1,4 +1,5 @@
 const { spawn } = require('child_process');
+const { highlight } = require('highlight.js');
 const liveserver = require('live-server');
 const chokidar = require('chokidar');
 const wargs = require('wargs');
@@ -25,6 +26,7 @@ const {
   exists,
   unlink,
   lsFiles,
+  extname,
   inspect,
   resolve,
   dirname,
@@ -496,6 +498,20 @@ async function main({
   });
 
   Object.assign(getHooks(), {
+    source: ({ ctx, props }) => {
+      if (props.src) {
+        return `<source ${ctx.attributes(props)}>`;
+      }
+
+      if (!props.path) {
+        throw new Error(`Missing 'path' attribute, given ${inspect(props)}`);
+      }
+
+      const lang = extname(props.path).substr(1);
+      const code = highlight(readFile(props.path), { language: lang }).value;
+
+      return `<pre class="hljs"><code class="lang-${lang}">${code}</code></pre>`;
+    },
     import: ({ tpl, props }, ctx) => {
       if (!props.from) {
         throw new Error(`Missing 'from' attribute, given ${inspect(props)}`);
