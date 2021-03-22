@@ -552,6 +552,7 @@ async function main({
       if (flags.serve !== false) {
         const dirs = array(flags.serve);
         const opts = {
+          port: flags.port || undefined,
           root: dest,
           open: false,
           logLevel: 0,
