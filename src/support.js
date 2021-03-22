@@ -87,6 +87,7 @@ function getHooks(tpl, context) {
           .replace(/,?\s*(\w+)[=:]/g, ',"$1":')
           .replace(/^,/, '')
           .replace(/\{\s*,/, '{')
+          .replace(/&quot;/g, '"')
           .replace(/"@@str"/g, () => backup.shift());
 
         try {
