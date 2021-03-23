@@ -116,6 +116,9 @@ function exec(dest, flags) {
 }
 
 function svg(source, props, ctx) {
+  if (source === false) {
+    return `<pre>File not found: ${props.src || props.from}</pre>`;
+  }
   return source.replace('<svg', `<svg${ctx.attributes(props, ['src', 'from', 'inline'])}`);
 }
 
@@ -507,8 +510,14 @@ async function main({
         throw new Error(`Missing 'path' attribute, given ${inspect(props)}`);
       }
 
+      const buffer = readFile(props.path);
+
+      if (buffer === false) {
+        return `<pre>File not found: ${props.path}</pre>`;
+      }
+
       const lang = extname(props.path).substr(1);
-      const code = highlight(readFile(props.path), { language: lang }).value;
+      const code = highlight(buffer, { language: lang }).value;
 
       return `<pre class="hljs"><code class="lang-${lang}">${code}</code></pre>`;
     },
