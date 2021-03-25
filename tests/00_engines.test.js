@@ -113,7 +113,7 @@ describe('scripts', () => {
   });
 
   describe('TypeScript', () => {
-    test(['x.ts', 'let foo = (x: string) => {}; console.log(foo)'], result => {
+    test(['x.bundle.ts', 'let foo = (x: string) => {}; console.log(foo)'], result => {
       expect(result.source).to.contain('var foo');
       expect(result.source).to.contain('(x)');
     });

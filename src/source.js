@@ -64,7 +64,7 @@ class Source {
         }));
       }
 
-      if (this.extension === 'js' || this.extension === 'css') {
+      if (this.extension === 'css') {
         compileTasks.push(() => Source.rewrite(this, this.source)
           .then(_result => {
             this.source = _result;
@@ -129,15 +129,13 @@ class Source {
   static rewrite(tpl, text) {
     const moduleTasks = [];
 
-    if (tpl.extension === 'js' && !tpl.isModule && tpl.isBundle) {
+    if (tpl.extension === 'js' && !tpl.isBundle && !tpl.isModule) {
       const test = typeof tpl.data.$rewrite !== 'undefined' ? tpl.data.$rewrite : tpl.options.rewrite;
 
       if (test !== false) {
         text = reExport(reImport(text)).replace(/await(\s+)import/g, '/* */$1require');
       }
-    }
-
-    if (tpl.isModule || tpl.isBundle) {
+    } else {
       text = text.replace(RE_IMPORT, (_, k, qt, mod) => {
         if (_.indexOf('url(') === 0) {
           return `url(${qt}#!@@locate<${mod}>${qt}`;

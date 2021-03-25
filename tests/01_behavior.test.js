@@ -69,17 +69,17 @@ describe('extensions', () => {
 
 describe('esbuild', () => {
   describe('platform', () => {
-    test(['should apply options.platform as output', 'x.js', 'import "./a/test/example"', {
+    test(['should apply options.platform as output', 'x.bundle.js', 'import "./a/test/example"', {
       platform: 'browser',
     }], result => {
       expect(result.source).to.contain('{osom: 42}');
     });
 
-    test(['should set node as default options.platform', 'x.js', 'import "./a/test/example"'], result => {
+    test(['should set node as default options.platform', 'x.bundle.js', 'import "./a/test/example"'], result => {
       expect(result.source).to.contain('RE_EXPORT');
     });
 
-    test(['should override options.platform if $platform is given', 'x.js', `
+    test(['should override options.platform if $platform is given', 'x.bundle.js', `
       /**
       ---
       $platform: browser
@@ -170,7 +170,7 @@ describe('esbuild', () => {
   });
 
   describe('cwd', () => {
-    test(['should apply options.cwd as input', 'x.js', 'import "./fixtures/a/test/example"', {
+    test(['should apply options.cwd as input', 'x.bundle.js', 'import "./fixtures/a/test/example"', {
       cwd: __dirname,
     }], result => {
       expect(result.source).to.contain('RE_EXPORT');
@@ -203,7 +203,7 @@ describe('modules', () => {
     expect(result.source).to.contain('/web_modules/somedom');
   });
 
-  test(['should allow to reference from generated scripts', 'x.js', 'import x from "./c/js24.png";console.log(x)', {
+  test(['should allow to reference from generated scripts', 'x.bundle.js', 'import x from "./c/js24.png";console.log(x)', {
     tmp: {
       'c/js24.png': {
         filename: 'js24.png',
@@ -222,7 +222,7 @@ describe('modules', () => {
       },
     },
   }], result => {
-    expect(result.source).to.contain('("./c/js24.png")');
+    expect(result.source).to.contain('("../c/js24.png")');
   });
 
   test(['should rewrite imports when bundling for cjs', 'x.js', 'import "./a/main"'], result => {
@@ -257,7 +257,7 @@ describe('modules', () => {
 });
 
 describe('aliases', () => {
-  test(['should translate from given options.aliases', 'x.js', 'import x from "foo"; console.log(x)', {
+  test(['should translate from given options.aliases', 'x.bundle.js', 'import x from "foo"; console.log(x)', {
     aliases: { foo: './dummy' },
   }], result => {
     expect(result.source).to.contain('{osom: 42}');
@@ -265,7 +265,7 @@ describe('aliases', () => {
 });
 
 describe('paths', () => {
-  test(['should resolve modules from given options.paths', 'x.js', 'import x from "foo"; console.log(x)', {
+  test(['should resolve modules from given options.paths', 'x.bundle.js', 'import x from "foo"; console.log(x)', {
     aliases: { foo: 'example' },
     paths: ['tests/fixtures/c'],
   }], result => {

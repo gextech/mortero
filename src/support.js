@@ -252,6 +252,8 @@ function filters(any, filter) {
     : x));
 
   return filepath => {
+    if (!filter.length) return false;
+
     let length = filter.length - 1;
     let res = false;
     let pass = 0;

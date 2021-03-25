@@ -140,7 +140,7 @@ function esbuild(params, next, ext) {
     : bundle;
 
   params.isModule = _module;
-  params.isBundle = !_module || _bundle;
+  params.isBundle = !_module && _bundle;
 
   require('esbuild').build({
     resolveExtensions: getExtensions(),
@@ -182,8 +182,9 @@ function esbuild(params, next, ext) {
     }
 
     return Promise.all(rewriteTasks.map(([path, deferred]) => deferred.then(_result => writeFile(path, _result))))
-      .then(() => {
-        params.source = result.outputFiles[0].text;
+      .then(() => Source.rewrite(params, result.outputFiles[0].text))
+      .then(result => {
+        params.source = result;
         next();
       });
   }).catch(next);
