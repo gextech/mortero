@@ -153,7 +153,7 @@ function esbuild(params, next, ext) {
       return memo;
     }, {}),
     logLevel: (params.options.quiet && 'silent') || undefined,
-    sourcemap: debug ? 'inline' : undefined,
+    sourcemap: debug ? 'external' : undefined,
     splitting: esnext || undefined,
     platform: platform || 'node',
     format: format || 'esm',
@@ -171,18 +171,18 @@ function esbuild(params, next, ext) {
   }).then(result => {
     const rewriteTasks = [];
 
-    if (result.outputFiles.length > 1) {
-      for (let i = 1; i < result.outputFiles.length; i += 1) {
-        const { path, text } = result.outputFiles[i];
+    for (let i = 0; i < result.outputFiles.length; i += 1) {
+      const { path, text } = result.outputFiles[i];
 
-        if (params.options.write !== false) {
-          rewriteTasks.push([path, Source.rewrite(params, text)]);
-        }
+      if (path === params.destination) {
+        params.source = text;
+      } else if (params.options.write !== false) {
+        rewriteTasks.push([path, Source.rewrite(params, text)]);
       }
     }
 
     return Promise.all(rewriteTasks.map(([path, deferred]) => deferred.then(_result => writeFile(path, _result))))
-      .then(() => Source.rewrite(params, result.outputFiles[0].text))
+      .then(() => Source.rewrite(params, params.source))
       .then(result => {
         params.source = result;
         next();
