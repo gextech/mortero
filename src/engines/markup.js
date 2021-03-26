@@ -56,6 +56,14 @@ function markdown(params, next) {
                 : require(hi).highlight(code, { language: lang }).value);
               break;
 
+            case 'shiki':
+              require(hi).getHighlighter({
+                ...params.options.shiki,
+              }).then(highlighter => {
+                end(null, highlighter.codeToHtml(code, lang));
+              });
+              break;
+
             default:
               end(new Error(`Unsupported highlighter: ${hi}`));
           }
