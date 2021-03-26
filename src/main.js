@@ -244,11 +244,11 @@ function watch(src, dest, flags, filter, callback) {
   }
 
   function rebuild(files) {
-    Source.forEach(({ instance }, file) => {
+    Source.forEach(({ instance }) => {
       if (!(instance && instance.children)) return;
       for (let i = 0; i < instance.children.length; i += 1) {
         if (files.includes(instance.children[i])) {
-          change(instance.filepath);
+          change(instance.filepath); // eslint-disable-line
           break;
         }
       }
@@ -259,7 +259,7 @@ function watch(src, dest, flags, filter, callback) {
     for (let i = 0; i < deps.length; i += 1) {
       if (target.children.includes(deps[i])) {
         Source.set(target.filepath, { dirty: true });
-        change(deps[i], true);
+        change(deps[i], true); // eslint-disable-line
         return true;
       }
     }

@@ -8,7 +8,6 @@ const {
   resolve,
   dirname,
   relative,
-  writeFile,
 } = require('../common');
 
 const {
@@ -145,7 +144,6 @@ function esbuild(params, next, ext) {
   require('esbuild').build({
     resolveExtensions: getExtensions(),
     target: !esnext ? target || 'node10.23' : undefined,
-    outdir: esnext ? params.directory : undefined,
     define: keys(params.options.globals).reduce((memo, k) => {
       if (typeof params.options.globals[k] !== 'object') {
         memo[`process.env.${k}`] = expr(params.options.globals[k]);
@@ -153,8 +151,7 @@ function esbuild(params, next, ext) {
       return memo;
     }, {}),
     logLevel: (params.options.quiet && 'silent') || undefined,
-    sourcemap: debug ? 'external' : undefined,
-    splitting: esnext || undefined,
+    sourcemap: debug ? 'inline' : undefined,
     platform: platform || 'node',
     format: format || 'esm',
     stdin: {
@@ -169,22 +166,10 @@ function esbuild(params, next, ext) {
     external: params.isBundle ? external : undefined,
     plugins: [Mortero(params, external)],
   }).then(result => {
-    const rewriteTasks = [];
-
-    for (let i = 0; i < result.outputFiles.length; i += 1) {
-      const { path, text } = result.outputFiles[i];
-
-      if (path === params.destination) {
-        params.source = text;
-      } else if (params.options.write !== false) {
-        rewriteTasks.push([path, Source.rewrite(params, text)]);
-      }
-    }
-
-    return Promise.all(rewriteTasks.map(([path, deferred]) => deferred.then(_result => writeFile(path, _result))))
-      .then(() => Source.rewrite(params, params.source))
-      .then(result => {
-        params.source = result;
+    return Promise.resolve()
+      .then(() => Source.rewrite(params, result.outputFiles[0].text))
+      .then(output => {
+        params.source = output;
         next();
       });
   }).catch(next);
