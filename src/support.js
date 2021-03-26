@@ -65,7 +65,7 @@ function getEngines() {
   return require('./engines');
 }
 
-function getHooks(tpl, context) {
+function getHooks(tpl, ctx) {
   const _keys = Object.keys(COMPONENTS._);
 
   if (_keys.length !== COMPONENTS.length) {
@@ -94,7 +94,7 @@ function getHooks(tpl, context) {
           const props = JSON.parse(tmp.charAt() !== '{' ? `{${tmp}}` : tmp);
 
           matches = matches || tag === 'image';
-          return COMPONENTS._[tag]({ tpl, props, content }, context);
+          return COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, locate: ctx.locate.bind(null, tpl) });
         } catch (_e) {
           warn('\r{%yellow. %s%} Unable to parse `%s`\n%s\n', tag || _, attrs, _e.message);
           return _;
@@ -188,34 +188,43 @@ function stylesheet(ref, styles) {
 function getContext(options) {
   const dest = resolve(options.dest, './build');
 
-  function locate(path) {
+  function push(tpl, entry) {
+    if (tpl) {
+      let path = entry.filepath || entry.path || entry.src;
+      if (entry.dest) path = joinPath(dest, entry.dest);
+      if (!tpl.children.includes(path)) tpl.children.push(path);
+    }
+    return entry;
+  }
+
+  function locate(tpl, path) {
     let destFile = joinPath(dest, path);
-    if (exists(destFile)) return { dest: path };
+    if (exists(destFile)) return push(tpl, { dest: path });
 
     for (let i = 0; i < options.root.length; i += 1) {
       destFile = joinPath(options.root[i], path);
-      if (exists(destFile)) return { src: path };
+      if (exists(destFile)) return push(tpl, { src: path });
     }
 
     if (exists(path)) {
       const entry = options.tmp[resolve(path)];
 
       if (entry && entry.destination) {
-        return { dest: relative(entry.destination, dest) };
+        return { dest: relative(push(tpl, entry).destination, dest) };
       }
-      return { path };
+      return push(tpl, { path });
     }
 
     for (const k in options.tmp) { // eslint-disable-line
       const entry = options.tmp[k] || {};
 
       if (typeof entry.filename === 'string' && path.includes(entry.filename)) {
-        return { dest: relative(entry.destination, dest) };
+        return { dest: relative(push(tpl, entry).destination, dest) };
       }
 
       if (typeof entry.filepath === 'string' && relative(entry.filepath).includes(path)) {
-        if (entry.destination) return { dest: relative(entry.destination, dest) };
-        return { path: entry.filepath };
+        if (entry.destination) return { dest: relative(push(tpl, entry).destination, dest) };
+        return push(tpl, { path: entry.filepath });
       }
     }
 
