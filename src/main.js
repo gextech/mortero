@@ -153,7 +153,7 @@ function debug(deferred) {
   });
 }
 
-function write(set, dest, flags, deferred) {
+function write(set, dest, flags, pending, deferred) {
   return deferred.then(result => {
     let changed;
     result.filter(Array.isArray).forEach(([group, changes]) => {
@@ -204,6 +204,7 @@ function write(set, dest, flags, deferred) {
         if (!flags.quiet) puts(`\r${kind} %s {%magenta.arrow. %s%}`, relative(destFile), bytes(length));
         if (!flags.quiet && flags.progress !== false) puts('\n');
 
+        pending.push(destFile);
         all += length;
         return true;
       });
@@ -231,8 +232,9 @@ function watch(src, dest, flags, filter, callback) {
     }
   });
 
-  function enqueue(file, target) {
+  function enqueue(file, target, pending) {
     return debug(Source.compileFile(file, null, flags)).then(tpl => {
+      pending.push(tpl.destination);
       Source.set(file, {
         ...target,
         dirty: false,
@@ -241,11 +243,23 @@ function watch(src, dest, flags, filter, callback) {
     });
   }
 
+  function rebuild(files) {
+    Source.forEach(({ instance }, file) => {
+      if (!(instance && instance.children)) return;
+      for (let i = 0; i < instance.children.length; i += 1) {
+        if (files.includes(instance.children[i])) {
+          change(instance.filepath);
+          break;
+        }
+      }
+    });
+  }
+
   function prune(deps, target) {
     for (let i = 0; i < deps.length; i += 1) {
       if (target.children.includes(deps[i])) {
         Source.set(target.filepath, { dirty: true });
-        Source.set(deps[i], {});
+        change(deps[i], true);
         return true;
       }
     }
@@ -257,6 +271,7 @@ function watch(src, dest, flags, filter, callback) {
     compile.deps = [];
     compile.queue = [];
     compile.missed = [];
+    compile.pending = [];
 
     clearTimeout(compile.timeout);
     compile.timeout = setTimeout(() => {
@@ -273,7 +288,7 @@ function watch(src, dest, flags, filter, callback) {
         }
 
         if (src.some(x => file.includes(x))) {
-          compile.queue[isMarkup(file) ? 'push' : 'unshift'](() => compile.next && enqueue(file, target));
+          compile.queue[isMarkup(file) ? 'push' : 'unshift'](() => compile.next && enqueue(file, target, compile.pending));
         }
       });
 
@@ -296,10 +311,11 @@ function watch(src, dest, flags, filter, callback) {
             });
             compile.missed = [];
 
-            return write(missed, dest, flags, loader(missed, dest, flags));
+            return write(missed, dest, flags, compile.pending, loader(missed, dest, flags));
           }
         })
         .then(() => compile.next && defer(compile.queue))
+        .then(() => compile.next && rebuild(compile.pending))
         .then(() => compile.next && (sync(flags) || (flags.exec && exec(dest, flags))))
         .then(() => {
           puts('\r{%gray. waiting for changes... [press CTRL-C to quit]%}');
@@ -320,13 +336,13 @@ function watch(src, dest, flags, filter, callback) {
     }
   }
 
-  function change(file) {
+  function change(file, skip) {
     if (ok(file)) {
       const value = Source.get(file);
 
       cache[file] = { ...cache[file], dirty: true };
       Source.set(file, { ...value, dirty: true });
-      compile();
+      if (!skip) compile();
     }
   }
 
@@ -652,7 +668,7 @@ async function main({
     }
 
     let status = '{%gray. without changes%}';
-    await Promise.resolve().then(() => write(missed, dest, flags, loader(missed, dest, flags)))
+    await Promise.resolve().then(() => write(missed, dest, flags, [], loader(missed, dest, flags)))
       .then(() => defer(srcFiles.map(x => () => debug(Source.compileFile(x, null, flags)))))
       .then(() => sync(flags) || (flags.exec && exec(dest, flags)))
       .then(() => {
