@@ -168,6 +168,46 @@ class Source {
     });
   }
 
+  static highlight(code, lang, opts) {
+    const { highlight: hi, ...config } = { highlight: 'highlight.js', ...opts };
+
+    return new Promise((ok, fail) => {
+      try {
+        switch (hi) {
+          case 'pygmentize-bundled':
+            require(hi)({ lang, format: 'html' }, code, (err, result) => {
+              if (err) return fail(err);
+              ok(result.toString());
+            });
+            break;
+
+          case 'rainbow-code':
+            ok(require(hi).colorSync(code, lang));
+            break;
+
+          case 'highlight.js':
+            ok(!lang
+              ? require(hi).highlightAuto(code).value
+              : require(hi).highlight(code, { language: lang }).value);
+            break;
+
+          case 'shiki':
+            require(hi).getHighlighter({
+              ...config.shiki,
+            }).then(highlighter => {
+              ok(highlighter.codeToHtml(code, lang));
+            }).catch(fail);
+            break;
+
+          default:
+            fail(new Error(`Unsupported highlighter: ${hi}`));
+        }
+      } catch (e) {
+        fail(e);
+      }
+    });
+  }
+
   static listFiles(cwd) {
     if (Array.isArray(cwd)) {
       return cwd.reduce((prev, cur) => prev.concat(Source.listFiles(cur)), []);

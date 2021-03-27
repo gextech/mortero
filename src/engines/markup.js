@@ -1,4 +1,4 @@
-const RE_PRE_CODE = /<pre>(\s*<code[^<>]*>)/g;
+const Source = require('../source');
 
 // taken from coffee-script source
 function fixLiterate(code) {
@@ -34,54 +34,16 @@ function markdown(params, next) {
       ? opts.highlight
       : 'highlight.js';
 
-    let className = '';
     if (opts.highlight && typeof opts.highlight !== 'function') {
       opts.highlight = (code, lang, end) => {
-        try {
-          switch (hi) {
-            case 'pygmentize-bundled':
-              require(hi)({ lang, format: 'html' }, code, (err, result) => {
-                end(err, result.toString());
-              });
-              break;
-
-            case 'rainbow-code':
-              end(null, require(hi).colorSync(code, lang));
-              break;
-
-            case 'highlight.js':
-              className = 'hljs';
-              end(null, !lang
-                ? require(hi).highlightAuto(code).value
-                : require(hi).highlight(code, { language: lang }).value);
-              break;
-
-            case 'shiki':
-              require(hi).getHighlighter({
-                ...params.options.shiki,
-              }).then(highlighter => {
-                end(null, highlighter.codeToHtml(code, lang));
-              });
-              break;
-
-            default:
-              end(new Error(`Unsupported highlighter: ${hi}`));
-          }
-        } catch (e) {
-          end(e);
-        }
+        Source.highlight(code, lang, params.options).then(result => end(null, result)).catch(end);
       };
     }
 
     kramed(params.source, opts, (err, content) => {
-      if (!err) {
-        if (className) {
-          params.source = content.replace(RE_PRE_CODE, `<pre class="${className}">$1`);
-        } else {
-          params.source = content;
-        }
-      }
+      const className = hi === 'highlight.js' ? 'hljs' : hi;
 
+      if (!err) params.source = content.replace('<pre>', `<pre class="${className}">`);
       next(err
         ? new Error(`Unable to run ${hi}: ${err.message || err.toString()}`)
         : null);

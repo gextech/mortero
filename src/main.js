@@ -1,5 +1,4 @@
 const { spawn } = require('child_process');
-const { highlight } = require('highlight.js');
 const liveserver = require('live-server');
 const chokidar = require('chokidar');
 const wargs = require('wargs');
@@ -517,7 +516,7 @@ async function main({
   });
 
   Object.assign(getHooks(), {
-    source: ({ ctx, props }) => {
+    source: async ({ tpl, ctx, props }) => {
       if (props.src) {
         return `<source ${ctx.attributes(props)}>`;
       }
@@ -526,16 +525,26 @@ async function main({
         throw new Error(`Missing 'path' attribute, given ${inspect(props)}`);
       }
 
-      const buffer = readFile(props.path);
+      let _src = props.path;
+      if (props.path.charAt() === '.') {
+        _src = joinPath(dirname(tpl.filepath), _src);
+      }
+
+      const buffer = readFile(_src);
 
       if (buffer === false) {
-        return `<pre>File not found: ${props.path}</pre>`;
+        throw new Error(`Source not found: ${props.path}`);
       }
 
       const lang = extname(props.path).substr(1);
-      const code = highlight(buffer, { language: lang }).value;
+      const code = await Source.highlight(buffer, lang, props);
 
-      return `<pre class="hljs"><code class="lang-${lang}">${code}</code></pre>`;
+      if (!code.includes('<pre')) {
+        const className = props.highlight === 'highlight.js' ? 'hljs' : props.highlight || 'hljs';
+
+        return `<pre class="${className}"><code class="lang-${lang || 'auto'}">${code}</code></pre>`;
+      }
+      return code;
     },
     import: ({ tpl, props }, ctx) => {
       if (!props.from) {

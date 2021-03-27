@@ -74,6 +74,8 @@ function getHooks(tpl, ctx) {
 
   if (tpl) {
     return () => {
+      const hookTasks = [];
+
       let matches;
       tpl.source = tpl.source.replace(COMPONENTS.re, (_, a, b, c, d, e) => {
         const tag = a || d;
@@ -94,16 +96,20 @@ function getHooks(tpl, ctx) {
           const props = JSON.parse(tmp.charAt() !== '{' ? `{${tmp}}` : tmp);
 
           matches = matches || tag === 'image';
-          return COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, locate: ctx.locate.bind(null, tpl) });
+          hookTasks.push(COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, locate: ctx.locate.bind(null, tpl) }));
+          return '<!#@@hook>';
         } catch (_e) {
           warn('\r{%yellow. %s%} Unable to parse `%s`\n%s\n', tag || _, attrs, _e.message);
           return _;
         }
       });
 
-      if (matches) {
-        tpl.source = tpl.source.replace(/<\/head|body>|$/, _ => `<script>${readFile(require('talavera').preload)}</script>${_}`);
-      }
+      return Promise.all(hookTasks).then(results => {
+        tpl.source = tpl.source.replace(/<!#@@hook>/g, () => results.shift());
+        if (matches) {
+          tpl.source = tpl.source.replace(/<\/head|body>|$/, _ => `<script>${readFile(require('talavera').preload)}</script>${_}`);
+        }
+      });
     };
   }
 
