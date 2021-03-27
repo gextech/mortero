@@ -48,7 +48,7 @@ class Source {
 
   compile(locals, context) {
     return this.render(locals).then(() => {
-      const compileTasks = isMarkup(this.filepath)
+      const compileTasks = isMarkup(this.filepath) && this.source !== null
         ? [getHooks(this, context)]
         : [];
 
