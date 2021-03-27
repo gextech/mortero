@@ -398,7 +398,7 @@ function init(src, dest, flags, length) {
     } else {
       puts('\r{%yellow. from%} %s\n', dirs);
     }
-  } else if (length >= 0) {
+  } else if (!process.silent && length >= 0) {
     puts('\r{%gray. processing %s file%s...%}', length, length === 1 ? '' : 's');
   }
 
