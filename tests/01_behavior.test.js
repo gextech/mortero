@@ -180,7 +180,7 @@ describe('esbuild', () => {
 
 describe('modules', () => {
   if (process.env.CI === 'true') {
-    test(['should install missing dependencies', 'x.js', 'import {render} from "somedom";console.log(render("x"))'], result => {
+    test(['should install missing dependencies', 'x.bundle.js', 'import {render} from "somedom";console.log(render("x"))'], result => {
       expect(result.source).to.contain('childNodes');
     });
 
