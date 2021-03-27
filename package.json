@@ -16,7 +16,7 @@
   "scripts": {
     "dev": "npm run test:run -- -w",
     "lint": "eslint src tests --color",
-    "mocha": "_mocha --bail --exit --colors --recursive --watch-ignore '**/build/**' -bR spec tests/*.test.js",
+    "mocha": "_mocha -t 3000 --bail --exit --colors --recursive --watch-ignore '**/build/**' -bR spec tests/*.test.js",
     "cover": "nyc --silent --x '**/tests/**' -- npm run test:run",
     "cover:up": "codecov --file=coverage/lcov.info --disable=gcov -e TRAVIS_NODE_VERSION",
     "html:report": "nyc report -r html",
