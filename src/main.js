@@ -191,12 +191,10 @@ function write(set, dest, flags, pending, deferred) {
         if (typeof file.data === 'string' || file.data instanceof Buffer) {
           diff += 1;
           kind = '{%cyan write%}';
-          pending.push(destFile);
           writeFile(destFile, file.data);
         } else {
           diff += 1;
           kind = '{%cyanBright copy%}';
-          pending.push(resolve(file.src));
           copy(file.src, destFile);
         }
 
@@ -204,6 +202,7 @@ function write(set, dest, flags, pending, deferred) {
 
         if (!flags.quiet) puts(`\r${kind} %s {%magenta.arrow. %s%}`, relative(destFile), bytes(length));
         if (!flags.quiet && flags.progress !== false) puts('\n');
+        pending.push(destFile);
         all += length;
         return true;
       });

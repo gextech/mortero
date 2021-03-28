@@ -196,7 +196,7 @@ function getContext(options) {
 
   function push(tpl, entry) {
     if (tpl) {
-      let path = entry.filepath || entry.path || entry.src;
+      let path = entry.destination || entry.filepath || entry.path || entry.src;
       if (entry.dest) path = joinPath(dest, entry.dest);
       if (!tpl.children.includes(path)) tpl.children.push(path);
     }
