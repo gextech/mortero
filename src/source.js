@@ -49,6 +49,7 @@ class Source {
       const rel = relative(this.destination, this.directory);
       const url = `/${rel.includes('index.html') ? rel.replace(/\/?index\.html$/, '') : rel || ''}`;
 
+      this.locals.self = { filename: relative(this.filepath) };
       this.locals.location = new URL(url, this.locals.ROOT || `http://localhost:${process.PORT || 8080}`);
     }
   }
