@@ -43,7 +43,7 @@ function markdown(params, next) {
     kramed(params.source, opts, (err, content) => {
       const className = hi === 'highlight.js' ? 'hljs' : hi;
 
-      if (!err) params.source = content.replace('<pre>', `<pre class="${className}">`);
+      if (!err) params.source = content.replace(/<pre>/g, `<pre class="${className}">`);
       next(err
         ? new Error(`Unable to run ${hi}: ${err.message || err.toString()}`)
         : null);
