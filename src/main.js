@@ -191,10 +191,12 @@ function write(set, dest, flags, pending, deferred) {
         if (typeof file.data === 'string' || file.data instanceof Buffer) {
           diff += 1;
           kind = '{%cyan write%}';
+          pending.push(destFile);
           writeFile(destFile, file.data);
         } else {
           diff += 1;
           kind = '{%cyanBright copy%}';
+          pending.push(resolve(file.src));
           copy(file.src, destFile);
         }
 
@@ -202,8 +204,6 @@ function write(set, dest, flags, pending, deferred) {
 
         if (!flags.quiet) puts(`\r${kind} %s {%magenta.arrow. %s%}`, relative(destFile), bytes(length));
         if (!flags.quiet && flags.progress !== false) puts('\n');
-
-        pending.push(destFile);
         all += length;
         return true;
       });
@@ -242,7 +242,9 @@ function watch(src, dest, flags, filter, callback) {
     });
   }
 
+  let ready;
   function rebuild(files) {
+    if (!ready) return;
     Source.forEach(({ instance }) => {
       if (!(instance && instance.children)) return;
       for (let i = 0; i < instance.children.length; i += 1) {
@@ -258,7 +260,7 @@ function watch(src, dest, flags, filter, callback) {
     for (let i = 0; i < deps.length; i += 1) {
       if (target.children.includes(deps[i])) {
         Source.set(target.filepath, { dirty: true });
-        change(deps[i], true); // eslint-disable-line
+        Source.set(deps[i], {});
         return true;
       }
     }
@@ -317,6 +319,13 @@ function watch(src, dest, flags, filter, callback) {
         .then(() => compile.next && rebuild(compile.pending))
         .then(() => compile.next && (sync(flags) || (flags.exec && exec(dest, flags))))
         .then(() => {
+          if (!ready) {
+            Source.forEach((_, file) => {
+              change(file, true, false); // eslint-disable-line
+            });
+          }
+
+          ready = true;
           puts('\r{%gray. waiting for changes... [press CTRL-C to quit]%}');
         });
     }, flags.timeout || 100);
@@ -335,12 +344,10 @@ function watch(src, dest, flags, filter, callback) {
     }
   }
 
-  function change(file, skip) {
+  function change(file, skip, dirty = true) {
     if (ok(file)) {
-      const value = Source.get(file);
-
-      cache[file] = { ...cache[file], dirty: true };
-      Source.set(file, { ...value, dirty: true });
+      Source.set(file, { ...Source.get(file), dirty });
+      cache[file] = { ...cache[file], dirty };
       if (!skip) compile();
     }
   }
