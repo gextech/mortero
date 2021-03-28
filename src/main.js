@@ -585,15 +585,13 @@ async function main({
         throw new Error(`Missing 'for' attribute, given ${inspect(props)}`);
       }
 
-      const { ROOT } = tpl.locals;
+      const url = tpl.locals.location.pathname;
       const base = props.for.split('#')[0].split('?')[0];
 
-      props.href = props.for.indexOf('://') === -1 ? `${ROOT || ''}${props.for}` : props.for;
+      props.href = (!props.for.includes('://') && (props.for !== '/' ? `.${props.for}` : '.')) || props.for;
       props.target = props.target || props.external ? '_blank' : undefined;
 
-      const rel = relative(tpl.destination, tpl.directory);
       const attrs = ctx.attributes(props, ['for', 'text', 'external']);
-      const url = `/${rel.includes('index.html') ? rel.replace(/\/?index\.html$/, '') : rel || ''}`;
 
       let matches = props.exact && base === url;
       if (!props.exact) {

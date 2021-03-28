@@ -44,6 +44,13 @@ class Source {
     this.directory = resolve(opts.dest, './build');
     this.extension = (getEngines()[this.parts[0]] || [])[1] || this.parts[0];
     this.destination = this.rename(joinPath(this.directory, `${this.slug}.${this.extension}`));
+
+    if (this.extension === 'html') {
+      const rel = relative(this.destination, this.directory);
+      const url = `/${rel.includes('index.html') ? rel.replace(/\/?index\.html$/, '') : rel || ''}`;
+
+      this.locals.location = new URL(url, this.locals.ROOT || `http://localhost:${process.PORT || 8080}`);
+    }
   }
 
   compile(locals, context) {
