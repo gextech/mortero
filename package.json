@@ -69,7 +69,7 @@
     "postcss": "^8.2.6",
     "pug": "^3.0.0",
     "redent": "^3.0.0",
-    "rewrite-exports": "^0.0.23",
+    "rewrite-exports": "^0.0.24",
     "rewrite-imports": "^2.0.3",
     "styl": "^0.2.9",
     "svelte": "^3.32.3",
