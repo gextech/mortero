@@ -171,6 +171,15 @@ class Source {
       });
     }
 
+    if (text.includes('# sourceMappingURL=')) {
+      const [, payload] = text.match(/# sourceMappingURL=(.+?)(?=\s|$)/)[1].split('base64,');
+      const buffer = Buffer.from(payload, 'base64').toString('ascii');
+      const data = JSON.parse(buffer);
+
+      data.sources = data.sources.map(src => resolve(src));
+      text = text.replace(payload, Buffer.from(JSON.stringify(data)).toString('base64'));
+    }
+
     return defer(moduleTasks, resolved => {
       return text.replace(/\/\*#!@@mod\*\//g, () => `/${resolved.shift()}`);
     });
