@@ -14,7 +14,7 @@ const {
 } = require('./support');
 
 module.exports = (filepath, source, opts) => {
-  if (source === false) throw new Error(`File not found: ${filepath}`)
+  if (source === false) throw new Error(`File not found: ${filepath}`);
   if (source.charAt(0) === '\uFEFF') {
     source = source.slice(1);
   }
