@@ -45,6 +45,7 @@ const Mortero = (entry, external) => ({
 
       if (aliases[args.path]) {
         args.path = aliases[args.path];
+        args.alias = true;
         if (args.path.charAt() === '.') {
           args.path = resolve(args.path);
         }
@@ -69,6 +70,10 @@ const Mortero = (entry, external) => ({
 
       if (name.charAt() === '.' && !isSupported(args.path)) {
         return { path: args.path, namespace: 'resource' };
+      }
+
+      if (args.alias) {
+        return { path: args.path };
       }
     });
 
