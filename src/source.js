@@ -145,6 +145,7 @@ class Source {
       }
     } else {
       text = text.replace(RE_IMPORT, (_, k, qt, mod) => {
+        if (_.length > 250 || _.includes('data:')) return _;
         if (_.indexOf('url(') === 0) {
           return `url(${qt}#!@@locate<${mod}>${qt}`;
         }

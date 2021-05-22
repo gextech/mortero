@@ -558,6 +558,7 @@ async function embed(tpl, html, render) {
   html = html.replace(/<!--[^]*?-->/g, match => comments.push(match) && '<!--!#@@-->');
   html = html.replace(RE_SOURCES, sub => {
     if (sub.charAt() === '<' && !RE_INLINE.test(sub)) return sub;
+    if (sub.includes('data:') || sub.length > 250) return sub;
 
     const src = sub.match(RE_LINKS);
     const base = tpl.options.base || `http://localhost:${process.env.PORT || 8080}`;
