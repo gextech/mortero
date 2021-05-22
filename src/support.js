@@ -1,4 +1,5 @@
 const micromatch = require('micromatch');
+const url = require('url');
 const os = require('os');
 
 const RE_COMMENTS_PATTERN = /\/\*.*?\*\//g;
@@ -566,16 +567,16 @@ async function embed(tpl, html, render) {
     let _url = src[2] || src[4];
     if (_url.indexOf('//') === 0) {
       _url = `http:${_url}`;
-    } else if (_url.charAt() === '/') {
-      _url = `${base}${_url}`;
+    } else {
+      _url = url.resolve(base, _url);
     }
 
     const key = [tpl.filepath, _url].join('_').replace(/\W/g, '_');
 
     embedTasks.push(async () => {
-      const name = _url.split('#')[0].split('?')[0];
+      const name = _url.split('#')[0].split('?')[0].replace(base, '.');
       const file = joinPath(TEMP_DIR, key);
-      const local = joinPath(tpl.directory, name.replace(base, '.'));
+      const local = joinPath(tpl.directory, name);
       const resource = joinPath(tpl.options.cwd || dirname(tpl.filepath), name);
 
       let out = '';
