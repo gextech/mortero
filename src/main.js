@@ -602,6 +602,30 @@ async function main({
       }
       return `<a${attrs}>${content || props.text}</a>`;
     },
+    data: ({ tpl, props }, ctx) => {
+      if (!props.from) {
+        throw new Error(`Missing 'from' attribute, given ${inspect(props)}`);
+      }
+
+      const chunk = ctx.locate(props.from);
+
+      let buffer;
+      let file;
+      if (chunk.dest) {
+        file = chunk.dest;
+        buffer = readFile(joinPath(dest, file));
+      } else if (chunk.path) {
+        file = chunk.path;
+        buffer = readFile(file);
+      } else {
+        file = chunk.src;
+        buffer = readFile(joinPath(dirname(tpl.filepath), file));
+      }
+
+      const type = props.type || `image/${extname(file).substr(1)}`;
+
+      return `data:${type};base64,${Buffer.from(buffer).toString('base64')}`;
+    },
   });
 
   if (flags.watch) {
