@@ -558,12 +558,12 @@ async function main({
       }
 
       return array(props.from).reduce((prev, cur) => {
-        const chunk = ctx.locate(cur);
+        const chunk = ctx.locate(cur, !props.inline && /\.(?:js|css)$/.test(cur));
 
         if (chunk.dest) {
           const asset = chunk.dest.includes('.svg')
             ? svg(readFile(joinPath(dest, chunk.dest)), props, ctx)
-            : ctx.include(chunk.dest);
+            : ctx.include(chunk.dest, ctx.attributes(props, ['from']));
 
           prev += asset;
         } else if (chunk.path) {

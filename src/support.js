@@ -138,13 +138,13 @@ function getModule(src, paths) {
   }
 }
 
-function include(path) {
+function include(path, attrs) {
   const suffix = process.env.NODE_ENV === 'production'
     ? `?t=${Date.now()}`
-    : '?livereload=';
+    : '?livereload';
 
-  if (path.includes('.css')) return `<link rel="stylesheet" href="${path + suffix}">`;
-  if (path.includes('.js')) return `<script type="module" src="${path + suffix}"></script>`;
+  if (path.includes('.css')) return `<link rel="stylesheet" href="${path + suffix}"${attrs}>`;
+  if (path.includes('.js')) return `<script type="module" src="${path + suffix}"${attrs}></script>`;
 
   throw new Error(`Cannot include '${path}'`);
 }
@@ -195,8 +195,8 @@ function stylesheet(ref, styles) {
 function getContext(options) {
   const dest = resolve(options.dest, './build');
 
-  function push(tpl, entry) {
-    if (tpl) {
+  function push(tpl, skip, entry) {
+    if (!skip && tpl) {
       let path = entry.destination || entry.filepath || entry.path || entry.src;
       if (entry.dest) path = joinPath(dest, entry.dest);
       if (!tpl.children.includes(path)) tpl.children.push(path);
@@ -204,34 +204,34 @@ function getContext(options) {
     return entry;
   }
 
-  function locate(tpl, path) {
+  function locate(tpl, path, ignore) {
     let destFile = joinPath(dest, path);
-    if (exists(destFile)) return push(tpl, { dest: path });
+    if (exists(destFile)) return push(tpl, ignore, { dest: path });
 
     for (let i = 0; i < options.root.length; i += 1) {
       destFile = joinPath(options.root[i], path);
-      if (exists(destFile)) return push(tpl, { src: path });
+      if (exists(destFile)) return push(tpl, ignore, { src: path });
     }
 
     if (exists(path)) {
       const entry = options.tmp[resolve(path)];
 
       if (entry && entry.destination) {
-        return { dest: relative(push(tpl, entry).destination, dest) };
+        return { dest: relative(push(tpl, ignore, entry).destination, dest) };
       }
-      return push(tpl, { path });
+      return push(tpl, ignore, { path });
     }
 
     for (const k in options.tmp) { // eslint-disable-line
       const entry = options.tmp[k] || {};
 
       if (typeof entry.filename === 'string' && path.includes(entry.filename)) {
-        return { dest: relative(push(tpl, entry).destination, dest) };
+        return { dest: relative(push(tpl, ignore, entry).destination, dest) };
       }
 
       if (typeof entry.filepath === 'string' && relative(entry.filepath).includes(path)) {
-        if (entry.destination) return { dest: relative(push(tpl, entry).destination, dest) };
-        return push(tpl, { path: entry.filepath });
+        if (entry.destination) return { dest: relative(push(tpl, ignore, entry).destination, dest) };
+        return push(tpl, ignore, { path: entry.filepath });
       }
     }
 
