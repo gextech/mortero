@@ -613,18 +613,18 @@ async function main({
       let file;
       if (chunk.dest) {
         file = chunk.dest;
-        buffer = readFile(joinPath(dest, file));
+        buffer = readFile(joinPath(dest, file), true);
       } else if (chunk.path) {
         file = chunk.path;
-        buffer = readFile(file);
+        buffer = readFile(file, true);
       } else {
         file = chunk.src;
-        buffer = readFile(joinPath(dirname(tpl.filepath), file));
+        buffer = readFile(joinPath(dirname(tpl.filepath), file), true);
       }
 
       const type = props.type || `image/${extname(file).substr(1)}`;
 
-      return `data:${type};base64,${Buffer.from(buffer).toString('base64')}`;
+      return `data:${type};base64,${buffer.toString('base64')}`;
     },
   });
 
