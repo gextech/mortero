@@ -262,6 +262,8 @@ function watch(src, dest, flags, filter, callback) {
   function prune(deps, target) {
     for (let i = 0; i < deps.length; i += 1) {
       if (target.children.includes(deps[i])) {
+        cache[deps[i]].modified = +mtime(deps[i]);
+
         Source.set(target.filepath, { dirty: true });
         Source.set(deps[i], {});
         return true;
@@ -341,7 +343,7 @@ function watch(src, dest, flags, filter, callback) {
   function add(file) {
     if (ok(file)) {
       if (!Source.has(file)) {
-        Source.set(file, cache[file] = { filepath: file, dirty: true });
+        Source.set(file, cache[file] = { filepath: file, modified: +mtime(file), dirty: true });
       }
       compile();
     }
@@ -685,9 +687,28 @@ async function main({
     });
   } else {
     const start = Date.now();
-    const missed = [];
     const loader = load(plugins(array(flags.plugins).concat(require('./talavera'))), dest, flags, cache);
-    const srcFiles = Source.listFiles(src).sort((a, b) => isMarkup(a) - isMarkup(b)).filter(x => {
+    const sources = Source.listFiles(src);
+    const missed = [];
+    const changed = [];
+
+    sources.forEach(x => {
+      if (checkDirty(x, cache[x])) {
+        const found = sources.find(y => cache[y] && cache[y].children && cache[y].children.includes(x));
+        if (found && !changed.includes(found)) {
+          cache[x] = {
+            ...cache[x],
+            filepath: x,
+            modified: +mtime(x),
+            dirty: true,
+          };
+          changed.push(found);
+        }
+      }
+    });
+
+    const srcFiles = sources.sort((a, b) => isMarkup(a) - isMarkup(b)).filter(x => {
+      if (changed.includes(x)) return true;
       if (match(x, relative(x))) return flags.force || checkDirty(x, cache[x]);
       if (!isSupported(x) && isIncluded(relative(x))) missed.push(x);
       return false;
