@@ -72,7 +72,7 @@
     "rewrite-exports": "^0.0.24",
     "rewrite-imports": "^2.0.3",
     "styl": "^0.2.9",
-    "svelte": "^3.32.3",
+    "svelte": "^3.38.2",
     "testdouble": "^3.16.1",
     "tosource": "^2.0.0-alpha.2",
     "wargs": "^0.9.3"
