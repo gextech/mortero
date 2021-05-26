@@ -78,6 +78,10 @@ const Mortero = (entry, external) => ({
     });
 
     build.onLoad({ filter: getExtensions(true) }, async ({ path }) => {
+      if (!entry.children.includes(path) && !path.includes('node_modules')) {
+        entry.children.push(path);
+      }
+
       if (!/\.(?:[jt]sx?|json)$/.test(path)) {
         let params = Source.get(path);
         if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
@@ -99,10 +103,6 @@ const Mortero = (entry, external) => ({
               resolveDir: dirname(path),
             },
           });
-        }
-
-        if (!entry.children.includes(path) && !path.includes('node_modules')) {
-          entry.children.push(path);
         }
         return params.output;
       }
