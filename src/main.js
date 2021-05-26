@@ -324,12 +324,6 @@ function watch(src, dest, flags, filter, callback) {
         .then(() => compile.next && rebuild(compile.pending))
         .then(() => compile.next && (sync(flags) || (flags.exec && exec(dest, flags))))
         .then(() => {
-          if (!ready) {
-            Source.forEach((_, file) => {
-              change(file, true, false); // eslint-disable-line
-            });
-          }
-
           ready = true;
           puts('\r{%gray. waiting for changes... [press CTRL-C to quit]%}');
         });
