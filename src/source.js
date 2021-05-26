@@ -7,7 +7,6 @@ const parse = require('./parse');
 const {
   puts,
   defer,
-  raise,
   dirname,
   resolve,
   lsFiles,
@@ -84,8 +83,6 @@ class Source {
           writeFile(this.destination, this.source);
         }
       });
-    }).catch(e => {
-      this.failure = e;
     }).then(() => this);
   }
 
@@ -236,19 +233,14 @@ class Source {
   static compileFile(src, locals, options) {
     const now = Date.now();
     const context = getContext(options);
+    const self = new Source(src, options);
 
-    return new Source(src, options).compile(locals, context).then(tpl => {
+    return self.compile(locals, context).then(tpl => {
       tpl.worktime = (tpl.worktime || Date.now() - now) - tpl.install;
-
-      if (tpl.failure) {
-        if (!tpl.options.quiet) {
-          const err = tpl.failure[tpl.options.verbose ? 'stack' : 'message'];
-
-          raise('\n{%error failure in %s%}\n%s\n', relative(tpl.filepath), err);
-        }
-        if (!tpl.options.watch) process.exit(1);
-      }
       return tpl;
+    }).catch(e => {
+      self.failure = e;
+      return self;
     });
   }
 }

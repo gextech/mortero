@@ -138,9 +138,13 @@ function json(entry) {
 let total = 0;
 function debug(deferred) {
   return deferred.then(tpl => {
-    if (tpl.destination && !tpl.options.quiet) {
+    const end = tpl.options.progress !== false ? '\n' : '';
+
+    if (!tpl.options.quiet && tpl.failure) {
+      puts('\r{%red. failed%} %s', relative(tpl.destination));
+      puts(end);
+    } else if (tpl.destination && !tpl.options.quiet) {
       const length = size(tpl.destination);
-      const end = tpl.options.progress !== false ? '\n' : '';
 
       puts('\r{%cyan write%} %s {%magenta.arrow. %s%} {%gray (%s)%}', relative(tpl.destination), bytes(length), ms(tpl.worktime));
       puts(end);
