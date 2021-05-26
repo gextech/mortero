@@ -23,13 +23,18 @@ function coffeescript(params, next) {
 
 function svelte(params, next) {
   try {
+    const opts = { ...params.options.svelte };
+    const allowed = opts.warnings || ['module-script-reactive-declaration'];
+
     const Svelte = require('svelte/compiler');
     const { js, warnings } = Svelte.compile(params.source, { filename: params.filepath });
     const contents = `${js.code}//# sourceMappingURL=${js.map.toUrl()}`;
 
     if (warnings.length && params.options.verbose) {
       warnings.forEach(msg => {
-        warn('\r{%yellow svelte%} %s\n', msg);
+        if (!allowed.includes(msg.code)) {
+          warn('\r{%yellow svelte%} %s\n', msg);
+        }
       });
     }
 
