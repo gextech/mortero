@@ -74,8 +74,8 @@ if (exists('./cache.json')) {
 }
 
 let update;
-function sync(flags) {
-  if (flags.write !== false) {
+function sync(flags, skip) {
+  if (!skip && flags.write !== false) {
     clearTimeout(update);
     update = setTimeout(() => {
       writeFile('./cache.json', JSON.stringify(cache, null, 2));
@@ -141,7 +141,8 @@ function debug(deferred) {
     const end = tpl.options.progress !== false ? '\n' : '';
 
     if (!tpl.options.quiet && tpl.failure) {
-      puts('\r{%red. failed%} %s', relative(tpl.destination));
+      puts('\r{%red. failed%} %s\n', relative(tpl.destination));
+      puts('{%gray. ⚠ %s%}', tpl.failure.message);
       puts(end);
     } else if (tpl.destination && !tpl.options.quiet) {
       const length = size(tpl.destination);
@@ -234,8 +235,10 @@ function watch(src, dest, flags, filter, callback) {
     }
   });
 
+  let failed;
   function enqueue(file, target, pending) {
     return debug(Source.compileFile(file, null, flags)).then(tpl => {
+      if (tpl.failure) failed = true;
       pending.push(tpl.destination);
       Source.set(file, {
         ...target,
@@ -322,9 +325,10 @@ function watch(src, dest, flags, filter, callback) {
         })
         .then(() => compile.next && defer(compile.queue))
         .then(() => compile.next && rebuild(compile.pending))
-        .then(() => compile.next && (sync(flags) || (flags.exec && exec(dest, flags))))
+        .then(() => compile.next && (sync(flags, failed) || (flags.exec && exec(dest, flags))))
         .then(() => {
           ready = true;
+          failed = false;
           puts('\r{%gray. waiting for changes... [press CTRL-C to quit]%}');
         });
     }, flags.timeout || 100);
