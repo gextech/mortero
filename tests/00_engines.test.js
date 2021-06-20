@@ -174,8 +174,8 @@ describe('styles', () => {
     });
   });
 
-  describe('Styl', () => {
-    test(['x.styl', '*{x:y}'], result => {
+  describe('Stylus', () => {
+    test(['x.stylus', '*{x:y}'], result => {
       expect(result.source).to.contain('x: y;');
       expect(result.extension).to.eql('css');
     });

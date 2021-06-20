@@ -8,10 +8,19 @@ const {
   plugins,
 } = require('../support');
 
-function styl(params, next) {
-  const Styl = require('styl');
+function stylus(params, next) {
+  const Stylus = require('stylus');
+  const opts = { ...params.options.stylus };
 
-  params.source = Styl(params.source).toString();
+  params.source = Stylus.render(params.source, {
+    use: plugins(opts.plugins || [], opts),
+    paths: opts.includePaths || [],
+    globals: params.locals,
+    imports: params.imports,
+    compress: opts.compress || false,
+    sourcemap: params.data.$debug || params.options.debug,
+    filename: params.filepath,
+  });
   next();
 }
 
@@ -113,7 +122,7 @@ function postcss(params, next) {
 }
 
 module.exports = {
-  styl: [styl, 'css'],
+  stylus: [stylus, 'css'],
   less: [less, 'css'],
   sass: [sass, 'css'],
   scss: [sass, 'css'],
