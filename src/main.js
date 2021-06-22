@@ -75,7 +75,7 @@ if (exists('./cache.json')) {
 
 let update;
 function sync(flags, skip) {
-  if (!skip && flags.write !== false) {
+  if (flags.write !== false) {
     clearTimeout(update);
     update = setTimeout(() => {
       writeFile('./cache.json', JSON.stringify(cache, null, 2));
@@ -150,9 +150,9 @@ function debug(deferred) {
       puts('\r{%cyan write%} %s {%magenta.arrow. %s%} {%gray (%s)%}', relative(tpl.destination), bytes(length), ms(tpl.worktime));
       puts(end);
 
+      cache[tpl.filepath] = json(tpl);
       total += length;
     }
-    cache[tpl.filepath] = json(tpl);
     return tpl;
   });
 }
@@ -235,10 +235,17 @@ function watch(src, dest, flags, filter, callback) {
     }
   });
 
-  let failed;
+  let failed = [];
   function enqueue(file, target, pending) {
     return debug(Source.compileFile(file, null, flags)).then(tpl => {
-      if (tpl.failure) failed = true;
+      if (tpl.failure) {
+        Source.set(file, { dirty: true });
+        delete cache[file];
+        failed.push(file);
+        return;
+      }
+
+      failed = failed.filter(x => x !== file);
       pending.push(tpl.destination);
       Source.set(file, {
         ...target,
@@ -302,7 +309,7 @@ function watch(src, dest, flags, filter, callback) {
       });
 
       let changed;
-      if (!skip) {
+      if (!skip && !failed.length) {
         Source.forEach((_, file) => {
           if (cache[file] && cache[file].children && prune(compile.deps, cache[file])) changed = true;
         });
@@ -325,10 +332,9 @@ function watch(src, dest, flags, filter, callback) {
         })
         .then(() => compile.next && defer(compile.queue))
         .then(() => compile.next && rebuild(compile.pending))
-        .then(() => compile.next && (sync(flags, failed) || (flags.exec && exec(dest, flags))))
+        .then(() => compile.next && (sync(flags) || (flags.exec && exec(dest, flags))))
         .then(() => {
           ready = true;
-          failed = false;
           puts('\r{%gray. waiting for changes... [press CTRL-C to quit]%}');
         });
     }, flags.timeout || 100);
