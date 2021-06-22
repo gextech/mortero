@@ -276,7 +276,10 @@ function watch(src, dest, flags, filter, callback) {
         cache[deps[i]].modified = +mtime(deps[i]);
 
         Source.set(target.filepath, { dirty: true });
-        Source.set(deps[i], {});
+
+        if (!cache[deps[i]].children) {
+          Source.set(deps[i], {});
+        }
         return true;
       }
     }
