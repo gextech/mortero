@@ -39,6 +39,7 @@ const {
 
 const {
   load,
+  trace,
   rename,
   plugins,
   getHooks,
@@ -142,7 +143,7 @@ function debug(deferred) {
 
     if (!tpl.options.quiet && tpl.failure) {
       puts('\r{%red. failed%} %s\n', relative(tpl.destination));
-      puts('{%gray. ⚠ %s%}', tpl.failure.message);
+      puts('{%gray. ⚠ %s%}', trace(tpl.failure));
       puts(end);
     } else if (tpl.destination && !tpl.options.quiet) {
       const length = size(tpl.destination);

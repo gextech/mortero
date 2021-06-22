@@ -138,6 +138,16 @@ function getModule(src, paths) {
   }
 }
 
+function trace(error) {
+  if (error.type === 'Parse') {
+    return `${error.message}\n${error.extract.join('\n')}`;
+  }
+  if (error.path) {
+    return error.message.replace(error.path, `./${relative(error.path)}`);
+  }
+  return error.message;
+}
+
 function include(path, attrs) {
   const suffix = process.env.NODE_ENV === 'production'
     ? `?t=${Date.now()}`
@@ -819,6 +829,7 @@ module.exports = {
   modules,
   embed,
   rename,
+  trace,
   load,
   globals,
   conditionals,
