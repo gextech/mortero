@@ -64,6 +64,7 @@ Available options:
                         from /api to http://0.0.0.0:3001/api/v1 and
                         `-P/api:3001` to http://0.0.0.0:3001/api, etc.
     -s, --serve         Additional directories to serve, e.g. `-spublic`
+    -k, --index         Outputs TOML configuration for Stork Search usage
 
     -f, --force         Skip cache rules to build everything from scratch
     -q, --quiet         Disable most logging messages

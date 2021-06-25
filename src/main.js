@@ -20,6 +20,7 @@ const {
   defer,
   mtime,
   raise,
+  strip,
   quote,
   array,
   exists,
@@ -442,6 +443,39 @@ function init(src, dest, flags, length) {
   }
 }
 
+function stork(dest, flags) {
+  const toml = files => `
+[input]
+title_boost = "Ridiculous"
+html_selector = "${flags.index}"
+minimum_indexed_substring_length = 2
+url_prefix = "${process.env.BASE_URL || `http://localhost:${flags.port || 3031}`}"
+${files.map(file => `
+[[input.files]]
+url = ${JSON.stringify(file.url)}
+title = ${JSON.stringify(file.title)}
+contents = ${JSON.stringify(file.contents)}
+filetype = "HTML"
+`).join('')}
+`;
+
+  const entries = lsFiles('**/*.html', { cwd: dest }).reduce((memo, file) => {
+    const body = readFile(`${dest}/${file}`);
+    const title = body.match(/<title>([^]+?)<\/title>/);
+
+    if (title) {
+      memo.push({
+        url: `/${file.replace(/\/?index\.html$/, '')}`,
+        title: title[1].trim(),
+        contents: strip(body),
+      });
+    }
+    return memo;
+  }, []);
+
+  process.stdout.write(toml(entries));
+}
+
 async function main({
   _, raw, data, flags, params,
 }) {
@@ -473,6 +507,11 @@ async function main({
 
     init(src, dest, { quiet: true });
     puts(USAGE_INFO.replace('$0', Object.keys(bin)[0]).replace(/\$(\d)/, ($0, x) => README_INFO[parseInt(x, 10) - 1]));
+    return;
+  }
+
+  if (flags.index) {
+    stork(dest, flags);
     return;
   }
 
@@ -757,7 +796,7 @@ async function main({
 module.exports = argv => {
   const options = wargs(argv, {
     boolean: 'nqwfdVSWEAROM',
-    string: 'CeDbcyopPsaBriIFXLTNH',
+    string: 'CeDbcyopPsaBriIFXLTNHk',
     alias: {
       C: 'cwd',
       e: 'ext',
@@ -769,6 +808,7 @@ module.exports = argv => {
       p: 'port',
       P: 'proxy',
       s: 'serve',
+      k: 'index',
       q: 'quiet',
       w: 'watch',
       a: 'alias',

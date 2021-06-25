@@ -77,6 +77,12 @@ function array(...args) {
   }, []);
 }
 
+function strip(html) {
+  html = html.replace(/<(style|script|svg)[^<>]*>[^]*?<\/\1>/g, '');
+  html = html.replace(/ +/g, ' ').replace(/\n +/g, '\n').replace(/\n+/g, '\n');
+  return html.trim();
+}
+
 function quote(obj, safe) {
   if (safe) {
     return JSON.stringify(obj).replace(/[`$]/g, '\\$&');
@@ -234,6 +240,7 @@ module.exports = {
   puts,
   warn,
   keys,
+  strip,
   quote,
   array,
   mtime,
