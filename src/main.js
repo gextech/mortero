@@ -76,10 +76,13 @@ if (exists('./cache.json')) {
 }
 
 let update;
-function sync(flags) {
+function sync(flags, bad) {
   if (flags.write !== false) {
     clearTimeout(update);
     update = setTimeout(() => {
+      bad.forEach(file => {
+        delete cache[file];
+      });
       writeFile('./cache.json', JSON.stringify(cache, null, 2));
     }, 50);
   }
@@ -337,7 +340,7 @@ function watch(src, dest, flags, filter, callback) {
         })
         .then(() => compile.next && defer(compile.queue))
         .then(() => compile.next && rebuild(compile.pending))
-        .then(() => compile.next && (sync(flags) || (flags.exec && exec(dest, flags))))
+        .then(() => compile.next && (sync(flags, failed) || (flags.exec && exec(dest, flags))))
         .then(() => {
           ready = true;
           puts('\r{%gray. waiting for changes... [press CTRL-C to quit]%}');
@@ -372,7 +375,7 @@ function watch(src, dest, flags, filter, callback) {
 
       delete cache[file];
       Source.delete(file);
-      sync(flags);
+      sync(flags, failed);
 
       if (instance && instance.destination) {
         unlink(instance.destination);
