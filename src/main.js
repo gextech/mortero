@@ -252,6 +252,9 @@ function watch(src, dest, flags, filter, callback) {
 
       failed = failed.filter(x => x !== file);
       pending.push(tpl.destination);
+      tpl.children.forEach(tmp => {
+        Source.set(tmp, { dirty: false });
+      });
       Source.set(file, {
         ...target,
         dirty: false,
