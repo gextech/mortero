@@ -513,6 +513,12 @@ async function main({
     return;
   }
 
+  Object.keys(data).forEach(key => {
+    if (/^[A-Z_][A-Z\d_]*$/.test(key)) {
+      process.env[key] = data[key];
+    }
+  });
+
   if (flags.index) {
     stork(dest, flags);
     return;
