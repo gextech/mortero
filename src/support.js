@@ -581,7 +581,7 @@ async function embed(tpl, html, render) {
       _url = url.resolve(base, _url);
     }
 
-    const key = [tpl.filepath, _url].join('_').replace(/\W/g, '_');
+    const key = _url.replace(/\W/g, '_');
 
     embedTasks.push(async () => {
       const name = _url.split('#')[0].split('?')[0].replace(base, '.');
