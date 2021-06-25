@@ -75,7 +75,7 @@ if (exists('./cache.json')) {
 }
 
 let update;
-function sync(flags, skip) {
+function sync(flags) {
   if (flags.write !== false) {
     clearTimeout(update);
     update = setTimeout(() => {
