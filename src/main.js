@@ -791,7 +791,7 @@ async function main({
     let status = '{%gray. without changes%}';
     await Promise.resolve().then(() => write(missed, dest, flags, [], loader(missed, dest, flags)))
       .then(() => defer(srcFiles.map(x => () => debug(Source.compileFile(x, null, flags)))))
-      .then(() => sync(flags) || (flags.exec && exec(dest, flags)))
+      .then(() => sync(flags, []) || (flags.exec && exec(dest, flags)))
       .then(() => {
         if (srcFiles.length || missed.length) {
           const count = srcFiles.length + missed.length;
