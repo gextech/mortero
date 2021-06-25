@@ -120,7 +120,7 @@ class Source {
   static render(tpl, locals) {
     return new Promise((done, failure) => {
       if ((tpl.options.progress !== false || tpl.options.watch) && !tpl.options.quiet) {
-        puts('\r{%blue render%} %s', relative(tpl.filepath));
+        puts('\r{%blue render%} %s\r', relative(tpl.filepath));
       }
 
       Object.assign(tpl.locals, locals);

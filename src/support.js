@@ -599,7 +599,7 @@ async function embed(tpl, html, render) {
         out = tmp.source;
       } else if (!exists(file) || tpl.options.force) {
         if (!tpl.options.quiet) {
-          puts('\r{%blue fetch%} %s', _url);
+          puts('\r{%blue fetch%} %s\r', _url);
         }
 
         await fetch(_url, file);
