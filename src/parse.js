@@ -33,7 +33,7 @@ module.exports = (filepath, source, opts) => {
   const hasMkd = parts.some(x => /mk?d|litcoffee/.test(x));
 
   if (parts.length === 1 && exts[parts[0]]) {
-    parts.unshift(exts[parts[0]]);
+    parts.unshift(...[].concat(exts[parts[0]]));
   }
 
   // replace globals and macros before parsing front-matter

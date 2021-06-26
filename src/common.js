@@ -158,8 +158,10 @@ function resolve(src, _path, _array) {
   return src;
 }
 
-function extname(filepath) {
-  return path.extname(filepath);
+function extname(filepath, trim) {
+  const ext = path.extname(filepath);
+
+  return trim ? ext.substr(1) : ext;
 }
 
 function dirname(filepath) {
@@ -227,7 +229,7 @@ function bytes(n) {
 }
 
 function isMarkup(src) {
-  return MARKUP.includes(path.extname(src).substr(1));
+  return MARKUP.includes(path.extname(src, true));
 }
 
 module.exports = {

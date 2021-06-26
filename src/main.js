@@ -607,7 +607,7 @@ async function main({
         throw new Error(`Source not found: ${props.path}`);
       }
 
-      const lang = extname(props.path).substr(1);
+      const lang = extname(props.path, true);
       const code = await Source.highlight(buffer, lang, props);
 
       if (!code.includes('<pre')) {
@@ -687,7 +687,7 @@ async function main({
         buffer = readFile(joinPath(dirname(tpl.filepath), file), true);
       }
 
-      const type = props.type || `image/${extname(file).substr(1)}`;
+      const type = props.type || `image/${extname(file, true)}`;
 
       return `data:${type};base64,${buffer.toString('base64')}`;
     },

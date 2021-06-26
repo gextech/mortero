@@ -65,6 +65,19 @@ describe('extensions', () => {
     expect(result.source).to.eql('bar');
     expect(result.extension).to.eql('foo.hbs');
   }, { foo: 'bar' });
+
+  test(['should bundle from JSON extensions', 'x.js', 'import x from "./a/sample.json";console.log(x)', {
+    bundle: true,
+  }], result => {
+    expect(result.source).to.contains('var foo = "bar"');
+  }, { keys: ['id', 'name'] });
+
+  test(['should render from bundled extensions', 'x.js', 'import x from "./a/template.gql";console.log(x)', {
+    extensions: { gql: ['json', 'ejs'] },
+    bundle: true,
+  }], result => {
+    expect(result.source).to.contains('"query {\\n  id name\\n}\\n"');
+  }, { keys: ['id', 'name'] });
 });
 
 describe('esbuild', () => {
@@ -210,6 +223,7 @@ describe('modules', () => {
         destination: 'dist/c/js24.png',
       },
     },
+    cwd: process.cwd(),
   }], result => {
     expect(result.source).to.contain('= "../c/js24.png"');
   });

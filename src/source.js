@@ -7,7 +7,6 @@ const parse = require('./parse');
 const {
   puts,
   defer,
-  dirname,
   resolve,
   lsFiles,
   isMarkup,
@@ -166,7 +165,7 @@ class Source {
     }
 
     text = text.replace(/#!@@locate<(.+?)>/g, (_, src) => {
-      return relative(tpl.rename(joinPath(dirname(tpl.filepath), src)), tpl.directory);
+      return relative(tpl.rename(src), tpl.directory);
     });
 
     if (text.includes('# sourceMappingURL=')) {

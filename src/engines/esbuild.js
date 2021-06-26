@@ -6,8 +6,10 @@ const {
   array,
   fetch,
   resolve,
+  extname,
   dirname,
   relative,
+  joinPath,
 } = require('../common');
 
 const {
@@ -37,6 +39,33 @@ const Mortero = (entry, external) => ({
       }
       return memo;
     }, {});
+
+    async function buildSource(path, locals) {
+      let params = Source.get(path);
+      if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
+        if (!params || !params.instance || !params.input) {
+          params = { instance: new Source(path, entry.options) };
+        }
+
+        Object.assign(params.instance.locals, locals);
+
+        await params.instance.compile();
+        if (module.exports[params.instance.extension]) {
+          params.instance.loader = params.instance.extension;
+        }
+
+        Source.set(path, params = {
+          ...params,
+          input: params.instance.source,
+          output: {
+            loader: params.instance.loader,
+            contents: params.instance.source,
+            resolveDir: dirname(path),
+          },
+        });
+      }
+      return params.output;
+    }
 
     build.onResolve({ filter: /.*/ }, async args => {
       if (memoized[args.resolveDir + args.path]) {
@@ -69,7 +98,9 @@ const Mortero = (entry, external) => ({
       }
 
       if (name.charAt() === '.' && !isSupported(args.path)) {
-        return { path: args.path, namespace: 'resource' };
+        const src = joinPath(args.resolveDir, args.path);
+
+        return { path: src, namespace: 'resource' };
       }
 
       if (args.alias) {
@@ -77,40 +108,24 @@ const Mortero = (entry, external) => ({
       }
     });
 
-    build.onLoad({ filter: getExtensions(true) }, async ({ path }) => {
+    build.onLoad({ filter: getExtensions(true) }, ({ path }) => {
       if (!entry.children.includes(path) && !path.includes('node_modules')) {
         entry.children.push(path);
       }
 
       if (!/\.(?:[jt]sx?|json)$/.test(path)) {
-        let params = Source.get(path);
-        if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
-          if (!params || !params.instance || !params.input) {
-            params = { instance: new Source(path, entry.options) };
-          }
-
-          await params.instance.compile();
-          if (module.exports[params.instance.extension]) {
-            params.instance.loader = params.instance.extension;
-          }
-
-          Source.set(path, params = {
-            ...params,
-            input: params.instance.source,
-            output: {
-              loader: params.instance.loader,
-              contents: params.instance.source,
-              resolveDir: dirname(path),
-            },
-          });
-        }
-        return params.output;
+        return buildSource(path);
       }
     });
 
-    build.onLoad({ filter: /.*/, namespace: 'resource' }, args => ({
-      contents: `export default "#!@@locate<${args.path}>"`,
-    }));
+    build.onLoad({ filter: /.*/, namespace: 'resource' }, ({ path }) => {
+      const ext = extname(path, true);
+
+      if (!entry.options.extensions || !entry.options.extensions[ext]) {
+        return { contents: `export default "#!@@locate<${path}>"` };
+      }
+      return buildSource(path, entry.locals);
+    });
 
     build.onResolve({ filter: /^https?:\/\// }, args => ({
       path: args.path,
@@ -122,7 +137,9 @@ const Mortero = (entry, external) => ({
       namespace: 'http-url',
     }));
 
-    build.onLoad({ filter: /.*/, namespace: 'http-url' }, async args => ({ contents: await fetch(args.path) }));
+    build.onLoad({ filter: /.*/, namespace: 'http-url' }, async args => ({
+      contents: await fetch(args.path),
+    }));
   },
 });
 
@@ -147,7 +164,7 @@ function esbuild(params, next, ext) {
   params.isBundle = !_module && _bundle;
 
   require('esbuild').build({
-    resolveExtensions: getExtensions(),
+    resolveExtensions: getExtensions(false, params.options.extensions),
     target: !esnext ? target || 'node10.23' : undefined,
     define: keys(params.options.globals).reduce((memo, k) => {
       if (typeof params.options.globals[k] !== 'object') {

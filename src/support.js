@@ -51,15 +51,17 @@ const {
 
 let _length;
 let _regex;
-function getExtensions(regex) {
+function getExtensions(regex, extensions) {
+  const fixed = [...new Set(EXTENSIONS.concat(Object.keys(extensions || {})))];
+
   if (regex) {
-    if (EXTENSIONS.length !== _length) {
-      _regex = new RegExp(`.(?:${EXTENSIONS.join('|')})$`);
-      _length = EXTENSIONS.length;
+    if (fixed.length !== _length) {
+      _regex = new RegExp(`.(?:${fixed.join('|')})$`);
+      _length = fixed.length;
     }
     return _regex;
   }
-  return EXTENSIONS.map(x => `.${x}`);
+  return fixed.map(x => `.${x}`);
 }
 
 function getEngines() {
@@ -324,9 +326,9 @@ function configure(flags, pkg) {
   });
 
   const fixedExtensions = array(flags.ext).reduce((memo, cur) => {
-    const parts = cur.replace(/^\./, '').split('.');
+    const [key, ...exts] = cur.replace(/^\./, '').split('.');
 
-    memo[parts.shift()] = parts;
+    memo[key] = exts;
     return memo;
   }, {});
 

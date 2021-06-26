@@ -21,35 +21,35 @@ describe('CLI', () => {
     expect(stdout).to.contain('write build/a/main.js');
     expect(stdout).to.contain('write build/a/test/example.js');
     expect(stdout).to.contain('done in');
-    expect(stdout.split('\n').length).to.eql(8);
+    expect(stdout.split('\n').length).to.eql(9);
   }));
 
   describe('options', () => {
     describe('--filter', () => {
       it('should process matching files', cli('a --filter "!**/{lib,test}/**"', '.', ({ stdout, stderr }) => {
         expect(stderr).to.eql('');
-        expect(stdout.split('\n').length).to.eql(5);
+        expect(stdout.split('\n').length).to.eql(6);
       }));
     });
 
     describe('--exclude', () => {
       it('should not process matching files', cli('a --exclude lib', '.', ({ stdout, stderr }) => {
         expect(stderr).to.eql('');
-        expect(stdout.split('\n').length).to.eql(6);
+        expect(stdout.split('\n').length).to.eql(7);
       }));
     });
 
     describe('--ignore', () => {
       it('should omit from processing', cli('a --ignore "**.yml"', '.', ({ stdout, stderr }) => {
         expect(stderr).to.eql('');
-        expect(stdout.split('\n').length).to.eql(7);
+        expect(stdout.split('\n').length).to.eql(8);
       }));
     });
 
     describe('--ignore-from', () => {
       it('should load ignores from given files', cli('a --ignore-from exclude.txt', '.', ({ stdout, stderr }) => {
         expect(stderr).to.eql('');
-        expect(stdout.split('\n').length).to.eql(7);
+        expect(stdout.split('\n').length).to.eql(8);
       }));
     });
   });

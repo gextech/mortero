@@ -87,13 +87,8 @@ describe('markup', () => {
 
 describe('scripts', () => {
   describe('JSON', () => {
-    const json_block = JSON.stringify({
-      foo: 'bar',
-    });
-
-    test(['x.json', json_block], result => {
-      expect(result.source).to.contain('var foo = "bar"');
-      expect(result.source).to.contain('var x_default');
+    test(['x.json', 'test'], result => {
+      expect(result.source).to.eql('export default "test"');
     });
   });
 

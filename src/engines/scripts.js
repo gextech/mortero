@@ -56,7 +56,13 @@ function yaml(params, next) {
   next();
 }
 
+function json(params, next) {
+  params.source = `export default ${JSON.stringify(params.source)}`;
+  next();
+}
+
 module.exports = {
+  json: [json, 'js'],
   yml: [yaml, 'json'],
   yaml: [yaml, 'json'],
   svelte: [svelte, 'js'],
