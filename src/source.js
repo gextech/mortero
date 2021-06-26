@@ -163,11 +163,11 @@ class Source {
         }
         return `import ${k} from ${qt}/*#!@@mod*/${qt}`;
       });
-
-      text = text.replace(/#!@@locate<(.+?)>/g, (_, src) => {
-        return relative(tpl.rename(joinPath(dirname(tpl.filepath), src)), tpl.directory);
-      });
     }
+
+    text = text.replace(/#!@@locate<(.+?)>/g, (_, src) => {
+      return relative(tpl.rename(joinPath(dirname(tpl.filepath), src)), tpl.directory);
+    });
 
     if (text.includes('# sourceMappingURL=')) {
       const [, payload] = text.match(/# sourceMappingURL=(.+?)(?=\s|$)/)[1].split('base64,');

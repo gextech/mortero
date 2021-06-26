@@ -10,7 +10,7 @@ const RE_MATCH_SCOPE = /\sscope=(["']?)(.+?)\1/;
 
 const RE_SOURCES = /<link[^<>]*?href=(.*?)[^<>]*?>|<script[^<>]*?src=(.*?)[^<>]*?>|(?<=:\s*)url\(.*?\)/g;
 const RE_MACROS = /(?:#|<!--|\/[/*])\s*(IF(?:_?NOT|NDEF)?)\s+([\s\S]*?)(?:#|<!--|\/[/*])\s*ENDIF/;
-const RE_IMPORT = /(?:^|\b)(?:url\(|import\s+(?:([^;]*?)?\s*from\s+)?)(["']?)([^)]+)\2/g;
+const RE_IMPORT = /(?:^|\b)(?:url\(|import\s+(?:([^;]*?)?\s*from\s+)?)(["']?)([^\s)]+)\2/g;
 const RE_LINKS = /(?:(?:href|src)=(["'])(.*?)\1)|url\((["']?)(.*?)\3\)/;
 const RE_INLINE = /\sinline(?:=(["']?)(?:inline|true)\1)?(?:\b|$)/;
 const RE_GLOBAL = /\/\*+\s*global\s+([\s\S]+?)\s*\*+\//g;
