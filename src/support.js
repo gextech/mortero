@@ -328,7 +328,7 @@ function configure(flags, pkg) {
   const fixedExtensions = array(flags.ext).reduce((memo, cur) => {
     const [key, ...exts] = cur.replace(/^\./, '').split('.');
 
-    memo[key] = exts;
+    memo[key] = exts.length ? exts : false;
     return memo;
   }, {});
 
