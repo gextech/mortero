@@ -120,6 +120,11 @@ class Source {
   }
 
   static render(tpl, locals) {
+    if (tpl.options.process === false && tpl.parts[0] !== 'js') {
+      tpl.extension = tpl.parts.join('');
+      return Promise.resolve(tpl);
+    }
+
     return new Promise((done, failure) => {
       if ((tpl.options.progress !== false || tpl.options.watch) && !tpl.options.quiet) {
         puts('\r{%blue render%} %s\r', relative(tpl.filepath));
