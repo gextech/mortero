@@ -186,6 +186,10 @@ function puts(...args) {
   stdLog.printf(...args);
 }
 
+function cls() {
+  stdLog.write('\r');
+}
+
 function defer(p, cb, list = []) {
   return p.reduce((prev, cur) => prev.then(cur).then(v => list.push(v)), Promise.resolve())
     .then(() => list.filter(Boolean))
@@ -234,6 +238,7 @@ function isMarkup(src) {
 
 module.exports = {
   ms,
+  cls,
   set,
   npm,
   size,

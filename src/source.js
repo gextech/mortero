@@ -5,6 +5,7 @@ const render = require('./render');
 const parse = require('./parse');
 
 const {
+  cls,
   puts,
   defer,
   resolve,
@@ -127,7 +128,8 @@ class Source {
 
     return new Promise((done, failure) => {
       if ((tpl.options.progress !== false || tpl.options.watch) && !tpl.options.quiet) {
-        puts('\r{%blue render%} %s\r', relative(tpl.filepath));
+        puts('\r{%blue render%} %s', relative(tpl.filepath));
+        cls();
       }
 
       Object.assign(tpl.locals, locals);

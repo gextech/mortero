@@ -12,6 +12,7 @@ const Source = require('./source');
 
 const {
   ms,
+  cls,
   size,
   puts,
   keys,
@@ -358,6 +359,7 @@ function watch(src, dest, flags, filter, callback) {
         .then(() => {
           ready = true;
           puts('\r{%gray. waiting for changes... [press CTRL-C to quit]%}');
+          cls();
         });
     }, flags.timeout || 100);
   }
