@@ -144,9 +144,9 @@ class Source {
     const moduleTasks = [];
 
     if (tpl.extension === 'js' && !tpl.isBundle && !tpl.isModule) {
-      const test = typeof tpl.data.$rewrite !== 'undefined' ? tpl.data.$rewrite : tpl.options.rewrite;
+      const fmt = typeof tpl.data.$format !== 'undefined' ? tpl.data.$format : tpl.options.format;
 
-      if (test !== false) {
+      if (fmt !== 'esm') {
         text = reExport(reImport(text)).replace(/await(\s+)import/g, '/* */$1require');
       }
     } else {

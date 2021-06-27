@@ -821,7 +821,7 @@ async function main({
 
 module.exports = argv => {
   const options = wargs(argv, {
-    boolean: 'nqfdVSWEAROMK',
+    boolean: 'nqfdVSWEAOMK',
     string: 'CeDbcyopPsaBriIFXLTNHk',
     alias: {
       C: 'cwd',
@@ -857,7 +857,6 @@ module.exports = argv => {
       W: 'no-write',
       E: 'no-embed',
       A: 'no-install',
-      R: 'no-rewrite',
       K: 'no-process',
       O: 'no-progress',
     },

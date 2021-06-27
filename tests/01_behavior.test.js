@@ -262,6 +262,10 @@ describe('modules', () => {
     expect(result.source).not.to.contain('import(');
   });
 
+  test(['should keep imports when bundling for esm', 'x.esm.js', 'import "./a/main"'], result => {
+    expect(result.source).not.to.contain('require(');
+  });
+
   test(['should override options.modules if $modules is given', 'x.js', `
     /**
     ---

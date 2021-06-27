@@ -75,8 +75,6 @@ Available options:
     -W, --no-write      Disable writing files to disk
     -E, --no-embed      Disable resource inlining on .html files
     -A, --no-install    Disable automatic installs during development
-    -R, --no-rewrite    Disable import/export rewrites on .js files,
-                        only when --target=cjs or if --modules are unset
     -K, --no-process    Disable post-processing of all given sources
     -O, --no-progress   Disable extended logging from compilations
 ```
