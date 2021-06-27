@@ -1,4 +1,4 @@
-const reImport = require('rewrite-imports');
+const reImport = require('rewrite-imports').rewrite;
 const reExport = require('rewrite-exports');
 
 const render = require('./render');

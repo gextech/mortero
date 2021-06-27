@@ -85,7 +85,7 @@ describe('esbuild', () => {
     test(['should apply options.platform as output', 'x.bundle.js', 'import "./a/test/example"', {
       platform: 'browser',
     }], result => {
-      expect(result.source).to.contain('{osom: 42}');
+      expect(result.source).to.contain('{ osom: 42 }');
     });
 
     test(['should set node as default options.platform', 'x.bundle.js', 'import "./a/test/example"'], result => {
@@ -100,7 +100,7 @@ describe('esbuild', () => {
       */
       import "./a/test/example"
     `], result => {
-      expect(result.source).to.contain('{osom: 42}');
+      expect(result.source).to.contain('{ osom: 42 }');
     });
   });
 
@@ -108,7 +108,7 @@ describe('esbuild', () => {
     test(['should replace from options.external', 'x.js', 'import re from "rewrite-exports";console.log(re("export {}"))', {
       external: ['rewrite-exports'],
     }], result => {
-      expect(result.source).to.contain("require('rewrite-exports')");
+      expect(result.source).to.contain('require("rewrite-exports")');
     });
 
     test(['should override options.external if $external is given', 'x.js', `
@@ -120,7 +120,7 @@ describe('esbuild', () => {
       import re from "rewrite-exports";
       console.log(re("export {}"))
     `], result => {
-      expect(result.source).to.contain("require('rewrite-exports')");
+      expect(result.source).to.contain('require("rewrite-exports")');
     });
   });
 
@@ -274,7 +274,7 @@ describe('aliases', () => {
   test(['should translate from given options.aliases', 'x.bundle.js', 'import x from "foo"; console.log(x)', {
     aliases: { foo: './dummy' },
   }], result => {
-    expect(result.source).to.contain('{osom: 42}');
+    expect(result.source).to.contain('{ osom: 42 }');
   });
 });
 
@@ -283,7 +283,8 @@ describe('paths', () => {
     aliases: { foo: 'example' },
     paths: ['tests/fixtures/c'],
   }], result => {
-    expect(result.source).to.contain('{foo, baz}');
+    expect(result.source).to.contain('var foo');
+    expect(result.source).to.contain('var baz');
   });
 });
 
