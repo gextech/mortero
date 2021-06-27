@@ -141,7 +141,7 @@ function json(entry) {
 }
 
 let total = 0;
-function debug(deferred) {
+function debug(deferred, bailout) {
   return deferred.then(tpl => {
     const end = tpl.options.progress !== false ? '\n' : '';
 
@@ -149,14 +149,25 @@ function debug(deferred) {
       puts('\r{%red. failed%} %s\n', relative(tpl.destination));
       puts('{%gray. ⚠ %s%}', trace(tpl.failure));
       puts(end);
-    } else if (tpl.destination && !tpl.options.quiet) {
+    } else if (tpl.destination && !tpl.failure) {
       const length = size(tpl.destination);
 
-      puts('\r{%cyan write%} %s {%magenta.arrow. %s%} {%gray (%s)%}', relative(tpl.destination), bytes(length), ms(tpl.worktime));
-      puts(end);
+      if (!tpl.options.quiet) {
+        puts('\r{%cyan write%} %s {%magenta.arrow. %s%} {%gray (%s)%}', relative(tpl.destination), bytes(length), ms(tpl.worktime));
+        puts(end);
+      }
 
       cache[tpl.filepath] = json(tpl);
       total += length;
+    } else if (tpl.failure) {
+      if (tpl.failure.frame) {
+        puts(`\r{%error. ${relative(tpl.failure.filename)}:${tpl.failure.start.line}%}\n`);
+        puts('%s: %s\n', tpl.failure.name, tpl.failure.message);
+        puts('%s\n', tpl.failure.frame);
+      } else {
+        puts('\r{%error. %s%}\n', (tpl.failure.stack || tpl.failure.message));
+      }
+      if (bailout) process.exit(1);
     }
     return tpl;
   });
@@ -791,7 +802,7 @@ async function main({
 
     let status = '{%gray. without changes%}';
     await Promise.resolve().then(() => write(missed, dest, flags, [], loader(missed, dest, flags)))
-      .then(() => defer(srcFiles.map(x => () => debug(Source.compileFile(x, null, flags)))))
+      .then(() => defer(srcFiles.map(x => () => debug(Source.compileFile(x, null, flags), true))))
       .then(() => sync(flags, []) || (flags.exec && exec(dest, flags)))
       .then(() => {
         if (srcFiles.length || missed.length) {
