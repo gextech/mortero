@@ -703,7 +703,8 @@ async function main({
           root: dest,
           open: false,
           logLevel: 0,
-          watch: dirs.concat(dest),
+          file: 'index.html',
+          watch: dirs.concat(relative(dest)),
           mount: Object.entries(params).concat(dirs.map(x => ['/', x])),
         };
 
