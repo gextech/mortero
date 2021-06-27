@@ -41,7 +41,6 @@ class Source {
 
     this.directory = resolve(opts.dest, './build');
     this.extension = (getEngines()[this.parts[0]] || [])[1] || this.parts[0];
-    this.destination = this.rename(joinPath(this.directory, `${this.slug}.${this.extension}`));
 
     if (this.extension === 'html') {
       const rel = relative(this.destination, this.directory);
@@ -50,6 +49,10 @@ class Source {
       this.locals.self = { filename: relative(this.filepath) };
       this.locals.location = new URL(url, this.locals.ROOT || `http://localhost:${process.PORT || 8080}`);
     }
+  }
+
+  get destination() {
+    return this.rename(joinPath(this.directory, `${this.slug}.${this.extension}`));
   }
 
   compile(locals, context) {
