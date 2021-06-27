@@ -33,10 +33,28 @@ describe('destination', () => {
 });
 
 describe('conditionals', () => {
-  test(['should discard code within IF/ENDIF marks', 'x.y', '<!--IF_NOT x-->y<!--ENDIF-->', {
+  test(['should discard code within IF/ENDIF marks', 'x.y', '<!--IF_NOT x-->\ny\n<!--ENDIF-->', {
     globals: { x: false },
   }], result => {
-    expect(result.source).to.contain('y');
+    expect(result.source).to.eql('\ny\n');
+  });
+
+  test(['should keep blank-lines after replacements', 'x.y', `
+    1
+# IF x
+    2
+    3
+# ENDIF
+    4
+
+    5
+# IF_NOT x
+    6
+    7
+# ENDIF
+    8
+  `], result => {
+    expect(result.source.split('\n').length).to.eql(15);
   });
 });
 

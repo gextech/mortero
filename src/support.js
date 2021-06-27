@@ -16,9 +16,9 @@ const RE_INLINE = /\sinline(?:=(["']?)(?:inline|true)\1)?(?:\b|$)/;
 const RE_GLOBAL = /\/\*+\s*global\s+([\s\S]+?)\s*\*+\//g;
 const RE_EXT = /\.(\w+)$(?=\?.*?|$)$/;
 
-const RE_IF = /^\s*(?:#|<!--|\/[/*])\s*IF(?:DEF)?/;
-const RE_END = /^\s*(?:#|<!--|\/[/*])\s*ENDIF/;
-const RE_VALUES = /\s*(?:#|<!--|\/[/*])\s*IF(_?NOT|NDEF)?\s+([a-zA-Z_]+)/;
+const RE_IF = /^\s*(?:#|<!--|\/[/*])\s*IF(?:DEF)?\s*/;
+const RE_END = /^\s*(?:#|<!--|\/[/*])\s*ENDIF\s*/;
+const RE_VALUES = /\s*(?:#|<!--|\/[/*])\s*IF(_?NOT|NDEF)?\s+([a-zA-Z_]+)\s*/;
 
 const TEMP_DIR = os.tmpdir();
 
@@ -784,7 +784,7 @@ function globals(source, vars) {
 }
 
 function replaceMacro(text, _globals) {
-  const lines = text.replace(/-->(?!\n)/g, '-->\n').replace(/(?!\n)<!--/g, '\n<!--').split('\n');
+  const lines = text.split(/(?<=\n)/);
 
   let startFound = 0;
   let endFound = 0;
@@ -797,17 +797,22 @@ function replaceMacro(text, _globals) {
   }
 
   const startMatch = RE_VALUES.exec(lines[startFound]);
+  const endMatch = RE_END.exec(lines[endFound]);
+
   const flag = _globals[startMatch[2]] === 'true' || _globals[startMatch[2]] === true;
   const keepBlock = startMatch[1] ? !flag : flag;
 
   if (keepBlock) {
-    lines.splice(startFound, 1);
-    lines.splice(endFound - 1, 1);
+    lines[startFound] = startMatch.input.includes('\n') ? '\n' : '';
+    lines[endFound] = (endMatch && endMatch.input.includes('\n')) ? '\n' : '';
   } else {
-    lines.splice(startFound, endFound - startFound + 1);
+    while (startFound <= endFound) {
+      lines[startFound] = lines[startFound].includes('\n') ? '\n' : '';
+      startFound++;
+    }
   }
 
-  return lines.join('\n');
+  return lines.join('');
 }
 
 function conditionals(text, _globals) {
