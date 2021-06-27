@@ -784,7 +784,7 @@ function globals(source, vars) {
 }
 
 function replaceMacro(text, _globals) {
-  const lines = text.replace(/>(?!\n)/g, '>\n').replace(/(?!\n)</g, '\n<').split('\n');
+  const lines = text.replace(/-->(?!\n)/g, '-->\n').replace(/(?!\n)<!--/g, '\n<!--').split('\n');
 
   let startFound = 0;
   let endFound = 0;
