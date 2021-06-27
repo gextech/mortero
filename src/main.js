@@ -821,7 +821,7 @@ async function main({
 
 module.exports = argv => {
   const options = wargs(argv, {
-    boolean: 'nqwfdVSWEAROMK',
+    boolean: 'nqfdVSWEAROMK',
     string: 'CeDbcyopPsaBriIFXLTNHk',
     alias: {
       C: 'cwd',
