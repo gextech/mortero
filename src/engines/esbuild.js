@@ -186,6 +186,7 @@ function esbuild(params, next, ext) {
     color: true,
     write: false,
     bundle: params.isBundle,
+    minify: process.env.NODE_ENV === 'production',
     external: params.isBundle ? external : undefined,
     plugins: [Mortero(params, external)],
   }).then(result => {
