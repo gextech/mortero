@@ -165,7 +165,7 @@ function esbuild(params, next, ext) {
 
   require('esbuild').build({
     resolveExtensions: getExtensions(false, params.options.extensions),
-    mainFields: ['main', 'module', 'browser', 'svelte'],
+    mainFields: ['svelte', 'module', 'main'],
     target: !esnext ? target || 'node10.23' : undefined,
     define: keys(params.options.globals).reduce((memo, k) => {
       if (typeof params.options.globals[k] !== 'object') {
