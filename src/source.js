@@ -121,7 +121,7 @@ class Source {
   }
 
   static render(tpl, locals) {
-    if (tpl.options.process === false && tpl.parts[0] !== 'js') {
+    if (tpl.options.process === false && tpl.extension !== 'js') {
       tpl.extension = tpl.parts.join('');
       return Promise.resolve(tpl);
     }
@@ -153,7 +153,7 @@ class Source {
       text = text.replace(RE_IMPORT, (_, k, qt, mod) => {
         if (_.length > 250 || _.includes('data:')) return _;
         if (_.indexOf('url(') === 0) {
-          return `url(${qt}#!@@locate<${mod}>${qt}`;
+          return tpl.extension === 'js' ? _ : `url(${qt}#!@@locate<${mod}>${qt}`;
         }
 
         if ('./'.includes(mod.charAt())) {
