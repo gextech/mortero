@@ -233,7 +233,7 @@ function bytes(n) {
 }
 
 function isMarkup(src) {
-  return MARKUP.includes(path.extname(src, true));
+  return MARKUP.includes(extname(src, true));
 }
 
 module.exports = {
