@@ -714,8 +714,8 @@ async function main({
           open: false,
           logLevel: 0,
           file: 'index.html',
-          ignore: flags.exclude.map(filter => {
-            if (filter.includes('*') || filter.includes('{')) return filter;
+          ignore: flags.exclude.concat(array(flags.ignoreServe)).map(filter => {
+            if (filter.includes('*')) return filter;
             return `**/${filter}`;
           }).concat('**/node_modules'),
           watch: dirs.concat(relative(dest)),
@@ -821,8 +821,8 @@ async function main({
 
 module.exports = argv => {
   const options = wargs(argv, {
-    boolean: 'nqfdVSWEAOMK',
-    string: 'CeDbcyopPsaBriIFXLTNHk',
+    boolean: 'nqfdVSWEAOMKv',
+    string: 'CeDbcyopPsaBriIGFXLTNHk',
     alias: {
       C: 'cwd',
       e: 'ext',
@@ -848,6 +848,8 @@ module.exports = argv => {
       r: 'rename',
       i: 'ignore',
       I: 'ignore-from',
+      G: 'ignore-serve',
+      v: 'version',
       F: 'filter',
       X: 'exclude',
       L: 'plugins',

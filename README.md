@@ -40,6 +40,8 @@ Available options:
                         default is !**
     -I, --ignore-from   Extract and set ignore rules from any given files,
                         e.g. `-I.gitignore`
+    -G, --ignore-serve  Excludes additional sources from live-server reload,
+                        e.g. `-Gmain-iife.js`
     -X, --exclude       Files matching exclude rules are not processed,
                         e.g. `-X "{lib,shared,components}"`
 
