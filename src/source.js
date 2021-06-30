@@ -10,6 +10,7 @@ const {
   defer,
   resolve,
   lsFiles,
+  basename,
   isMarkup,
   relative,
   joinPath,
@@ -20,10 +21,12 @@ const {
 const {
   embed,
   modules,
+  isLocal,
   getHooks,
   getEngines,
   getContext,
   RE_IMPORT,
+  TEMP_DIR,
 } = require('./support');
 
 let cache;
@@ -34,21 +37,38 @@ class Source {
     this.install = 0;
     this.worktime = 0;
 
-    if (typeof input === 'string') {
-      Object.assign(this, parse(src, input, opts));
+    const source = typeof input === 'string' ? input : readFile(src);
+
+    if (typeof input === 'undefined' && !isLocal(src, opts)) {
+      const parts = basename(src, opts.root).split('.');
+      const slug = relative(src.replace(/\.[.\w]+$/, ''));
+
+      parts.shift();
+      Object.assign(this, {
+        directory: joinPath(TEMP_DIR, src.replace(/\W/g, '_')),
+        extension: parts[0],
+        filepath: src,
+        options: {},
+        source,
+        parts,
+        slug,
+        data: {},
+        children: [],
+      });
     } else {
-      Object.assign(this, parse(src, readFile(src), opts));
-    }
+      Object.assign(this, parse(src, source, opts));
 
-    this.directory = resolve(opts.dest, './build');
-    this.extension = (getEngines()[this.parts[0]] || [])[1] || this.parts[0];
+      this._local = true;
+      this.directory = resolve(opts.dest, './build');
+      this.extension = (getEngines()[this.parts[0]] || [])[1] || this.parts[0];
 
-    if (this.extension === 'html') {
-      const rel = relative(this.destination, this.directory);
-      const url = `/${rel.includes('index.html') ? rel.replace(/\/?index\.html$/, '') : rel || ''}`;
+      if (this.extension === 'html') {
+        const rel = relative(this.destination, this.directory);
+        const url = `/${rel.includes('index.html') ? rel.replace(/\/?index\.html$/, '') : rel || ''}`;
 
-      this.locals.self = { filename: relative(this.filepath) };
-      this.locals.location = new URL(url, this.locals.ROOT || `http://localhost:${process.PORT || 8080}`);
+        this.locals.self = { filename: relative(this.filepath) };
+        this.locals.location = new URL(url, this.locals.ROOT || `http://localhost:${process.PORT || 8080}`);
+      }
     }
   }
 

@@ -17,6 +17,7 @@ const {
   getModule,
   getExtensions,
   isSupported,
+  isLocal,
 } = require('../support');
 
 const memoized = {};
@@ -41,6 +42,8 @@ const Mortero = (entry, external) => ({
     }, {});
 
     async function buildSource(path, locals) {
+      if (!isLocal(path, entry.options) && /\.(?:mjs|[jt]sx?|json)$/.test(path)) return null;
+
       let params = Source.get(path);
       if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
         if (!params || !params.instance || !params.input) {
@@ -112,10 +115,7 @@ const Mortero = (entry, external) => ({
       if (!entry.children.includes(path) && !path.includes('node_modules')) {
         entry.children.push(path);
       }
-
-      if (!/\.(?:[jt]sx?|json)$/.test(path)) {
-        return buildSource(path);
-      }
+      return buildSource(path);
     });
 
     build.onLoad({ filter: /.*/, namespace: 'resource' }, ({ path }) => {

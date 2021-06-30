@@ -87,7 +87,7 @@ describe('extensions', () => {
   test(['should bundle from JSON extensions', 'x.js', 'import x from "./a/sample.json";console.log(x)', {
     bundle: true,
   }], result => {
-    expect(result.source).to.contains('var foo = "bar"');
+    expect(result.source).to.contains("sample_default = '{\\n  \"foo\": \"bar\"\\n}\\n'");
   }, { keys: ['id', 'name'] });
 
   test(['should render from bundled extensions', 'x.js', 'import x from "./a/template.gql";console.log(x)', {
@@ -149,10 +149,10 @@ describe('esbuild', () => {
       expect(result.source).to.contain('console.log("development")');
     });
 
-    test(['should inline from /* global */ comments', 'x.js', '/* global test */console.log(test)', {
-      globals: { test: '42' },
+    test(['should inline from /* global CONST */ comments', 'x.js', '/* global TEST */console.log(test)', {
+      globals: { TEST: '42' },
     }], result => {
-      expect(result.source).to.contain('var test = 42');
+      expect(result.source).to.contain('var TEST = 42');
       expect(result.source).to.contain('console.log(test)');
     });
   });
