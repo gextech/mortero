@@ -176,6 +176,7 @@ function unlink(filepath) {
 
 function raise(...args) {
   errLog.printf(...args);
+  process.exit(1);
 }
 
 function warn(...args) {

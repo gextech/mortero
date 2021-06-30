@@ -105,11 +105,7 @@ function exec(dest, flags) {
 
     child.stdout.pipe(process.stdout);
     child.stderr.on('data', data => {
-      const line = data.toString().trim();
-
-      if (line) {
-        raise(line);
-      }
+      raise(data.toString());
     });
 
     child.on('close', exitCode => {
@@ -751,7 +747,6 @@ async function main({
 
         const server = liveserver.start(opts).on('error', () => {
           raise('\r{%red. cannot start live-server%}\n');
-          process.exit(1);
         }).on('listening', () => {
           const { address, port } = server.address();
 
@@ -868,6 +863,5 @@ module.exports = argv => {
 
   return main(options).catch(e => {
     raise('\r{%red. failure%} %s\n', e[options.verbose ? 'stack' : 'message']);
-    process.exit(1);
   });
 };
