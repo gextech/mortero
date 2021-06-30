@@ -150,27 +150,27 @@ class Source {
         text = reExport(reImport(text)).replace(/await(\s+)import/g, '/* */$1require');
       }
     } else {
-      text = text.replace(RE_IMPORT, (_, k, qt, mod) => {
+      text = text.replace(RE_IMPORT, (_, $1, $2, $3, $4, $5) => {
         if (_.length > 250 || _.includes('data:')) return _;
         if (_.indexOf('url(') === 0) {
-          return tpl.extension === 'js' ? _ : `url(${qt}#!@@locate<${mod}>${qt}`;
+          return tpl.extension === 'js' ? _ : `url(${$1}#!@@locate<${$2}>${$1}`;
         }
 
-        if ('./'.includes(mod.charAt())) {
-          if (!k || k.includes('{')) return _;
-          return `var ${k} = ${qt}#!@@locate<${mod}>${qt}`;
+        if ('./'.includes($5.charAt())) {
+          if (!$3 || $3.includes('{')) return _;
+          return `var ${$3} = ${$4}#!@@locate<${$5}>${$4}`;
         }
 
         if (tpl.data.$online || tpl.options.online) {
-          return `import ${k} from ${qt}//cdn.skypack.dev/${mod}${qt}`;
+          return `import ${$3} from ${$4}//cdn.skypack.dev/${$5}${$4}`;
         }
 
         if (tpl.options.write !== false) {
-          moduleTasks.push(() => modules(mod, tpl));
+          moduleTasks.push(() => modules($5, tpl));
         } else {
-          moduleTasks.push(() => `web_modules/${mod}`);
+          moduleTasks.push(() => `web_modules/${$5}`);
         }
-        return `import ${k} from ${qt}/*#!@@mod*/${qt}`;
+        return `import ${$3} from ${$4}/*#!@@mod*/${$4}`;
       });
     }
 
