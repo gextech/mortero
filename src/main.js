@@ -710,6 +710,7 @@ async function main({
         const opts = {
           port: flags.port || undefined,
           root: dest,
+          wait: 1000,
           open: false,
           logLevel: 0,
           file: 'index.html',
