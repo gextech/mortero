@@ -714,10 +714,9 @@ async function main({
           open: false,
           logLevel: 0,
           file: 'index.html',
-          ignore: flags.exclude.concat(array(flags.ignoreServe)).map(filter => {
-            if (filter.includes('*')) return filter;
-            return `**/${filter}`;
-          }).concat('**/node_modules'),
+          ignore: array(flags.exclude, flags.ignoreServe)
+            .map(filter => (!filter.includes('*') ? `**/${filter}` : filter))
+            .concat('**/node_modules'),
           watch: dirs.concat(relative(dest)),
           mount: Object.entries(params).concat(dirs.map(x => ['/', x])),
         };
