@@ -78,7 +78,7 @@ function array(...args) {
 }
 
 function strip(html) {
-  html = html.replace(/<(style|script|svg)[^<>]*>[^]*?<\/\1>/g, '');
+  html = html.replace(/<(style|script|svg|pre)[^<>]*>[^]*?<\/\1>/g, '');
   html = html.replace(/ +/g, ' ').replace(/\n +/g, '\n').replace(/\n+/g, '\n');
   return html.trim();
 }
