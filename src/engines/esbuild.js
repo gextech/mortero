@@ -17,7 +17,6 @@ const {
   getModule,
   getExtensions,
   isSupported,
-  isLocal,
 } = require('../support');
 
 const memoized = {};
@@ -42,7 +41,7 @@ const Mortero = (entry, external) => ({
     }, {});
 
     async function buildSource(path, locals) {
-      if (!isLocal(path, entry.options) && /\.(?:mjs|[jt]sx?|json)$/.test(path)) return null;
+      if (/\.(?:mjs|[jt]sx?|json)$/.test(path)) return null;
 
       let params = Source.get(path);
       if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
