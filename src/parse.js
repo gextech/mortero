@@ -60,9 +60,7 @@ module.exports = (filepath, source, opts) => {
       fm.clr = () => {
         // fill with blank lines to help source-maps tools
         if (!fm._fixed) {
-          fm._fixed = `${source.substr(0, start)}${
-            new Array(raw.split('\n').length + 1).join('\n')
-          }${source.substr(end + elen)}`;
+          fm._fixed = source.replace(raw, raw.replace(/\S/g, ' '));
         }
         return fm._fixed;
       };
