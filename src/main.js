@@ -319,7 +319,7 @@ function watch(src, dest, flags, filter, callback) {
         if (test) compile.deps.push(file);
         if (dep) {
           if (!test) compile.missed.push(file);
-          return;
+          else return;
         }
 
         if (src.some(x => file.includes(x))) {
