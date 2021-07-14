@@ -49,11 +49,17 @@ module.exports = function render(params, done) {
   });
 
   // clean out special locals
-  delete params.locals.$remote;
-  delete params.locals.$modules;
-  delete params.locals.$render;
-  delete params.locals.$format;
   delete params.locals.$external;
+  delete params.locals.$platform;
+  delete params.locals.$bundle;
+  delete params.locals.$format;
+  delete params.locals.$target;
+  delete params.locals.$debug;
+  delete params.locals.$render;
+  delete params.locals.$modules;
+  delete params.locals.$remote;
+  delete params.locals.$footer;
+  delete params.locals.$name;
 
   return pipeline
     .reduce((prev, cur, i) =>
