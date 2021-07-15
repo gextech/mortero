@@ -494,6 +494,10 @@ async function modules(src, entry, _bundle) {
     mod = exists(resolve(`./node_modules/${pkgName}`));
   }
 
+  if (!mod && !pkgName) {
+    throw new Error(`Cannot resolve '${src}' as module`);
+  }
+
   if (entry._local && entry.options.install !== false && !mod) {
     if (!entry.options.quiet) puts('\r{%magentaBright install%} %s ', pkgName);
 
@@ -524,7 +528,7 @@ async function modules(src, entry, _bundle) {
     if (stdout.length && !entry.options.quiet) puts(stdout);
   }
   if (_bundle) return;
-  if (!mod.includes('node_modules')) return mod;
+  if (typeof mod === 'string' && !mod.includes('node_modules')) return mod;
 
   const chunks = resolve(`./node_modules/${pkgName}`).split('/');
   const offset = chunks.indexOf('node_modules');
