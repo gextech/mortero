@@ -49,38 +49,25 @@ module.exports = (filepath, source, opts) => {
   if ((end > start && start >= 0) && (ls === ' ' || ls === '\n' || ls === '') && (rs === ' ' || rs === '\n' || rs === '')) {
     const slen = delims[0].length;
     const elen = (delims[1] || delims[0]).length;
+    const raw = source.substr(start + slen + 1, end - (start + elen + 1));
 
-    let error;
-    try {
-      const raw = source.substr(start + slen + 1, end - (start + elen + 1));
+    fm = data(options.cwd || resolve('.'), filepath, redent(raw));
 
-      fm = data(options.cwd || resolve('.'), filepath, redent(raw));
-
-      // cleanup
-      fm.clr = () => {
-        // fill with blank lines to help source-maps tools
-        if (!fm._fixed) {
-          fm._fixed = source.replace(raw, raw.replace(/\S/g, ' '));
-        }
-        return fm._fixed;
-      };
-
-      // strip front-matter for non-markdown sources
-      if (!hasMkd || options.frontMatter === false) {
-        source = fm.clr();
+    // cleanup
+    fm.clr = () => {
+      // fill with blank lines to help source-maps tools
+      if (!fm._fixed) {
+        fm._fixed = source.replace(raw, raw.replace(/\S/g, ' '));
       }
+      return fm._fixed;
+    };
 
-      obj = fm.obj;
-    } catch (e) {
-      error = e;
+    // strip front-matter for non-markdown sources
+    if (!hasMkd || options.frontMatter === false) {
+      source = fm.clr();
     }
 
-    if (error) {
-      error.message = error.reason;
-      error.filepath = filepath;
-      delete error.mark;
-      throw error;
-    }
+    obj = fm.obj;
   }
 
   if (hasMkd && obj && obj.$render) {

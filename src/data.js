@@ -1,8 +1,10 @@
 const yaml = require('js-yaml');
 
 const {
+  warn,
   dirname,
   resolve,
+  relative,
   joinPath,
   readFile,
 } = require('./common');
@@ -60,8 +62,11 @@ function load(ctx, text, files) {
       ]),
     });
   } catch (e) {
-    e.message = `${e.message} in ${ctx.src}`;
-    throw e;
+    if (e.mark) {
+      warn('\r{%error. %s: %s in %s%}\n%s\n', e.name, e.reason, relative(ctx.src), e.mark.snippet);
+    } else {
+      warn('\r{%error. %s in %s%}\n', e.message, relative(ctx.src));
+    }
   }
 }
 
