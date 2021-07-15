@@ -51,6 +51,7 @@ module.exports = function render(params, done) {
   // clean out special locals
   delete params.locals.$external;
   delete params.locals.$platform;
+  delete params.locals.$inject;
   delete params.locals.$bundle;
   delete params.locals.$format;
   delete params.locals.$target;

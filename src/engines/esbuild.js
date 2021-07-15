@@ -145,6 +145,7 @@ const Mortero = (entry, external) => ({
 function esbuild(params, next, ext) {
   const external = array(params.data.$external, params.options.external);
   const platform = params.data.$platform || params.options.platform;
+  const inject = params.data.$inject || params.options.inject;
   const footer = params.data.$footer || params.options.footer;
   const bundle = params.data.$bundle || params.options.bundle;
   const format = params.data.$format || params.options.format;
@@ -175,6 +176,7 @@ function esbuild(params, next, ext) {
       return memo;
     }, {}),
     logLevel: (params.options.quiet && 'silent') || undefined,
+    inject: [].concat(inject || []),
     sourcemap: debug ? 'inline' : undefined,
     platform: platform || 'node',
     format: format || 'esm',
