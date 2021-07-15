@@ -188,7 +188,7 @@ class Source {
         if (tpl.options.write !== false) {
           moduleTasks.push(() => modules($5, tpl));
         } else {
-          moduleTasks.push(() => `web_modules/${$5}`);
+          moduleTasks.push(() => `/web_modules/${$5}`);
         }
         return `import ${$3} from ${$4}/*#!@@mod*/${$4}`;
       });
@@ -208,7 +208,7 @@ class Source {
     }
 
     return defer(moduleTasks, resolved => {
-      return text.replace(/\/\*#!@@mod\*\//g, () => `/${resolved.shift()}`);
+      return text.replace(/\/\*#!@@mod\*\//g, () => resolved.shift());
     });
   }
 

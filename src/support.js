@@ -524,6 +524,7 @@ async function modules(src, entry, _bundle) {
     if (stdout.length && !entry.options.quiet) puts(stdout);
   }
   if (_bundle) return;
+  if (!mod.includes('node_modules')) return mod;
 
   const chunks = resolve(`./node_modules/${pkgName}`).split('/');
   const offset = chunks.indexOf('node_modules');
@@ -560,7 +561,7 @@ async function modules(src, entry, _bundle) {
       if (!entry.options.quiet && entry.options.progress === false) {
         puts('\r{%cyanBright copy%} %s file%s\n', count, count === 1 ? '' : 's');
       }
-      return relative(moduleFile, destDir);
+      return `/${relative(moduleFile, destDir)}`;
     }
   } catch (e) {
     // do nothing
