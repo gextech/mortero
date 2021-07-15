@@ -147,6 +147,7 @@ const Mortero = (entry, external) => ({
 function esbuild(params, next, ext) {
   const external = array(params.data.$external, params.options.external);
   const platform = params.data.$platform || params.options.platform;
+  const banner = params.data.$banner || params.options.banner;
   const inject = params.data.$inject || params.options.inject;
   const footer = params.data.$footer || params.options.footer;
   const bundle = params.data.$bundle || params.options.bundle;
@@ -183,6 +184,7 @@ function esbuild(params, next, ext) {
     platform: platform || 'node',
     format: format || 'esm',
     globalName: name,
+    banner,
     footer,
     stdin: {
       resolveDir: params.options.cwd || dirname(params.filepath),
