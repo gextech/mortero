@@ -40,13 +40,10 @@ module.exports = (filepath, source, opts) => {
   options.globals = options.globals || {};
   source = globals(conditionals(source, options.globals), options.globals);
 
-  // extract front-matter
-  const ls = source.substr(start - 1, 1);
-  const rs = source.substr(end - 1, 1);
-
   let fm;
   let obj;
-  if ((end > start && start >= 0) && (ls === ' ' || ls === '\n' || ls === '') && (rs === ' ' || rs === '\n' || rs === '')) {
+  // extract front-matter
+  if (end > start && start >= 0) {
     const slen = delims[0].length;
     const elen = (delims[1] || delims[0]).length;
     const raw = source.substr(start + slen + 1, end - (start + elen + 1));
@@ -57,7 +54,11 @@ module.exports = (filepath, source, opts) => {
     fm.clr = () => {
       // fill with blank lines to help source-maps tools
       if (!fm._fixed) {
-        fm._fixed = source.replace(raw, raw.replace(/\S/g, ' '));
+        const escaped = raw.replace(/\S/g, ' ');
+        const prefix = source.substr(0, start);
+        const suffix = source.substr(end + elen);
+
+        fm._fixed = [prefix, delims[0].replace(/\S/g, ' '), '\n', escaped, '   ', suffix].join('');
       }
       return fm._fixed;
     };

@@ -65,7 +65,17 @@ describe('front-matter', () => {
     ---
     <%= foo %>
   `], result => {
-    expect(result.source).to.contain('bar');
+    const actual = result.source.split(/(?<=\n)/);
+    const expected = [
+      '\n',
+      '       \n',
+      '            \n',
+      '       \n',
+      '    bar\n',
+      '  ',
+    ];
+
+    expect(actual).to.eql(expected);
   });
 });
 
