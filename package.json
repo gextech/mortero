@@ -37,12 +37,6 @@
   ],
   "author": "Alvaro Cabrera <yo@soypache.co>",
   "license": "MIT",
-  "bundleDependencies": [
-    "talavera",
-    "esbuild",
-    "chokidar",
-    "live-server"
-  ],
   "devDependencies": {
     "asciidoctor.js": "^1.5.9",
     "chai": "^4.3.0",
@@ -79,7 +73,7 @@
   },
   "dependencies": {
     "chokidar": "^3.5.1",
-    "esbuild": "^0.12.12",
+    "esbuild": "^0.12.19",
     "live-server": "^1.2.1",
     "talavera": "^0.9.8"
   }
