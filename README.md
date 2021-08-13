@@ -45,8 +45,9 @@ Available options:
     -X, --exclude       Files matching exclude rules are not processed,
                         e.g. `-X "{lib,shared,components}"`
 
-    -U, --modules       Enable web_modules and sets the destination folder,
+    -M, --modules       Enable web_modules and sets the destination folder,
                         also on this mode all bundling gets disabled
+    -n, --online        Enable module resolution from skypack.dev CDN
     -H, --paths         Configure additional folders to lookup imports,
                         e.g. `-Hweb_components,vendor`
 

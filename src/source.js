@@ -10,6 +10,7 @@ const {
   defer,
   resolve,
   lsFiles,
+  dirname,
   basename,
   isMarkup,
   relative,
@@ -25,6 +26,7 @@ const {
   getHooks,
   getEngines,
   getContext,
+  isSupported,
   RE_IMPORT,
   TEMP_DIR,
 } = require('./support');
@@ -94,7 +96,14 @@ class Source {
         }));
       }
 
-      if (this.extension === 'css') {
+      const _module = this.data.$modules !== false
+        ? (this.data.$modules || this.options.modules)
+        : false;
+
+      const isModule = this.extension === 'js' && !this._rewrite && _module;
+
+      if (this.extension === 'css' || isModule) {
+        this.isModule = true;
         compileTasks.push(() => Source.rewrite(this, this.source)
           .then(_result => {
             this.source = _result;
@@ -141,7 +150,7 @@ class Source {
   }
 
   static render(tpl, locals) {
-    if (tpl.options.process === false && tpl.extension !== 'js') {
+    if (tpl.options.process === false) {
       tpl.extension = tpl.parts.join('');
       return Promise.resolve(tpl);
     }
@@ -176,15 +185,17 @@ class Source {
           return tpl.extension === 'js' ? _ : `url(${$1}#!@@locate<${$2}>${$1}`;
         }
 
-        if ('./'.includes($5.charAt())) {
-          if (!$3 || $3.includes('{')) return _;
-          return `var ${$3} = ${$4}#!@@locate<${$5}>${$4}`;
+        if ($5.indexOf('./') === 0 || $5.indexOf('../') === 0) {
+          if (!isSupported($5)) return `var ${$3} = ${$4}#!@@locate<${$5}>${$4}`;
+          return `import ${$3} from ${$4}/~/${relative(joinPath(dirname(tpl.filepath), $5))}${$4}`;
         }
 
+        if ($5.charAt() === '/') return _;
         if (tpl.data.$online || tpl.options.online) {
           return `import ${$3} from ${$4}//cdn.skypack.dev/${$5}${$4}`;
         }
 
+        if (tpl.isBundle) return _;
         if (tpl.options.write !== false) {
           moduleTasks.push(() => modules($5, tpl));
         } else {
@@ -203,7 +214,7 @@ class Source {
       const buffer = Buffer.from(payload, 'base64').toString('ascii');
       const data = JSON.parse(buffer);
 
-      data.sources = data.sources.map(src => resolve(src));
+      data.sources = data.sources.map(src => relative(src));
       text = text.replace(payload, Buffer.from(JSON.stringify(data)).toString('base64'));
     }
 

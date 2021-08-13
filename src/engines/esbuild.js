@@ -202,6 +202,7 @@ function esbuild(params, next, ext) {
     return Promise.resolve()
       .then(() => Source.rewrite(params, result.outputFiles[0].text))
       .then(output => {
+        params._rewrite = true;
         params.source = output;
         next();
       });

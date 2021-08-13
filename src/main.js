@@ -137,6 +137,10 @@ function json(entry) {
   };
 }
 
+function fail(e, options) {
+  raise('\r{%red. failure%} %s\n', e[options.verbose ? 'stack' : 'message']);
+}
+
 let total = 0;
 function debug(deferred, bailout) {
   return deferred.then(tpl => {
@@ -319,6 +323,7 @@ function watch(src, dest, flags, filter, callback) {
         if (test) compile.deps.push(file);
         if (dep) {
           if (!test) compile.missed.push(file);
+          liveserver.watcher.emit('change', file);
           return;
         }
 
@@ -719,6 +724,46 @@ async function main({
             .concat('**/node_modules'),
           watch: dirs.concat(relative(dest)),
           mount: Object.entries(params).concat(dirs.map(x => ['/', x])),
+          middleware: [(req, res, _next) => {
+            if (req.url.indexOf('/~/') === 0) {
+              const filepath = resolve(req.url.split('?')[0].substr(3));
+
+              let mime = 'text/plain';
+              if (
+                cache[filepath]
+                && cache[filepath].destination
+                && +mtime(filepath) <= cache[filepath].modified
+              ) {
+                res.setHeader('Content-Type', cache[filepath].type || mime);
+                res.end(readFile(cache[filepath].destination));
+              } else if (isSupported(filepath)) {
+                debug(Source.compileFile(filepath, null, flags)).then(tpl => {
+                  if (tpl.extension === 'js') mime = 'application/javascript';
+                  if (tpl.extension === 'css') mime = 'text/css';
+
+                  cache[filepath] = {
+                    ...cache[filepath],
+                    destination: tpl.destination,
+                    modified: +mtime(filepath),
+                    dirty: undefined,
+                    type: mime,
+                  };
+
+                  res.setHeader('Content-Type', mime);
+                  res.end(tpl.source);
+                  sync(flags, []);
+                }).catch(e => {
+                  fail(e, flags);
+                });
+              } else {
+                res.statusCode = 404;
+                res.setHeader('Content-Type', mime);
+                res.end(`/* Not Found: ${req.url} */`);
+              }
+            } else {
+              _next();
+            }
+          }],
         };
 
         if (flags.proxy) {
@@ -864,6 +909,6 @@ module.exports = argv => {
   });
 
   return main(options).catch(e => {
-    raise('\r{%red. failure%} %s\n', e[options.verbose ? 'stack' : 'message']);
+    fail(e, options);
   });
 };

@@ -74,6 +74,7 @@
   "dependencies": {
     "chokidar": "^3.5.1",
     "esbuild": "^0.12.19",
+    "highlight.js": "^11.2.0",
     "live-server": "^1.2.1",
     "talavera": "^0.9.8"
   }
