@@ -724,7 +724,11 @@ async function main({
             .concat('**/node_modules'),
           watch: dirs.concat(relative(dest)),
           mount: Object.entries(params).concat(dirs.map(x => ['/', x])),
-          middleware: [(req, res, _next) => {
+          middleware: [],
+        };
+
+        if (flags.modules) {
+          opts.middleware.push((req, res, _next) => {
             if (req.url.indexOf('/~/') === 0) {
               const filepath = resolve(req.url.split('?')[0].substr(3));
 
@@ -763,8 +767,8 @@ async function main({
             } else {
               _next();
             }
-          }],
-        };
+          });
+        }
 
         if (flags.proxy) {
           opts.proxy = array(flags.proxy).reduce((memo, chunk) => {
