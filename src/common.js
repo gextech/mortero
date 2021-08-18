@@ -17,6 +17,8 @@ const META = ['ejs', 'hbs', 'liquid'];
 const EXTENSIONS = [...SCRIPTS, ...STYLES, ...MARKUP, ...META];
 const COMPONENTS = { _: Object.create(null), length: 0 };
 
+const RE_JSON = /^(?:".+?"|\[.+?\]|\{.+?\}|null|false|true|-?\d+(?:\.\d+)?)$/;
+
 logpose.setLevel('verbose');
 
 const stdLog = logpose.getLogger(42, process.stdout);
@@ -39,7 +41,10 @@ function npm(cmd, opts = {}) {
 }
 
 function set(target, key) {
-  const value = JSON.parse(target[key]);
+  const value = RE_JSON.test(target[key])
+    ? JSON.parse(target[key])
+    : target[key];
+
   const _keys = key.split('.');
 
   delete target[key];
@@ -50,7 +55,16 @@ function set(target, key) {
 
     obj = obj[prop] || (obj[prop] = {});
   }
-  obj[_keys.shift()] = value;
+
+  let _key = _keys.shift();
+  if (key.substr(-2) === '[]') {
+    _key = _key.replace('[]', '');
+    if (!obj[_key]) obj[_key] = [];
+    if (!Array.isArray(obj[_key])) obj[_key] = [obj[_key]];
+    obj[_key].push(value);
+  } else {
+    obj[_key] = value;
+  }
 }
 
 function expr(value) {
