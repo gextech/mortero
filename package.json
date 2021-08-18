@@ -66,10 +66,10 @@
     "rewrite-exports": "0.0.26",
     "rewrite-imports": "^3.0.0",
     "stylus": "^0.54.8",
-    "svelte": "^3.38.2",
+    "svelte": "^3.42.1",
     "testdouble": "^3.16.1",
     "tosource": "^2.0.0-alpha.2",
-    "wargs": "^0.9.3"
+    "wargs": "^0.9.4"
   },
   "dependencies": {
     "chokidar": "^3.5.1",
