@@ -300,6 +300,13 @@ describe('modules', () => {
   `], result => {
     expect(result.source).to.contain('skypack.dev/somedom');
   });
+
+  test(['should load from remote urls when bundling', 'x.bundle.js', `
+    import jsf from 'https://esm.sh/json-schema-faker';
+    console.log(jsf.generate({ type: 'string' }));
+  `], result => {
+    expect(result.source).to.contains('JsonSchemaFaker');
+  });
 });
 
 describe('aliases', () => {

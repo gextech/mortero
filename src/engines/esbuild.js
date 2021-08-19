@@ -5,9 +5,11 @@ const {
   keys,
   array,
   fetch,
+  exists,
   resolve,
   extname,
   dirname,
+  readFile,
   relative,
   joinPath,
 } = require('../common');
@@ -17,6 +19,7 @@ const {
   getModule,
   getExtensions,
   isSupported,
+  TEMP_DIR,
 } = require('../support');
 
 const memoized = {};
@@ -71,9 +74,34 @@ const Mortero = (entry, external) => ({
       return params.output;
     }
 
+    async function fetchSource(path) {
+      const tmpFile = joinPath(TEMP_DIR, path.replace(/\W/g, '_'));
+
+      if (!exists(tmpFile)) {
+        await fetch(path, tmpFile);
+      }
+
+      return {
+        contents: readFile(tmpFile),
+      };
+    }
+
+    build.onResolve({ filter: /^https?:\/\// }, args => ({
+      path: args.path,
+      namespace: 'http-url',
+    }));
+
     build.onResolve({ filter: /.*/ }, async args => {
+      if (/^https?:\/\//.test(args.path)) {
+        return { path: args.path, namespace: 'http-url' };
+      }
+
       if (memoized[args.resolveDir + args.path]) {
         return { path: memoized[args.resolveDir + args.path] };
+      }
+
+      if (args.path.charAt() === '/') {
+        return;
       }
 
       if (aliases[args.path]) {
@@ -112,7 +140,8 @@ const Mortero = (entry, external) => ({
       }
     });
 
-    build.onLoad({ filter: getExtensions(true) }, ({ path }) => {
+    build.onLoad({ filter: getExtensions(true) }, ({ path, namespace }) => {
+      if (namespace === 'http-url') return fetchSource(path);
       if (!entry.children.includes(path) && !path.includes('node_modules')) {
         entry.children.push(path);
       }
@@ -128,19 +157,12 @@ const Mortero = (entry, external) => ({
       return buildSource(path, entry.locals);
     });
 
-    build.onResolve({ filter: /^https?:\/\// }, args => ({
-      path: args.path,
-      namespace: 'http-url',
-    }));
-
     build.onResolve({ filter: /.*/, namespace: 'http-url' }, args => ({
       path: new URL(args.path, args.importer).toString(),
       namespace: 'http-url',
     }));
 
-    build.onLoad({ filter: /.*/, namespace: 'http-url' }, async args => ({
-      contents: await fetch(args.path),
-    }));
+    build.onLoad({ filter: /.*/, namespace: 'http-url' }, ({ path }) => fetchSource(path));
   },
 });
 
