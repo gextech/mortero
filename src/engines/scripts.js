@@ -21,13 +21,69 @@ function coffeescript(params, next) {
   next();
 }
 
-function svelte(params, next) {
+async function svelte(params, next) {
   try {
     const opts = { ...params.options.svelte };
     const allowed = opts.warnings || ['module-script-reactive-declaration'];
 
+    let preprocess = [];
+    if (params._local && opts.preprocess) {
+      preprocess = [{
+        async style({ content, filename, attributes }) {
+          const render = require('./styles')[attributes.lang];
+
+          if (render) {
+            const chunk = {
+              ...params,
+              parts: [render[1]],
+              source: content,
+              filepath: filename,
+              extension: render[1],
+            };
+
+            await new Promise(_resolve => render[0](chunk, _resolve));
+            return { code: chunk.source };
+          }
+          return { code: content };
+        },
+        async script({ content, filename, attributes }) {
+          if (!(
+            typeof attributes.lang === 'string'
+            && (/typescript|ts/).test(attributes.lang)
+          )) return { code: content };
+
+          const esbuild = require('esbuild');
+          const result = await esbuild.transform(content, {
+            loader: 'ts',
+            target: 'esnext',
+            sourcefile: filename,
+            tsconfigRaw: {
+              compilerOptions: {
+                importsNotUsedAsValues: 'preserve',
+              },
+            },
+          });
+
+          return { code: result.code };
+        },
+      }];
+    }
+
     const Svelte = require('svelte/compiler');
-    const { js, warnings } = Svelte.compile(params.source, { filename: params.filepath });
+
+    if (preprocess.length > 0) {
+      const processed = await Svelte.preprocess(params.source, preprocess, {
+        filename: params.filepath,
+      });
+
+      params.source = processed.code;
+      if (processed.map) params.sourceMap = processed.map;
+    }
+
+    const { js, warnings } = Svelte.compile(params.source, {
+      filename: params.filepath,
+      sourcemap: params.sourceMap,
+    });
     const contents = `${js.code}//# sourceMappingURL=${js.map.toUrl()}`;
 
     if (warnings.length && params.options.verbose) {
