@@ -123,6 +123,10 @@ function exists(src) {
   return src && fs.existsSync(src);
 }
 
+function isDir(src) {
+  return exists(src) && fs.statSync(src).isDirectory();
+}
+
 function mtime(src) {
   return exists(src) ? fs.statSync(src).mtime : 0;
 }
@@ -270,6 +274,7 @@ module.exports = {
   defer,
   bytes,
   fetch,
+  isDir,
   exists,
   unlink,
   inspect,

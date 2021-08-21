@@ -740,7 +740,7 @@ async function main({
               ) {
                 res.setHeader('Content-Type', cache[filepath].type || mime);
                 res.end(readFile(cache[filepath].destination));
-              } else if (isSupported(filepath)) {
+              } else if (isSupported(filepath, flags.extensions)) {
                 debug(Source.compileFile(filepath, null, flags)).then(tpl => {
                   if (tpl.extension === 'js') mime = 'application/javascript';
                   if (tpl.extension === 'css') mime = 'text/css';

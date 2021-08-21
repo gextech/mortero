@@ -102,7 +102,7 @@ function getHooks(tpl, ctx) {
           hookTasks.push(COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, locate: ctx.locate.bind(null, tpl) }));
           return '<!#@@hook>';
         } catch (_e) {
-          warn('\r{%yellow. %s%} Unable to parse `%s`\n%s\n', tag || _, attrs, _e.message);
+          warn('\r{%yellow. %s%} Failed rendering `%s`\n%s\n', tag || _, attrs, _e.message);
           return _;
         }
       });
@@ -262,12 +262,12 @@ function getContext(options) {
   };
 }
 
-function isSupported(src) {
+function isSupported(src, exts = {}) {
   const name = basename(src);
   const parts = name.split('.');
 
   parts.shift();
-  return parts.some(x => EXTENSIONS.includes(x));
+  return parts.some(x => EXTENSIONS.includes(x) || x in exts);
 }
 
 function checkDirty(key, entry) {

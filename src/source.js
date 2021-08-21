@@ -8,6 +8,7 @@ const {
   cls,
   puts,
   defer,
+  isDir,
   resolve,
   lsFiles,
   dirname,
@@ -180,15 +181,34 @@ class Source {
       }
     } else {
       text = text.replace(RE_IMPORT, (_, $1, $2, $3, $4, $5) => {
-        if (/^https?:\/\//.test($5)) return _;
-        if (_.length > 250 || _.includes('data:')) return _;
+        if (/https?:\/\//.test($5) || _.includes('data:')) return _;
+
         if (_.indexOf('url(') === 0) {
           return tpl.extension === 'js' ? _ : `url(${$1}#!@@locate<${$2}>${$1}`;
         }
 
-        if ($5.indexOf('./') === 0 || $5.indexOf('../') === 0) {
-          if (!isSupported($5)) return `var ${$3} = ${$4}#!@@locate<${$5}>${$4}`;
-          return `import ${$3} from ${$4}/~/${relative(joinPath(dirname(tpl.filepath), $5))}${$4}`;
+        if (
+          $5 === '.'
+          || $5 === '..'
+          || $5.indexOf('./') === 0
+          || $5.indexOf('../') === 0
+          || $5.indexOf('~/') === 0
+        ) {
+          const ext = /\.\w+$/.test($5);
+
+          if (ext && !isSupported($5, tpl.options.extensions)) {
+            return `var ${$3} = ${$4}#!@@locate<${$5}>${$4}`;
+          }
+
+          const dest = $5.charAt() === '~'
+            ? resolve($5.replace('~/', ''))
+            : joinPath(dirname(tpl.filepath), $5);
+
+          let suffix = '';
+          if (isDir(dest)) suffix += '/index.js';
+          else if (!ext) suffix = '.js';
+
+          return `import ${$3} from ${$4}/~/${relative(dest)}${suffix}${$4}`;
         }
 
         if ($5.charAt() === '/') return _;
