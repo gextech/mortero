@@ -173,7 +173,6 @@ function esbuild(params, next, ext) {
   const bundle = params.data.$bundle || params.options.bundle;
   const format = params.data.$format || params.options.format;
   const target = params.data.$target || params.options.target;
-  const debug = params.data.$debug || params.options.debug;
   const name = params.data.$name || params.options.name;
   const esnext = !format || format === 'esm';
 
@@ -200,7 +199,7 @@ function esbuild(params, next, ext) {
     }, {}),
     logLevel: (params.options.quiet && 'silent') || undefined,
     inject: [].concat(inject || []),
-    sourcemap: debug ? 'inline' : undefined,
+    sourcemap: params.options.debug ? 'inline' : undefined,
     sourcesContent: false,
     platform: platform || 'node',
     format: format || 'esm',
@@ -216,7 +215,7 @@ function esbuild(params, next, ext) {
     color: true,
     write: false,
     bundle: params.isBundle,
-    minify: process.env.NODE_ENV === 'production',
+    minify: params.options.minify,
     external: params.isBundle ? external : undefined,
     plugins: [Mortero(params, external)],
   }).then(result => {

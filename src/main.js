@@ -573,7 +573,8 @@ async function main({
   flags.tmp = cache;
   flags.exec = raw.length ? raw : undefined;
   flags.root = src.filter(x => resolve(x) !== cwd).map(x => relative(x));
-  flags.debug = flags.debug || process.env.NODE_ENV !== 'production';
+  flags.debug = flags.debug !== false ? flags.debug || process.env.NODE_ENV !== 'production' : false;
+  flags.minify = flags.minify !== false ? flags.debug || process.env.NODE_ENV !== 'production' : false;
   flags.bundle = x => flags.bundle && isBundle(x);
   flags.rename = rename(dest, flags.rename);
   flags.globals = { ...data, pkg };
@@ -869,7 +870,7 @@ async function main({
 
 module.exports = argv => {
   const options = wargs(argv, {
-    boolean: 'qfdVSWEAOMKv',
+    boolean: 'mqfdVSWEAOMKv',
     string: 'CeDbcyopPsaBriIGFXLTNHk',
     alias: {
       C: 'cwd',
@@ -889,6 +890,7 @@ module.exports = argv => {
       f: 'force',
       d: 'debug',
       H: 'paths',
+      m: 'minify',
       B: 'bundle',
       M: 'modules',
       N: 'external',
