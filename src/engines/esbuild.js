@@ -92,16 +92,14 @@ const Mortero = (entry, external) => ({
     }));
 
     build.onResolve({ filter: /.*/ }, async args => {
+      if (args.namespace === 'http-url' || args.path.charAt() === '/') return;
+
       if (/^https?:\/\//.test(args.path)) {
         return { path: args.path, namespace: 'http-url' };
       }
 
       if (memoized[args.resolveDir + args.path]) {
         return { path: memoized[args.resolveDir + args.path] };
-      }
-
-      if (args.path.charAt() === '/') {
-        return;
       }
 
       if (aliases[args.path]) {
