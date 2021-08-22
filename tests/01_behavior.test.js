@@ -224,25 +224,7 @@ describe('modules', () => {
     test(['should install missing dependencies', 'x.bundle.js', 'import {render} from "somedom";console.log(render("x"))'], result => {
       expect(result.source).to.contain('childNodes');
     });
-
-    test(['should copy resolved modules into web_modules if enabled', 'x.js', `
-      import { render } from "somedom";
-      import { foo } from "./c/example";
-      console.log(render("x"), foo);
-    `, {
-      modules: true,
-      write: true,
-    }], () => {
-      expect(td.explain(fs.outputFileSync).callCount).to.eql(1);
-      expect(td.explain(fs.copySync).callCount).to.eql(7);
-    });
   }
-
-  test(['should rewrite imports if options.modules is enabled', 'x.js', 'import {render} from "somedom";console.log(render("x"))', {
-    modules: true,
-  }], result => {
-    expect(result.source).to.contain('/web_modules/somedom');
-  });
 
   test(['should allow to reference from generated scripts', 'x.bundle.js', 'import x from "./c/js24.png";console.log(x)', {
     tmp: {
@@ -276,23 +258,10 @@ describe('modules', () => {
     expect(result.source).not.to.contain('require(');
   });
 
-  test(['should override options.modules if $modules is given', 'x.js', `
+  test(['should use skypack if options.modules or $modules is given', 'x.js', `
     /**
     ---
     $modules: true
-    ---
-    */
-    import {render} from "somedom";
-    console.log(render("x"))
-  `], result => {
-    expect(result.source).to.contain('/web_modules/somedom');
-  });
-
-  test(['should use skypack if options.online or $online is also given', 'x.js', `
-    /**
-    ---
-    $modules: true
-    $online: true
     ---
     */
     import {render} from "somedom";

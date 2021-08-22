@@ -212,16 +212,12 @@ class Source {
         }
 
         if ($5.charAt() === '/') return _;
-        if (tpl.data.$online || tpl.options.online) {
+        if (tpl.data.$modules || tpl.options.modules) {
           return `import ${$3} from ${$4}//cdn.skypack.dev/${$5}${$4}`;
         }
 
         if (tpl.isBundle) return _;
-        if (tpl.options.write !== false) {
-          moduleTasks.push(() => modules($5, tpl));
-        } else {
-          moduleTasks.push(() => `/web_modules/${$5}`);
-        }
+        moduleTasks.push(() => modules($5, tpl));
         return `import ${$3} from ${$4}/*#!@@mod*/${$4}`;
       });
     }

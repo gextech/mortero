@@ -27,7 +27,6 @@ const {
   npm,
   puts,
   warn,
-  copy,
   keys,
   expr,
   mtime,
@@ -42,7 +41,6 @@ const {
   relative,
   joinPath,
   inspect,
-  lsFiles,
   readFile,
   writeFile,
   EXTENSIONS,
@@ -529,47 +527,6 @@ async function modules(src, entry, _bundle) {
   }
   if (_bundle) return;
   if (typeof mod === 'string' && !mod.includes('node_modules')) return mod;
-
-  const chunks = resolve(`./node_modules/${pkgName}`).split('/');
-  const offset = chunks.indexOf('node_modules');
-  const pkgDir = chunks.slice(0, offset + 2).join('/');
-  const pkgFile = joinPath(pkgDir, 'package.json');
-  const destDir = resolve(entry.options.dest, './build');
-
-  try {
-    const pkgInfo = require(pkgFile);
-    const mainFile = pkgInfo.module || pkgInfo.browser || pkgInfo.unpkg || pkgInfo.main;
-
-    if (mainFile) {
-      const moduleDir = joinPath(destDir, 'web_modules', pkgName);
-      const moduleFile = joinPath(moduleDir, mainFile);
-
-      copy(joinPath(pkgDir, mainFile), moduleFile);
-      copy(pkgFile, joinPath(moduleDir, 'package.json'));
-
-      let count = 0;
-      (pkgInfo.files || []).forEach(_src => {
-        lsFiles(joinPath(pkgDir, _src)).forEach(file => {
-          if (exists(file)) {
-            const destFile = joinPath(moduleDir, relative(file, pkgDir));
-
-            if (!entry.options.quiet && entry.options.progress !== false) {
-              puts('\r{%cyanBright copy%} %s', relative(destFile));
-            }
-            copy(file, destFile);
-            count += 1;
-          }
-        });
-      });
-
-      if (!entry.options.quiet && entry.options.progress === false) {
-        puts('\r{%cyanBright copy%} %s file%s\n', count, count === 1 ? '' : 's');
-      }
-      return `/${relative(moduleFile, destDir)}`;
-    }
-  } catch (e) {
-    // do nothing
-  }
 }
 
 async function embed(tpl, html, render) {

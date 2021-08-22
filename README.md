@@ -45,13 +45,9 @@ Available options:
     -X, --exclude       Files matching exclude rules are not processed,
                         e.g. `-X "{lib,shared,components}"`
 
-    -M, --modules       Enable web_modules and sets the destination folder,
-                        also on this mode all bundling gets disabled
-    -n, --online        Enable module resolution from skypack.dev CDN
-    -H, --paths         Configure additional folders to lookup imports,
-                        e.g. `-Hweb_components,vendor`
-
     -a, --alias         Configure esbuild aliases, e.g. `-afoo:./bar`
+    -H, --paths         Additional directories to search for modules
+    -M, --modules       Enable module resolution from skypack.dev CDN
     -N, --external      Configure esbuild externals, e.g. `-Nlodash`
         --platform      Configure esbuild platform, default is node
         --format        Configure esbuild format, default is esm
