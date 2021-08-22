@@ -226,15 +226,6 @@ class Source {
       return relative(tpl.rename(src), tpl.directory);
     });
 
-    if (text.includes('# sourceMappingURL=')) {
-      const [, payload] = text.match(/# sourceMappingURL=(.+?)(?=\s|$)/)[1].split('base64,');
-      const buffer = Buffer.from(payload, 'base64').toString('ascii');
-      const data = JSON.parse(buffer);
-
-      data.sources = data.sources.map(src => relative(src));
-      text = text.replace(payload, Buffer.from(JSON.stringify(data)).toString('base64'));
-    }
-
     return defer(moduleTasks, resolved => {
       return text.replace(/\/\*#!@@mod\*\//g, () => resolved.shift());
     });
