@@ -176,10 +176,7 @@ function esbuild(params, next, ext) {
   const name = params.data.$name || params.options.name;
   const esnext = !format || format === 'esm';
 
-  const _module = params.data.$modules !== false
-    ? (params.data.$modules || params.options.modules)
-    : false;
-
+  const _module = params.options.modules;
   const _bundle = typeof bundle === 'function'
     ? bundle(relative(params.filepath))
     : bundle;
@@ -208,7 +205,7 @@ function esbuild(params, next, ext) {
     footer,
     stdin: {
       sourcefile: relative(params.filepath).replace(/[^/]+\//g, '../'),
-      resolveDir: dirname(params.filepath),
+      resolveDir: params.options.cwd || dirname(params.filepath),
       contents: params.source,
       loader: ext,
     },

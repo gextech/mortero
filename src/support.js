@@ -555,7 +555,7 @@ async function embed(tpl, html, render) {
       const name = _url.split('#')[0].split('?')[0].replace(base, '.');
       const file = joinPath(TEMP_DIR, key);
       const local = joinPath(tpl.directory, name);
-      const resource = joinPath(dirname(tpl.filepath), name);
+      const resource = joinPath(tpl.options.cwd || dirname(tpl.filepath), name);
 
       let out = '';
       if (exists(local)) {

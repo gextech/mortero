@@ -57,8 +57,6 @@ module.exports = function render(params, done) {
   delete params.locals.$target;
   delete params.locals.$debug;
   delete params.locals.$render;
-  delete params.locals.$modules;
-  delete params.locals.$remote;
   delete params.locals.$footer;
   delete params.locals.$name;
 
@@ -83,7 +81,7 @@ module.exports = function render(params, done) {
       if (params.data.$render) {
         const _layout = params.data.$render.indexOf('~/') === 0
           ? params.data.$render.replace(/^~\//, `${resolve('.')}/`)
-          : joinPath(dirname(params.filepath), params.data.$render);
+          : joinPath(params.options.cwd || dirname(params.filepath), params.data.$render);
 
         if (!exists(_layout)) {
           throw new ReferenceError(`File not found '${_layout}'`);

@@ -204,10 +204,6 @@ describe('esbuild', () => {
     }], result => {
       expect(result.source).to.contain('//# sourceMappingURL');
     });
-
-    test(['should override options.debug if $debug is given', 'x.js', '/**\n---\n$debug: true\n---\n*/console.log(42)'], result => {
-      expect(result.source).to.contain('//# sourceMappingURL');
-    });
   });
 
   describe('cwd', () => {
@@ -256,18 +252,6 @@ describe('modules', () => {
 
   test(['should keep imports when bundling for esm', 'x.esm.js', 'import "./a/main"'], result => {
     expect(result.source).not.to.contain('require(');
-  });
-
-  test(['should use skypack if options.modules or $modules is given', 'x.js', `
-    /**
-    ---
-    $modules: true
-    ---
-    */
-    import {render} from "somedom";
-    console.log(render("x"))
-  `], result => {
-    expect(result.source).to.contain('skypack.dev/somedom');
   });
 
   test(['should load from remote urls when bundling', 'x.bundle.js', `

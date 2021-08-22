@@ -98,10 +98,7 @@ class Source {
         }));
       }
 
-      const _module = this.data.$modules !== false
-        ? (this.data.$modules || this.options.modules)
-        : false;
-
+      const _module = this.options.modules;
       const isModule = this.extension === 'js' && !this._rewrite && _module;
 
       if (this.extension === 'css' || isModule) {
@@ -213,7 +210,7 @@ class Source {
         }
 
         if ($5.charAt() === '/') return _;
-        if (tpl.data.$modules || tpl.options.modules) {
+        if (tpl.options.modules) {
           if (!tpl.options.online) {
             const pkg = $5.replace(/^(@\w+\/\w+|\w+)(?=\/|$)/, name => {
               const deps = tpl.locals.pkg.dependencies || {};
