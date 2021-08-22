@@ -80,7 +80,7 @@ function getHooks(tpl, ctx) {
       let matches;
       tpl.source = tpl.source.replace(COMPONENTS.re, (_, a, b, c, d, e) => {
         const tag = a || d;
-        const attrs = b || e;
+        const attrs = b || e || '';
         const content = c || '';
 
         const backup = [];
