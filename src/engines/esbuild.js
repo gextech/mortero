@@ -208,7 +208,7 @@ function esbuild(params, next, ext) {
     footer,
     stdin: {
       sourcefile: relative(params.filepath).replace(/[^/]+\//g, '../'),
-      resolveDir: params.options.cwd || dirname(params.filepath),
+      resolveDir: dirname(params.filepath),
       contents: params.source,
       loader: ext,
     },

@@ -45,9 +45,11 @@ Available options:
     -X, --exclude       Files matching exclude rules are not processed,
                         e.g. `-X "{lib,shared,components}"`
 
+    -M, --modules       Installs from pkg.snowpack.dev and serve locally
+    -n, --online        Rewrite imports to resolve against skypack.dev CDN
+
     -a, --alias         Configure esbuild aliases, e.g. `-afoo:./bar`
     -H, --paths         Additional directories to search for modules
-    -M, --modules       Enable module resolution from skypack.dev CDN
     -N, --external      Configure esbuild externals, e.g. `-Nlodash`
         --platform      Configure esbuild platform, default is node
         --format        Configure esbuild format, default is esm

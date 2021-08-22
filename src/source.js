@@ -9,6 +9,7 @@ const {
   puts,
   defer,
   isDir,
+  exists,
   resolve,
   lsFiles,
   dirname,
@@ -213,6 +214,32 @@ class Source {
 
         if ($5.charAt() === '/') return _;
         if (tpl.data.$modules || tpl.options.modules) {
+          if (!tpl.options.online) {
+            const pkg = $5.replace(/^(@\w+\/\w+|\w+)(?=\/|$)/, name => {
+              const deps = tpl.locals.pkg.dependencies || {};
+              const dev = tpl.locals.pkg.devDependencies || {};
+
+              if (deps[name] || dev[name]) {
+                return `${name}@${deps[name] || dev[name]}`;
+              }
+              return name;
+            });
+
+            const pkgName = pkg.replace(/[~^]/g, '');
+            const destFile = `${TEMP_DIR}/web_modules/${pkgName}.js`;
+
+            if (!exists(destFile)) {
+              const partial = new Source('x.bundle.js', {}, `export * from 'https://pkg.snowpack.dev/${pkg}';`);
+
+              moduleTasks.push(() => partial.compile().then(result => {
+                writeFile(destFile, result.source);
+                return `/web_modules/${pkgName}.js`;
+              }));
+            } else {
+              return `import ${$3} from ${$4}/web_modules/${pkgName}.js${$4}`;
+            }
+            return `import ${$3} from ${$4}/*#!@@mod*/${$4}`;
+          }
           return `import ${$3} from ${$4}//cdn.skypack.dev/${$5}${$4}`;
         }
 

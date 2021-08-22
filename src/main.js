@@ -40,6 +40,7 @@ const {
 } = require('./common');
 
 const {
+  TEMP_DIR,
   load,
   trace,
   rename,
@@ -730,7 +731,10 @@ async function main({
 
         if (flags.modules) {
           opts.middleware.push((req, res, _next) => {
-            if (req.url.indexOf('/~/') === 0) {
+            if (req.url.indexOf('/web_modules/') === 0) {
+              res.setHeader('Content-Type', 'application/javascript');
+              res.end(readFile(joinPath(TEMP_DIR, req.url.split('?')[0].substr(1))));
+            } else if (req.url.indexOf('/~/') === 0) {
               const filepath = resolve(req.url.split('?')[0].substr(3));
 
               let mime = 'text/plain';
@@ -870,7 +874,7 @@ async function main({
 
 module.exports = argv => {
   const options = wargs(argv, {
-    boolean: 'mqfdVSWEAOMKv',
+    boolean: 'nmqfdVSWEAOMKv',
     string: 'CeDbcyopPsaBriIGFXLTNHk',
     alias: {
       C: 'cwd',
@@ -892,6 +896,7 @@ module.exports = argv => {
       H: 'paths',
       m: 'minify',
       B: 'bundle',
+      n: 'online',
       M: 'modules',
       N: 'external',
       r: 'rename',
