@@ -216,8 +216,7 @@ function esbuild(params, next, ext) {
     external: params.isBundle ? external : undefined,
     plugins: [Mortero(params, external)],
   }).then(result => {
-    return Promise.resolve()
-      .then(() => Source.rewrite(params, result.outputFiles[0].text))
+    return Source.rewrite(params, result.outputFiles[0].text)
       .then(output => {
         params._rewrite = true;
         params.source = output;

@@ -250,6 +250,10 @@ class Source {
       return relative(tpl.rename(src), tpl.directory);
     });
 
+    if (!moduleTasks.length) {
+      return Promise.resolve(text);
+    }
+
     return defer(moduleTasks, resolved => {
       return text.replace(/\/\*#!@@mod\*\//g, () => resolved.shift());
     });
