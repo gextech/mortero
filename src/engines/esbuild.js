@@ -48,6 +48,8 @@ const Mortero = (entry, external) => ({
         if (path.includes('.json') || path.includes('node_modules')) return null;
       }
 
+      if (!exists(path)) throw new Error(`File not found: ${path}`);
+
       let params = Source.get(path);
       if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
         if (!params || !params.instance || !params.input) {
