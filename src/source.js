@@ -149,6 +149,10 @@ class Source {
   }
 
   static render(tpl, locals) {
+    if (!tpl.source) {
+      return Promise.resolve(tpl);
+    }
+
     if (tpl.options.process === false) {
       tpl.extension = tpl.parts.join('');
       return Promise.resolve(tpl);
