@@ -44,11 +44,8 @@ const Mortero = (entry, external) => ({
     }, {});
 
     async function buildSource(path, locals) {
-      if (/\.(?:mjs|[jt]sx?|json)$/.test(path)) {
-        if (path.includes('.json') || path.includes('node_modules')) return null;
-      }
-
       if (!exists(path)) throw new Error(`File not found: ${path}`);
+      if (/\.(?:esm?|[mc]js|[jt]sx?|json)$/.test(path)) return null;
 
       let params = Source.get(path);
       if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
