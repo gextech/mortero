@@ -3,7 +3,6 @@ const redent = require('redent');
 const data = require('./data');
 
 const {
-  resolve,
   relative,
   basename,
 } = require('./common');
@@ -48,7 +47,7 @@ module.exports = (filepath, source, opts) => {
     const elen = (delims[1] || delims[0]).length;
     const raw = source.substr(start + slen + 1, end - (start + elen + 1));
 
-    fm = data(options.cwd || resolve('.'), filepath, redent(raw));
+    fm = data(options.cwd, filepath, redent(raw));
 
     // cleanup
     fm.clr = () => {

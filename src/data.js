@@ -72,7 +72,7 @@ function load(ctx, text, files) {
 
 module.exports = (cwd, src, text) => {
   const files = [];
-  const data = load({ cwd, src }, text, files) || {};
+  const data = (text && load({ cwd, src }, text, files)) || {};
   return {
     obj: data,
     src: files,
