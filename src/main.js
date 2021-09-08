@@ -571,6 +571,7 @@ async function main({
     return isIncluded(rel) && isFiltered(rel) && isSupported(rel);
   };
 
+  flags.cwd = cwd;
   flags.tmp = cache;
   flags.exec = raw.length ? raw : undefined;
   flags.root = src.filter(x => resolve(x) !== cwd).map(x => relative(x));
