@@ -75,6 +75,10 @@ function expr(value) {
   return tosource(value);
 }
 
+function caps(value) {
+  return value.replace(/(?:^|\W)([a-z])/g, (_, re) => ` ${re.toUpperCase()}${re.substr(1).toLowerCase()}`).trim();
+}
+
 function keys(obj) {
   return Object.prototype.toString.call(obj) === '[object Object]'
     ? Object.keys(obj)
@@ -269,6 +273,7 @@ module.exports = {
   puts,
   warn,
   keys,
+  caps,
   strip,
   quote,
   array,

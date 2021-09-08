@@ -16,6 +16,7 @@ const {
   size,
   puts,
   keys,
+  caps,
   copy,
   warn,
   bytes,
@@ -618,7 +619,7 @@ async function main({
     }
   });
 
-  Object.assign(getHooks(), {
+  const self = Object.assign(getHooks(), {
     source: async ({ tpl, ctx, props }) => {
       if (props.src) {
         return `<source ${ctx.attributes(props)}>`;
@@ -722,6 +723,40 @@ async function main({
       const type = props.type || `image/${extname(file, true)}`;
 
       return `data:${type};base64,${buffer.toString('base64')}`;
+    },
+    menu: ({ tpl, props }, ctx) => {
+      if (!props.from) {
+        throw new Error(`Missing 'from' attribute, given ${inspect(props)}`);
+      }
+
+      let items;
+      if (/^\[.+?\]$/.test(props.from)) {
+        items = JSON.parse(props.from.replace(/&quot;/g, '"'));
+      } else if (tpl.data[props.from]) {
+        items = tpl.data[props.from];
+      } else {
+        throw new Error(`Missing '${props.from}' in data, given ${inspect(tpl.data)}`);
+      }
+
+      function render(item) {
+        if (!item) return '';
+        if (Array.isArray(item)) {
+          return `<ul>${item.map(render).join('')}</ul>`;
+        }
+        if (typeof item !== 'object') {
+          return `<li>${self.alink({ tpl, props: { for: `/${item.replace(/^\//, '')}` }, content: caps(item) }, ctx)}</li>`;
+        }
+        return Object.keys(item).reduce((memo, sub) => {
+          const value = typeof item[sub] !== 'object'
+            ? self.alink({ tpl, props: { for: `/${item[sub].replace(/^\//, '')}` }, content: sub }, ctx)
+            : `${sub}${render(item[sub])}`;
+
+          memo.push(`<li>${value}</li>`);
+          return memo;
+        }, []).join('');
+      }
+
+      return render(items);
     },
   });
 
