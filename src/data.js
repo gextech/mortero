@@ -45,34 +45,31 @@ function parse(ctx, _load, files) {
 }
 
 function load(ctx, text, files) {
-  try {
-    const construct = parse(ctx, load, files);
+  const construct = parse(ctx, load, files);
 
-    return yaml.load(text, {
-      filename: ctx.src,
-      schema: yaml.JSON_SCHEMA.extend([
-        new yaml.Type('!include', {
-          construct,
-          resolve(value) {
-            return typeof value === 'string';
-          },
-          kind: 'scalar',
-          instanceOf: IncludedFile,
-        }),
-      ]),
-    });
-  } catch (e) {
-    if (e.mark) {
-      warn('\r{%error. %s: %s in %s%}\n%s\n', e.name, e.reason, relative(ctx.src), e.mark.snippet);
-    } else {
-      warn('\r{%error. %s in %s%}\n', e.message, relative(ctx.src));
-    }
-  }
+  return yaml.load(text, {
+    filename: ctx.src,
+    schema: yaml.JSON_SCHEMA.extend([
+      new yaml.Type('!include', {
+        construct,
+        resolve(value) {
+          return typeof value === 'string';
+        },
+        kind: 'scalar',
+        instanceOf: IncludedFile,
+      }),
+    ]),
+  });
 }
 
 module.exports = (cwd, src, text) => {
   const files = [];
   const data = (text && load({ cwd, src }, text, files)) || {};
+
+  if (Object.prototype.toString.call(data) !== '[object Object]') {
+    throw new TypeError(`Expecting object, given '${typeof data}'`);
+  }
+
   return {
     obj: data,
     src: files,

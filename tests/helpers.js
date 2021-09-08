@@ -50,20 +50,25 @@ const test = (args, cb, locals) => {
     args[offset] = args[offset] || {};
     args[offset].cwd = args[offset].cwd || path.join(__dirname, 'fixtures');
 
-    mortero(...args)(locals, (err, result) => {
-      try {
-        if (err && !result.failure) {
-          result.failure = err;
-        }
+    try {
+      mortero(...args)(locals, (err, result) => {
+        try {
+          if (err && !result.failure) {
+            result.failure = err;
+          }
 
-        cb(result);
-        done();
-      } catch (error) {
-        done(error);
-      } finally {
-        expect(err).to.eql(undefined);
-      }
-    });
+          cb(result);
+          done();
+        } catch (error) {
+          done(error);
+        } finally {
+          expect(err).to.eql(undefined);
+        }
+      });
+    } catch (e) {
+      cb(e);
+      done();
+    }
   };
   if (args.length > 2 && typeof args[2] === 'string') {
     return global.it(args.shift(), fn).timeout(15000);

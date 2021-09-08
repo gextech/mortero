@@ -77,6 +77,14 @@ describe('front-matter', () => {
 
     expect(actual).to.eql(expected);
   });
+
+  test(['should handle failures from parsing YAML', 'x.md', `
+    ---
+    foo: !bar
+    ---
+  `], err => {
+    expect(err.message).to.contains('unknown tag !<!bar>');
+  });
 });
 
 describe('extensions', () => {
