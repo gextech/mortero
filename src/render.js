@@ -81,7 +81,7 @@ module.exports = function render(params, done) {
       if (params.data.$render) {
         const _layout = params.data.$render.indexOf('~/') === 0
           ? params.data.$render.replace(/^~\//, `${resolve('.')}/`)
-          : joinPath(params.options.cwd || dirname(params.filepath), params.data.$render);
+          : joinPath(dirname(params.filepath, params.options.cwd), params.data.$render);
 
         if (!exists(_layout)) {
           throw new ReferenceError(`File not found '${_layout}'`);

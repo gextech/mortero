@@ -182,8 +182,11 @@ function extname(filepath, trim) {
   return trim ? ext.substr(1) : ext;
 }
 
-function dirname(filepath) {
-  return path.dirname(filepath);
+function dirname(filepath, _path) {
+  const dir = path.dirname(filepath);
+
+  if (_path && dir === '.') return _path;
+  return dir;
 }
 
 function unlink(filepath) {
