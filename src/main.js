@@ -17,6 +17,7 @@ const {
   puts,
   keys,
   copy,
+  warn,
   bytes,
   defer,
   mtime,
@@ -138,12 +139,26 @@ function json(entry) {
   };
 }
 
-function fail(e, options) {
-  raise('\r{%red. failure%} %s\n', e[options.verbose ? 'stack' : 'message']);
+function fail(e, options, callback = raise) {
+  if (e.mark) {
+    callback('\r{%error. %s: %s%}\n%s\n', e.name, e.reason, e.mark.snippet);
+  } else {
+    callback('\r{%red. failure%} %s\n', e[options.verbose ? 'stack' : 'message']);
+  }
 }
 
 let total = 0;
-function debug(deferred, bailout) {
+function debug(filepath, locals, options, bailout) {
+  let deferred;
+  try {
+    deferred = Source.compileFile(filepath, locals, options);
+  } catch (e) {
+    puts('\r{%red. failed%} %s\n', relative(filepath));
+    fail(e, options, warn);
+
+    return Promise.resolve({ children: [] });
+  }
+
   return deferred.then(tpl => {
     const end = tpl.options.progress !== false ? '\n' : '';
 
@@ -255,7 +270,7 @@ function watch(src, dest, flags, filter, callback) {
 
   let failed = [];
   function enqueue(file, target, pending) {
-    return debug(Source.compileFile(file, null, flags)).then(tpl => {
+    return debug(file, null, flags).then(tpl => {
       if (tpl.failure) {
         Source.set(file, { dirty: true });
         delete cache[file];
@@ -747,7 +762,7 @@ async function main({
                 res.setHeader('Content-Type', cache[filepath].type || mime);
                 res.end(readFile(cache[filepath].destination));
               } else if (isSupported(filepath, flags.extensions)) {
-                debug(Source.compileFile(filepath, null, flags)).then(tpl => {
+                debug(filepath, null, flags).then(tpl => {
                   if (tpl.extension === 'js') mime = 'application/javascript';
                   if (tpl.extension === 'css') mime = 'text/css';
 
@@ -858,7 +873,7 @@ async function main({
 
     let status = '{%gray. without changes%}';
     await Promise.resolve().then(() => write(missed, dest, flags, [], loader(missed, dest, flags)))
-      .then(() => defer(srcFiles.map(x => () => debug(Source.compileFile(x, null, flags), true))))
+      .then(() => defer(srcFiles.map(x => () => debug(x, null, flags, true))))
       .then(() => sync(flags, []) || (flags.exec && exec(dest, flags)))
       .then(() => {
         if (srcFiles.length || missed.length) {
