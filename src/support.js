@@ -71,6 +71,8 @@ function getHooks(tpl, ctx) {
 
   if (_keys.length !== COMPONENTS.length) {
     COMPONENTS.re = new RegExp(`<(${_keys.join('|')})\\s*([^<>]*)(?:\\/>|>(.*)<\\/\\1>)|\\{@(${_keys.join('|')})\\s*(\\{[^{}]*\\}|[^{}]*)\\}`, 'g');
+    COMPONENTS.cache = {};
+    COMPONENTS.length = _keys.length;
   }
 
   if (tpl) {
@@ -79,6 +81,8 @@ function getHooks(tpl, ctx) {
 
       let matches;
       tpl.source = tpl.source.replace(COMPONENTS.re, (_, a, b, c, d, e) => {
+        if (COMPONENTS.cache[_]) return COMPONENTS.cache[_];
+
         const tag = a || d;
         const attrs = b || e || '';
         const content = c || '';
@@ -97,7 +101,12 @@ function getHooks(tpl, ctx) {
           const props = JSON.parse(tmp.charAt() !== '{' ? `{${tmp}}` : tmp);
 
           matches = matches || tag === 'image';
-          hookTasks.push(COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, locate: ctx.locate.bind(null, tpl) }));
+          hookTasks.push(Promise.resolve()
+            .then(() => COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, locate: ctx.locate.bind(null, tpl) }))
+            .then(result => {
+              COMPONENTS.cache[_] = result;
+              return result;
+            }));
           return '<!#@@hook>';
         } catch (_e) {
           warn('\r{%yellow. %s%} Failed rendering `%s`\n%s\n', tag || _, attrs, _e.message);

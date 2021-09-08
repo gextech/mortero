@@ -15,7 +15,7 @@ const MARKUP = ['md', 'mkd', 'asciidoc', 'adoc', 'asc', 'pug', 'jade', 'html', '
 const META = ['ejs', 'hbs', 'liquid'];
 
 const EXTENSIONS = [...SCRIPTS, ...STYLES, ...MARKUP, ...META];
-const COMPONENTS = { _: Object.create(null), length: 0 };
+const COMPONENTS = { _: Object.create(null), cache: {}, length: 0 };
 
 const RE_JSON = /^(?:".+?"|\[.+?\]|\{.+?\}|null|false|true|-?\d+(?:\.\d+)?)$/;
 
