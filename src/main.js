@@ -855,7 +855,7 @@ async function main({
         }).on('listening', () => {
           const { address, port } = server.address();
 
-          puts('\n{%gray %s%}', `server http://${address}:${port}`);
+          puts('\n{%green %s%}', `live-server http://${address}:${port}`);
           next();
         });
       } else {

@@ -1,10 +1,8 @@
 const yaml = require('js-yaml');
 
 const {
-  warn,
   dirname,
   resolve,
-  relative,
   joinPath,
   readFile,
 } = require('./common');
