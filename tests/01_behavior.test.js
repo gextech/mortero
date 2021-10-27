@@ -85,6 +85,30 @@ describe('front-matter', () => {
   `], err => {
     expect(err.message).to.contains('unknown tag !<!bar>');
   });
+
+  test(['should validate lines after separators', 'x.md', `
+    # it works
+
+    ---
+
+    ## section
+
+    ---
+  `], result => {
+    expect(result.data).to.eql({});
+  });
+
+  test(['should validate lines after separators', 'x.js', `
+    /**
+    ---
+
+    foo: bar
+
+    ---
+    */
+  `], result => {
+    expect(result.data).to.eql({ foo: 'bar' });
+  });
 });
 
 describe('extensions', () => {

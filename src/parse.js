@@ -45,13 +45,9 @@ module.exports = (filepath, source, opts) => {
   if (end > start && start >= 0) {
     const slen = delims[0].length;
     const elen = (delims[1] || delims[0]).length;
+    const raw = source.substr(start + slen + 1, end - (start + elen + 1));
 
-    const open = source.substr(start - 1, 1);
-    const close = source.substr(end + elen, 1);
-
-    if ('\n '.includes(open) && close === '\n') {
-      const raw = source.substr(start + slen + 1, end - (start + elen + 1));
-
+    if (/^\s*\$?\w+:/gm.test(raw)) {
       fm = data(options.cwd, filepath, redent(raw));
 
       // cleanup
