@@ -45,29 +45,35 @@ module.exports = (filepath, source, opts) => {
   if (end > start && start >= 0) {
     const slen = delims[0].length;
     const elen = (delims[1] || delims[0]).length;
-    const raw = source.substr(start + slen + 1, end - (start + elen + 1));
 
-    fm = data(options.cwd, filepath, redent(raw));
+    const open = source.substr(start - 1, 1);
+    const close = source.substr(end + elen, 1);
 
-    // cleanup
-    fm.clr = () => {
-      // fill with blank lines to help source-maps tools
-      if (!fm._fixed) {
-        const escaped = raw.replace(/\S/g, ' ');
-        const prefix = source.substr(0, start);
-        const suffix = source.substr(end + elen);
+    if ('\n '.includes(open) && close === '\n') {
+      const raw = source.substr(start + slen + 1, end - (start + elen + 1));
 
-        fm._fixed = [prefix, delims[0].replace(/\S/g, ' '), '\n', escaped, '   ', suffix].join('');
+      fm = data(options.cwd, filepath, redent(raw));
+
+      // cleanup
+      fm.clr = () => {
+        // fill with blank lines to help source-maps tools
+        if (!fm._fixed) {
+          const escaped = raw.replace(/\S/g, ' ');
+          const prefix = source.substr(0, start);
+          const suffix = source.substr(end + elen);
+
+          fm._fixed = [prefix, delims[0].replace(/\S/g, ' '), '\n', escaped, '   ', suffix].join('');
+        }
+        return fm._fixed;
+      };
+
+      // strip front-matter for non-markdown sources
+      if (!hasMkd || options.frontMatter === false) {
+        source = fm.clr();
       }
-      return fm._fixed;
-    };
 
-    // strip front-matter for non-markdown sources
-    if (!hasMkd || options.frontMatter === false) {
-      source = fm.clr();
+      obj = fm.obj;
     }
-
-    obj = fm.obj;
   }
 
   if (hasMkd && obj && obj.$render) {
