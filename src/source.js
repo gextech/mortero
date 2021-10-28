@@ -142,9 +142,6 @@ class Source {
 
   static get cache() {
     if (!cache) cache = new Map();
-    if (cache.size > 100) {
-      cache.clear();
-    }
     return cache;
   }
 
