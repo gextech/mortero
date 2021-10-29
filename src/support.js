@@ -104,7 +104,7 @@ function getHooks(tpl, ctx) {
           hookTasks.push(Promise.resolve()
             .then(() => COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, locate: ctx.locate.bind(null, tpl) }))
             .then(result => {
-              COMPONENTS.cache[_] = result;
+              if (tag !== 'import') COMPONENTS.cache[_] = result;
               return result;
             }));
           return '<!#@@hook>';
