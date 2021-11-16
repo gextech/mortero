@@ -266,7 +266,7 @@ describe('modules', () => {
     expect(result.source).to.contain('= "../c/js24.png"');
   });
 
-  test(['should allow to reference from generated styles', 'x.css', 'body{background:url("./c/js24.png")}', {
+  test(['should allow to reference from generated styles', 'x.css', 'body{background:url("c/js24.png")}', {
     tmp: {
       'c/js24.png': {
         filename: 'js24.png',
@@ -275,6 +275,10 @@ describe('modules', () => {
     },
   }], result => {
     expect(result.source).to.contain('("../c/js24.png")');
+  });
+
+  test(['should keep relative references from generated styles', 'x.css', 'body{background:url("./c/js24.png")}'], result => {
+    expect(result.source).to.contain('("./c/js24.png")');
   });
 
   test(['should rewrite imports when bundling for cjs', 'x.js', 'import "./a/main"'], result => {
