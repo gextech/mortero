@@ -728,7 +728,7 @@ function load(all, dest, flags = {}, cache = {}) {
         .then(() => cur.callback(matched, _dest || dest, flags))
         .then(files => [cur.namespace, files])
         .catch(e => {
-          throw new Error(`Cannot process '${cur.namespace}': ${e.stack}`);
+          warn('\r{%yellow. %s%} %s\n', cur.namespace, e.message);
         });
     }
     return null;
