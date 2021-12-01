@@ -19,6 +19,7 @@ const {
   getModule,
   getExtensions,
   isSupported,
+  isLocal,
   TEMP_DIR,
 } = require('../support');
 
@@ -44,8 +45,9 @@ const Mortero = (entry, external) => ({
     }, {});
 
     async function buildSource(path, locals) {
+      if (/\.(?:esm?|[mc]js|json)$/.test(path)) return null;
+      if (/\.[jt]sx?$/.test(path) && !isLocal(path, entry.options)) return null;
       if (!exists(path)) throw new Error(`File not found: ${path}`);
-      if (/\.(?:esm?|[mc]js|[jt]sx?|json)$/.test(path)) return null;
 
       let params = Source.get(path);
       if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
