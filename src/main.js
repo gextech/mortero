@@ -460,23 +460,25 @@ function init(src, dest, flags, length) {
     puts('\r{%gray. processing %s file%s...%}', length, length === 1 ? '' : 's');
   }
 
-  let count = 0;
-  array(flags.copy).forEach(x => {
-    const [_src, _dest] = x.split(':');
-    const _length = lsFiles(resolve(_src)).reduce((prev, cur) => prev + size(cur), 0);
+  if (process.env.NODE_ENV === 'production') {
+    let count = 0;
+    array(flags.copy).forEach(x => {
+      const [_src, _dest] = x.split(':');
+      const _length = lsFiles(resolve(_src)).reduce((prev, cur) => prev + size(cur), 0);
 
-    total += _length;
-    count += 1;
+      total += _length;
+      count += 1;
 
-    if (!flags.quiet && flags.progress !== false) {
-      puts('\r{%cyanBright copy%} %s {%magenta.arrow. %s%}\n', _src, bytes(_length));
+      if (!flags.quiet && flags.progress !== false) {
+        puts('\r{%cyanBright copy%} %s {%magenta.arrow. %s%}\n', _src, bytes(_length));
+      }
+
+      copy(resolve(_src), joinPath(dest, _dest));
+    });
+
+    if (!flags.quiet && flags.progress === false) {
+      puts('\r{%gray. %s source%s copied %} {%magenta.arrow. %s%}\n', count, count === 1 ? '' : 's', bytes(total));
     }
-
-    copy(resolve(_src), joinPath(dest, _dest));
-  });
-
-  if (!flags.quiet && flags.progress === false) {
-    puts('\r{%gray. %s source%s copied %} {%magenta.arrow. %s%}\n', count, count === 1 ? '' : 's', bytes(total));
   }
 }
 
@@ -776,7 +778,14 @@ async function main({
             .map(filter => (!filter.includes('*') ? `**/${filter}` : filter))
             .concat('**/node_modules'),
           watch: dirs.concat(relative(dest)),
-          mount: Object.entries(params).concat(dirs.map(x => ['/', x])),
+          mount: Object.entries(params)
+            .concat(dirs.map(x => ['/', x]))
+            .concat(array(flags.copy).map(x => {
+              const [_src, _dest] = x.split(':');
+              const _path = _dest === '.' ? '/' : `/${_dest}`;
+
+              return [_path, resolve(_src)];
+            })),
           middleware: [],
         };
 
