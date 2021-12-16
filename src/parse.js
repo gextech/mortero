@@ -1,4 +1,4 @@
-const redent = require('redent').default;
+const redent = require('redent');
 const data = require('./data');
 
 const {
