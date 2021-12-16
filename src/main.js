@@ -148,6 +148,16 @@ function fail(e, options, callback = raise) {
   }
 }
 
+function clear(tpl) {
+  Source.set(tpl.filepath, { dirty: true });
+  delete cache[tpl.filepath];
+
+  tpl.children.forEach(sub => {
+    Source.set(sub, { dirty: true });
+    delete cache[sub];
+  });
+}
+
 let total = 0;
 function debug(filepath, locals, options, bailout) {
   let deferred;
@@ -164,9 +174,10 @@ function debug(filepath, locals, options, bailout) {
     const end = tpl.options.progress !== false ? '\n' : '';
 
     if (!tpl.options.quiet && tpl.failure) {
-      puts('\r{%red. failed%} %s\n', relative(tpl.destination));
+      puts('\r{%red. failure%} %s\n', relative(tpl.destination));
       puts('{%gray. ⚠ %s%}', trace(tpl.failure));
       puts(end);
+      clear(tpl);
     } else if (tpl.destination && !tpl.failure) {
       const length = size(tpl.destination);
 
@@ -185,6 +196,7 @@ function debug(filepath, locals, options, bailout) {
       } else {
         puts('\r{%error. %s%}\n', (tpl.failure.stack || tpl.failure.message));
       }
+      clear(tpl);
       if (bailout) process.exit(1);
     }
     return tpl;
@@ -273,9 +285,8 @@ function watch(src, dest, flags, filter, callback) {
   function enqueue(file, target, pending) {
     return debug(file, null, flags).then(tpl => {
       if (tpl.failure) {
-        Source.set(file, { dirty: true });
-        delete cache[file];
         failed.push(file);
+        clear(tpl);
         return;
       }
 
