@@ -162,9 +162,7 @@ function trace(error) {
 }
 
 function include(path, attrs) {
-  const suffix = process.env.NODE_ENV === 'production'
-    ? `?t=${Date.now()}`
-    : '?livereload';
+  const suffix = `?t=${process.env.SOURCE_VERSION || Date.now()}`;
 
   if (path.includes('.css')) return `<link rel="stylesheet" href="${path + suffix}"${attrs}>`;
   if (path.includes('.js')) return `<script type="module" src="${path + suffix}"${attrs}></script>`;
