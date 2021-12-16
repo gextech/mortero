@@ -41,7 +41,9 @@ async function svelte(params, next) {
               extension: render[1],
             };
 
-            await new Promise(_resolve => render[0](chunk, _resolve));
+            await new Promise(_resolve => {
+              render[0](chunk, _resolve);
+            });
             return { code: chunk.source };
           }
           return { code: content };

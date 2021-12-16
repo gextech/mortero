@@ -363,7 +363,9 @@ describe('hooks', () => {
     });
 
     td.when(callback(td.matchers.isA(Array), td.matchers.isA(String), td.matchers.isA(Object)))
-      .thenResolve(new Promise(ok => process.nextTick(ok)));
+      .thenResolve(new Promise(ok => {
+        process.nextTick(ok);
+      }));
   });
 
   test(['should allow to set engines through plugins', 'x.foo', 'y'], result => {
