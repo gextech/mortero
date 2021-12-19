@@ -50,6 +50,7 @@ Available options:
 
     -a, --alias         Configure esbuild aliases, e.g. `-afoo:./bar`
     -H, --paths         Additional directories to search for modules
+    -m, --minify        Minify all given JavaScript through esbuild
     -N, --external      Configure esbuild externals, e.g. `-Nlodash`
         --platform      Configure esbuild platform, default is node
         --format        Configure esbuild format, default is esm
