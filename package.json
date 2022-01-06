@@ -1,6 +1,6 @@
 {
   "name": "mortero",
-  "version": "0.0.48",
+  "version": "0.0.49",
   "description": "Used in modern masonry to glue things and build frontages",
   "main": "bin/cli.js",
   "bin": {
