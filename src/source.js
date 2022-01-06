@@ -180,7 +180,7 @@ class Source {
       }
     } else {
       text = text.replace(RE_IMPORT, (_, $1, $2, $3, $4, $5) => {
-        if (/https?:\/\//.test($5) || _.includes('data:') || $2.charAt() === '#' || '/.'.includes($2.charAt())) return _;
+        if (/https?:\/\//.test($5) || _.includes('data:') || ($2 && '#/.'.includes($2.charAt()))) return _;
 
         if (_.indexOf('url(') === 0) {
           return tpl.extension === 'js' ? _ : `url(${$1}#!@@locate<${$2}>${$1}`;
