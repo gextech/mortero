@@ -5,8 +5,12 @@ const exec = require('child_process').exec;
 
 const Mortero = require('../src');
 
-const fixture = filename => {
-  return path.join(__dirname, 'fixtures', filename);
+const fixture = (filename, read) => {
+  const filepath = path.join(__dirname, 'fixtures', filename);
+
+  return read
+    ? fs.readFileSync(filepath).toString()
+    : filepath;
 };
 
 const mortero = (filename, source, opts) => {

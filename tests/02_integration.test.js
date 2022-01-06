@@ -1,6 +1,6 @@
 const { remove } = require('fs-extra');
 const { expect } = require('chai');
-const { cli } = require('./helpers');
+const { cli, fixture } = require('./helpers');
 
 /* global beforeEach, describe, it */
 
@@ -25,6 +25,14 @@ describe('CLI', () => {
   }));
 
   describe('options', () => {
+    describe('--minify', () => {
+      it('should compress javascript', cli('a -ymain.js --minify --no-debug', '.', ({ stdout, stderr }) => {
+        expect(stderr).to.eql('');
+        expect(stdout.split('\n').length).to.eql(5);
+        expect(fixture('build/a/main.js', true).split('\n').length).to.eql(2);
+      }));
+    });
+
     describe('--filter', () => {
       it('should process matching files', cli('a --filter "!**/{lib,test}/**"', '.', ({ stdout, stderr }) => {
         expect(stderr).to.eql('');
