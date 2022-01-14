@@ -21,20 +21,13 @@ function parse(ctx, _load, files) {
       ? value.replace(/^~\//, `${ctx.cwd}/`)
       : resolve(joinPath(dirname(ctx.src), value));
 
-    const text = readFile(inc);
-
-    if (ctx.src.indexOf('.json') !== -1) {
-      const data = new IncludedFile(true, JSON.parse(text));
-
-      files.push(ctx.src);
-      return data;
-    }
-
     let data;
     if (inc.indexOf('.yml') !== -1 || inc.indexOf('.yaml') !== -1) {
-      data = new IncludedFile(true, _load({ ...ctx, src: inc }, text, files));
+      data = new IncludedFile(true, _load({ ...ctx, src: inc }, readFile(inc)));
+    } else if (inc.indexOf('.json')) {
+      data = JSON.parse(readFile(inc));
     } else {
-      data = new IncludedFile(false, readFile(inc));
+      data = readFile(inc);
     }
 
     files.push(inc);
