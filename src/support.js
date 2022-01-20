@@ -75,14 +75,19 @@ function getHooks(tpl, ctx) {
     COMPONENTS.length = _keys.length;
   }
 
+  function cached(filepath, keep) {
+    if (!COMPONENTS.cache[filepath] || mtime(filepath) - COMPONENTS.cache[filepath][0] > 0) {
+      COMPONENTS.cache[filepath] = [mtime(filepath), readFile(filepath, keep)];
+    }
+    return COMPONENTS.cache[filepath][1];
+  }
+
   if (tpl) {
     return () => {
       const hookTasks = [];
 
       let matches;
       tpl.source = tpl.source.replace(COMPONENTS.re, (_, a, b, c, d, e) => {
-        if (COMPONENTS.cache[_]) return COMPONENTS.cache[_];
-
         const tag = a || d;
         const attrs = b || e || '';
         const content = c || '';
@@ -102,11 +107,7 @@ function getHooks(tpl, ctx) {
 
           matches = matches || tag === 'image';
           hookTasks.push(Promise.resolve()
-            .then(() => COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, locate: ctx.locate.bind(null, tpl) }))
-            .then(result => {
-              if (tag !== 'import') COMPONENTS.cache[_] = result;
-              return result;
-            }));
+            .then(() => COMPONENTS._[tag]({ tpl, props, content }, { ...ctx, cached, locate: ctx.locate.bind(null, tpl) })));
           return '<!#@@hook>';
         } catch (_e) {
           warn('\r{%yellow. %s%} Failed rendering `%s`\n%s\n', tag || _, attrs, _e.message);

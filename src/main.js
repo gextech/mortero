@@ -633,7 +633,7 @@ async function main({
   });
 
   const self = Object.assign(getHooks(), {
-    source: async ({ tpl, ctx, props }) => {
+    source: async ({ tpl, props }, ctx) => {
       if (props.src) {
         return `<source ${ctx.attributes(props)}>`;
       }
@@ -647,7 +647,7 @@ async function main({
         _src = joinPath(dirname(tpl.filepath), _src);
       }
 
-      const buffer = readFile(_src);
+      const buffer = ctx.cached(_src);
 
       if (buffer === false) {
         throw new Error(`Source not found: ${props.path}`);
@@ -673,20 +673,20 @@ async function main({
 
         if (chunk.dest) {
           const asset = chunk.dest.includes('.svg')
-            ? svg(readFile(joinPath(dest, chunk.dest)), props, ctx)
+            ? svg(ctx.cached(joinPath(dest, chunk.dest)), props, ctx)
             : ctx.include(chunk.dest, ctx.attributes(props, ['from']));
 
           prev += asset;
         } else if (chunk.path) {
           prev += chunk.path.includes('.svg')
-            ? svg(readFile(chunk.path), props, ctx)
-            : readFile(chunk.path);
+            ? svg(ctx.cached(chunk.path), props, ctx)
+            : ctx.cached(chunk.path);
         } else {
           const file = joinPath(dirname(tpl.filepath), chunk.src);
 
           prev += chunk.src.includes('.svg')
-            ? svg(readFile(file), props, ctx)
-            : readFile(file);
+            ? svg(ctx.cached(file), props, ctx)
+            : ctx.cached(file);
         }
         return prev;
       }, '');
@@ -724,13 +724,13 @@ async function main({
       let file;
       if (chunk.dest) {
         file = chunk.dest;
-        buffer = readFile(joinPath(dest, file), true);
+        buffer = ctx.cached(joinPath(dest, file), true);
       } else if (chunk.path) {
         file = chunk.path;
-        buffer = readFile(file, true);
+        buffer = ctx.cached(file, true);
       } else {
         file = chunk.src;
-        buffer = readFile(joinPath(dirname(tpl.filepath), file), true);
+        buffer = ctx.cached(joinPath(dirname(tpl.filepath), file), true);
       }
 
       const type = props.type || `image/${extname(file, true)}`;
