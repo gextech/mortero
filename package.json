@@ -76,6 +76,6 @@
     "esbuild": "^0.14.5",
     "highlight.js": "^11.2.0",
     "live-server": "^1.2.1",
-    "talavera": "^0.9.8"
+    "talavera": "^0.9.9"
   }
 }
