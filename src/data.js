@@ -23,8 +23,8 @@ function parse(ctx, _load, files) {
 
     let data;
     if (inc.indexOf('.yml') !== -1 || inc.indexOf('.yaml') !== -1) {
-      data = new IncludedFile(true, _load({ ...ctx, src: inc }, readFile(inc)));
-    } else if (inc.indexOf('.json')) {
+      data = new IncludedFile(true, _load({ ...ctx, src: inc }, readFile(inc), files));
+    } else if (inc.includes('.json')) {
       data = JSON.parse(readFile(inc));
     } else {
       data = readFile(inc);
