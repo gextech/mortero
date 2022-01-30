@@ -191,11 +191,11 @@ describe('esbuild', () => {
       expect(result.source).to.contain('console.log("development")');
     });
 
-    test(['should inline from /* global CONST */ comments', 'x.js', '/* global TEST */console.log(test)', {
+    test(['should inline from /* global CONST */ comments', 'x.js', '/* global TEST */console.log(TEST)', {
       globals: { TEST: '42' },
     }], result => {
       expect(result.source).to.contain('var TEST = 42');
-      expect(result.source).to.contain('console.log(test)');
+      expect(result.source).to.contain('console.log(TEST)');
     });
   });
 
