@@ -224,6 +224,7 @@ function esbuild(params, next, ext) {
         if (params.options.legacy) {
           const out = require('buble').transform(output, {
             transforms: {
+              dangerousForOf: true,
               moduleExport: false,
             },
           });
