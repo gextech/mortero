@@ -221,18 +221,6 @@ function esbuild(params, next, ext) {
   }).then(result => {
     return Source.rewrite(params, result.outputFiles[0].text)
       .then(output => {
-        if (params.options.legacy) {
-          const out = require('buble').transform(output, {
-            transforms: {
-              dangerousForOf: true,
-              moduleExport: false,
-            },
-          });
-
-          params.sourceMap = out.map;
-          output = out.code;
-        }
-
         params._rewrite = true;
         params.source = output;
         next();

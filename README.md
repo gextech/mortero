@@ -56,7 +56,6 @@ Available options:
         --format        Configure esbuild format, default is esm
         --target        Configure esbuild target,
                         set to node10.23 when format is not esm
-        --legacy        Transpiles down javascript to ES5 with bublé
 
     -b, --base          Sets the location for embedding resources,
                         default is http://localhost:PORT
