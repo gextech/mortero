@@ -953,7 +953,7 @@ module.exports = argv => {
       progress: null,
     },
     boolean: 'nmqfdVSWEAOMKv',
-    string: 'CeDbcyopPsaBriIGFXLTNHk',
+    string: 'CeDbcyopPsariIGFXLTNHk',
     alias: {
       C: 'cwd',
       e: 'ext',
