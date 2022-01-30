@@ -230,6 +230,14 @@ describe('esbuild', () => {
     });
   });
 
+  describe('legacy', () => {
+    test(['should use bublé to transpile down to es5', 'x.js', 'console.log(`x:${42}`);', { // eslint-disable-line
+      legacy: true,
+    }], result => {
+      expect(result.source).to.contain('"x:" + (42)');
+    });
+  });
+
   describe('shake', () => {
     test(['should disable tree-shaking if asked', 'x.js', 'function noop() {}', {
       shake: false,

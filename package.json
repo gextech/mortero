@@ -27,7 +27,7 @@
     "test": "npm run test:run --",
     "pretest": "npm run lint",
     "prepare": "npm run build:fast",
-    "build": "esbuild src/index.js --bundle --outfile=bin/cli.js --platform=node --external:esbuild --external:chokidar --external:live-server --external:talavera --target=node10.23 --log-level=error --log-limit=0",
+    "build": "esbuild src/index.js --bundle --outfile=bin/cli.js --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --target=node10.23 --log-level=error --log-limit=0",
     "build:fast": "npm run build -- --external:kramed --external:coffeescript --external:asciidoctor.js --external:handlebars --external:liquid --external:node-sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte"
   },
   "keywords": [
@@ -39,6 +39,7 @@
   "license": "MIT",
   "devDependencies": {
     "asciidoctor.js": "^1.5.9",
+    "buble": "^0.20.0",
     "chai": "^4.3.4",
     "codecov": "^3.8.3",
     "coffeescript": "^2.5.1",
