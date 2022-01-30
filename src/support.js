@@ -398,8 +398,7 @@ function configure(flags, pkg) {
 
   const isFiltered = filters(false, filterInput);
   const isIgnored = filters(true, ignoreInput);
-  const isBundle = flags.bundle === true
-    ? (() => true) : filters(true, array(flags.bundle));
+  const isBundle = filters(true, array(flags.bundle));
 
   return {
     fixedExtensions,
