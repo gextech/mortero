@@ -55,6 +55,7 @@ module.exports = function render(params, done) {
   delete params.locals.$bundle;
   delete params.locals.$format;
   delete params.locals.$target;
+  delete params.locals.$shake;
   delete params.locals.$debug;
   delete params.locals.$render;
   delete params.locals.$footer;

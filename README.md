@@ -76,6 +76,7 @@ Available options:
     -S, --no-serve      Disable live-server on --watch
     -W, --no-write      Disable writing files to disk
     -E, --no-embed      Disable resource inlining on .html files
+        --no-shake      Disable tree-shaking when bundling is used
     -A, --no-install    Disable automatic installs during development
     -K, --no-process    Disable post-processing of all given sources
     -O, --no-progress   Disable extended logging from compilations

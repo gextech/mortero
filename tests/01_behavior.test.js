@@ -230,6 +230,14 @@ describe('esbuild', () => {
     });
   });
 
+  describe('shake', () => {
+    test(['should disable tree-shaking if asked', 'x.js', 'function noop() {}', {
+      shake: false,
+    }], result => {
+      expect(result.source).to.include('function noop');
+    });
+  });
+
   describe('debug', () => {
     test(['should apply options.debug as output', 'x.js', 'console.log(42)', {
       debug: true,

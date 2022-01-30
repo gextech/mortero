@@ -174,6 +174,7 @@ function esbuild(params, next, ext) {
   const bundle = params.data.$bundle || params.options.bundle;
   const format = params.data.$format || params.options.format;
   const target = params.data.$target || params.options.target;
+  const shake = params.data.$shake || params.options.shake;
   const name = params.data.$name || params.options.name;
   const esnext = !format || format === 'esm';
 
@@ -188,6 +189,7 @@ function esbuild(params, next, ext) {
   require('esbuild').build({
     resolveExtensions: getExtensions(false, params.options.extensions),
     mainFields: ['svelte', 'module', 'main'],
+    treeShaking: shake !== false,
     target: !esnext ? target || 'node10.23' : undefined,
     define: keys(params.options.globals).reduce((memo, k) => {
       if (typeof params.options.globals[k] !== 'object') {
