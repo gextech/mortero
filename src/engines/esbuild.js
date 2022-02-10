@@ -221,6 +221,11 @@ function esbuild(params, next, ext) {
   }).then(result => {
     return Source.rewrite(params, result.outputFiles[0].text)
       .then(output => {
+        return typeof params.options.rewrite === 'function'
+          ? params.options.rewrite(output)
+          : output;
+      })
+      .then(output => {
         params._rewrite = true;
         params.source = output;
         next();

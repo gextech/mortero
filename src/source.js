@@ -109,6 +109,14 @@ class Source {
           }));
       }
 
+      if (!this._rewrite && typeof this.rewrite === 'function') {
+        compileTasks.push(() => Promise.resolve()
+          .then(() => this.rewrite(this.source))
+          .then(_result => {
+            this.source = _result;
+          }));
+      }
+
       return defer(compileTasks, () => {
         if (this.source !== null && this.options.write !== false) {
           writeFile(this.destination, this.source);
