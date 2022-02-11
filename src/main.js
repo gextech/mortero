@@ -783,8 +783,8 @@ async function main({
           root: dest,
           wait: 260,
           open: false,
-          logLevel: 0,
           file: 'index.html',
+          logLevel: flags.verbose ? 2 : 0,
           ignore: array(flags.exclude, flags.ignoreServe)
             .map(filter => (!filter.includes('*') ? `**/${filter}` : filter))
             .concat('**/node_modules'),
@@ -869,6 +869,8 @@ async function main({
             return memo;
           }, []);
         }
+
+        if (flags.debug) puts('\n');
 
         const server = liveserver.start(opts).on('error', () => {
           raise('\r{%red. cannot start live-server%}\n');
