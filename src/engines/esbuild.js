@@ -57,7 +57,10 @@ const Mortero = (entry, external) => ({
 
         Object.assign(params.instance.locals, locals);
 
+        params.instance._dependency = true;
+
         await params.instance.compile();
+
         if (module.exports[params.instance.extension]) {
           params.instance.loader = params.instance.extension;
         }
@@ -199,7 +202,7 @@ function esbuild(params, next, ext) {
     }, {}),
     logLevel: (params.options.quiet && 'silent') || undefined,
     inject: [].concat(inject || []),
-    sourcemap: params.options.debug ? 'inline' : undefined,
+    sourcemap: params.options.debug && params.debug !== false ? 'inline' : undefined,
     sourcesContent: false,
     platform: platform || 'node',
     format: format || 'esm',
@@ -221,13 +224,11 @@ function esbuild(params, next, ext) {
   }).then(result => {
     return Source.rewrite(params, result.outputFiles[0].text)
       .then(output => {
-        return typeof params.options.rewrite === 'function'
-          ? params.options.rewrite(output)
-          : output;
-      })
-      .then(output => {
         params._rewrite = true;
         params.source = output;
+        params.source = typeof params.options.rewrite === 'function'
+          ? params.options.rewrite(output, params)
+          : output;
         next();
       });
   }).catch(next);

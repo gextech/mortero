@@ -183,7 +183,7 @@ class Source {
     if (tpl.extension === 'js' && !tpl.isBundle && !tpl.isModule) {
       const fmt = typeof tpl.data.$format !== 'undefined' ? tpl.data.$format : tpl.options.format;
 
-      if (fmt !== 'esm') {
+      if (fmt !== 'esm' && !tpl._rewrite) {
         text = reExport(reImport(text)).replace(/await(\s+)import/g, '/* */$1require');
       }
     } else {

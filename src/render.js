@@ -74,6 +74,7 @@ module.exports = function render(params, done) {
           }
         }
       }), Promise.resolve())
+    .then(() => params._bundle && push(engines.js[0], null))
     .then(() => {
       if (knownExtensions.includes(params.extension) || extensions[params.extension] === false) {
         params.extension = params.parts.join('.');
