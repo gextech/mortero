@@ -14,11 +14,11 @@ const {
   lsFiles,
   dirname,
   basename,
-  isMarkup,
   relative,
   joinPath,
   readFile,
   writeFile,
+  isMarkup,
 } = require('./common');
 
 const {
@@ -82,7 +82,8 @@ class Source {
 
   compile(locals, context) {
     return this.render(locals).then(() => {
-      const compileTasks = isMarkup(this.filepath) && this.source !== null
+      const markup = this.options.markup ? this.options.markup(this.filepath) : isMarkup(null, this.filepath);
+      const compileTasks = markup && this.source !== null
         ? [getHooks(this, context)]
         : [];
 

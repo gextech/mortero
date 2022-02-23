@@ -258,8 +258,13 @@ function bytes(n) {
   return n;
 }
 
-function isMarkup(src) {
-  return MARKUP.includes(extname(src, true));
+function isMarkup(opts, src) {
+  if (MARKUP.includes(extname(src, true))) return true;
+  if (!opts || !opts.length) return false;
+
+  const index = opts.find(x => relative(src).includes(x[0]));
+
+  return index && index[1] > 0;
 }
 
 module.exports = {
