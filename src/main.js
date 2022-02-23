@@ -606,7 +606,7 @@ async function main({
   flags.root = src.filter(x => resolve(x) !== cwd).map(x => relative(x));
   flags.debug = flags.debug !== false ? flags.debug || process.env.NODE_ENV !== 'production' : false;
   flags.minify = flags.minify !== false ? flags.minify || process.env.NODE_ENV === 'production' : false;
-  flags.markup = isMarkup.bind(null, [].concat((flags.markup || []).map(x => [`/${x.replace(/^\+/, '')}/`, x[0] === '+' ? 1 : -1])));
+  flags.markup = isMarkup.bind(null, [].concat((flags.markup || []).map(x => [`/${x.replace(/^\+/, '').trim()}/`, x[0] === '+' ? 1 : -1])));
   flags.bundle = x => flags.bundle && isBundle(x);
   flags.rename = rename(dest, flags.rename);
   flags.globals = { ...data, pkg };
