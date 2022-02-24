@@ -356,7 +356,7 @@ function watch(src, dest, flags, filter, callback) {
         }
 
         if (src.some(x => file.includes(x))) {
-          compile.queue[flags.markup(file) ? 'push' : 'unshift'](() => compile.next && enqueue(file, target, compile.pending));
+          compile.queue[isMarkup(file) ? 'push' : 'unshift'](() => compile.next && enqueue(file, target, compile.pending));
         }
       });
 
@@ -606,7 +606,6 @@ async function main({
   flags.root = src.filter(x => resolve(x) !== cwd).map(x => relative(x));
   flags.debug = flags.debug !== false ? flags.debug || process.env.NODE_ENV !== 'production' : false;
   flags.minify = flags.minify !== false ? flags.minify || process.env.NODE_ENV === 'production' : false;
-  flags.markup = isMarkup.bind(null, [].concat((flags.markup || []).map(x => [`/${x.replace(/^\+/, '').trim()}/`, x[0] === '+' ? 1 : -1])));
   flags.bundle = x => flags.bundle && isBundle(x);
   flags.rename = rename(dest, flags.rename);
   flags.globals = { ...data, pkg };
@@ -907,7 +906,7 @@ async function main({
       }
     });
 
-    const srcFiles = sources.sort((a, b) => flags.markup(a) - flags.markup(b)).filter(x => {
+    const srcFiles = sources.sort((a, b) => isMarkup(a) - isMarkup(b)).filter(x => {
       if (changed.includes(x)) return true;
       if (match(x, relative(x))) return flags.force || checkDirty(x, cache[x]);
       if (!isSupported(x) && isIncluded(relative(x))) missed.push(x);
@@ -956,7 +955,7 @@ module.exports = argv => {
       progress: null,
     },
     boolean: 'nmqfdVSWEAOMKv',
-    string: 'CeDbcyopPsaBriIGFXLTNHku',
+    string: 'CeDbcyopPsaBriIGFXLTNHk',
     alias: {
       C: 'cwd',
       e: 'ext',
@@ -975,7 +974,6 @@ module.exports = argv => {
       f: 'force',
       d: 'debug',
       H: 'paths',
-      u: 'markup',
       m: 'minify',
       B: 'bundle',
       n: 'online',

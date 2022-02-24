@@ -316,7 +316,6 @@ function configure(flags, pkg) {
     if (pkg.mortero.extensions) flags.ext = array(flags.ext, pkg.mortero.extensions);
     if (pkg.mortero.aliases) flags.alias = array(flags.alias, pkg.mortero.aliases);
     if (pkg.mortero.copy) flags.copy = array(flags.copy, pkg.mortero.copy);
-    if (pkg.mortero.markup) flags.markup = array(flags.markup, pkg.mortero.markup);
     if (pkg.mortero.bundle) flags.bundle = array(flags.bundle, pkg.mortero.bundle);
     if (pkg.mortero.rename) flags.rename = array(flags.rename, pkg.mortero.rename);
     if (pkg.mortero.filter) flags.filter = array(flags.filter, pkg.mortero.filter);

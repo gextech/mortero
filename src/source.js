@@ -82,8 +82,7 @@ class Source {
 
   compile(locals, context) {
     return this.render(locals).then(() => {
-      const markup = this.options.markup ? this.options.markup(this.filepath) : isMarkup(null, this.filepath);
-      const compileTasks = markup && this.source !== null
+      const compileTasks = isMarkup(this.filepath) && this.source !== null
         ? [getHooks(this, context)]
         : [];
 

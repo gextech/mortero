@@ -258,12 +258,7 @@ function bytes(n) {
   return n;
 }
 
-function isMarkup(opts, src) {
-  if (Array.isArray(opts) && opts.length > 0) {
-    const index = opts.find(x => relative(src).includes(x[0]));
-
-    return index && index[1] > 0;
-  }
+function isMarkup(src) {
   return MARKUP.includes(extname(src, true));
 }
 
