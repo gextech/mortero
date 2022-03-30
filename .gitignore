@@ -5,3 +5,4 @@ build
 bin/cli.js
 cache.json
 node_modules
+package-lock.json

@@ -70,13 +70,13 @@
     "svelte": "^3.44.3",
     "testdouble": "^3.16.2",
     "tosource": "^2.0.0-alpha.3",
-    "wargs": "^0.9.5"
+    "wargs": "^0.9.6"
   },
   "dependencies": {
     "chokidar": "^3.5.2",
     "esbuild": "^0.14.14",
     "highlight.js": "^11.2.0",
     "live-server": "^1.2.1",
-    "talavera": "^0.9.9"
+    "talavera": "^0.9.10"
   }
 }
