@@ -351,7 +351,7 @@ function watch(src, dest, flags, filter, callback) {
         if (test) compile.deps.push(file);
         if (dep) {
           if (!test) compile.missed.push(file);
-          liveserver.watcher.emit('change', file);
+          if (liveserver.watcher) liveserver.watcher.emit('change', file);
           return;
         }
 
