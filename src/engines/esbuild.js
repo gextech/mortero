@@ -59,7 +59,11 @@ const Mortero = (entry, external) => ({
 
         params.instance._dependency = true;
 
-        await params.instance.compile();
+        try {
+          await params.instance.compile();
+        } catch (e) {
+          params.instance.failure = e;
+        }
 
         if (module.exports[params.instance.extension]) {
           params.instance.loader = params.instance.extension;
