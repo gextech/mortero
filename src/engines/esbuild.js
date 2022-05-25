@@ -12,6 +12,7 @@ const {
   readFile,
   relative,
   joinPath,
+  writeFile,
 } = require('../common');
 
 const {
@@ -49,7 +50,20 @@ const Mortero = (entry, external) => ({
       if (/\.[jt]sx?$/.test(path) && !isLocal(path, entry.options)) return null;
       if (!exists(path)) throw new Error(`File not found: ${path}`);
 
+      const tmpFile = joinPath(TEMP_DIR, `${path.replace(/\W/g, '_')}@out`);
+
       let params = Source.get(path);
+      if (params && params.dirty === false && exists(tmpFile)) {
+        const buffer = readFile(tmpFile);
+        const offset = buffer.indexOf('\n');
+
+        return {
+          loader: buffer.substr(0, offset),
+          contents: buffer.substr(offset + 1),
+          resolveDir: dirname(path),
+        };
+      }
+
       if (!params || !params.instance || !params.input || params.input !== params.instance.source) {
         if (!params || !params.instance || !params.input) {
           params = { instance: new Source(path, entry.options) };
@@ -78,6 +92,8 @@ const Mortero = (entry, external) => ({
             resolveDir: dirname(path),
           },
         });
+
+        writeFile(tmpFile, `${params.output.loader}\n${params.output.contents}`);
       }
       return params.output;
     }
