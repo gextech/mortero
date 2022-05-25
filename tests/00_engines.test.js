@@ -144,8 +144,8 @@ describe('scripts', () => {
 
 describe('styles', () => {
   describe('SASS', () => {
-    test(['x.sass', '$x: red;\n*\n  color: $x'], result => {
-      expect(result.source).to.contain('color: red');
+    test(['x.sass', '$x: red\n*\n  color: $x'], result => {
+      expect(result.source).to.eql('*{color:red}');
     });
   });
 

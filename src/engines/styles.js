@@ -25,7 +25,7 @@ function stylus(params, next) {
 }
 
 function sass(params, next) {
-  const NodeSass = require('node-sass');
+  const NodeSass = require('sass');
   const opts = { ...params.options.sass };
 
   NodeSass.render({
@@ -34,7 +34,7 @@ function sass(params, next) {
     data: params.source,
     indentedSyntax: params.filepath.indexOf('.sass') > -1,
     includePaths: opts.includePaths || [],
-    outputStyle: opts.outputStyle || 'compact',
+    outputStyle: opts.outputStyle || 'compressed',
     sourceMap: params.data.$debug || params.options.debug,
     sourceMapEmbed: true,
   }, (error, result) => {

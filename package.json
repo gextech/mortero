@@ -28,7 +28,7 @@
     "pretest": "npm run lint",
     "prepare": "npm run build:fast",
     "build": "esbuild src/index.js --bundle --outfile=bin/cli.js --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --target=node10.23 --log-level=error --log-limit=0",
-    "build:fast": "npm run build -- --external:kramed --external:coffeescript --external:asciidoctor.js --external:handlebars --external:liquid --external:node-sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte"
+    "build:fast": "npm run build -- --external:kramed --external:coffeescript --external:asciidoctor.js --external:handlebars --external:liquid --external:sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte"
   },
   "keywords": [
     "templating",
@@ -59,13 +59,13 @@
     "log-pose": "^0.4.7",
     "micromatch": "^4.0.4",
     "mocha": "^9.1.1",
-    "node-sass": "^7.0.0",
     "nyc": "^15.1.0",
     "postcss": "^8.3.6",
     "pug": "^3.0.2",
     "redent": "^3.0.0",
     "rewrite-exports": "0.0.26",
     "rewrite-imports": "^3.0.0",
+    "sass": "^1.52.1",
     "stylus": "^0.55.0",
     "svelte": "^3.44.3",
     "testdouble": "^3.16.2",
