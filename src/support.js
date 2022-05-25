@@ -331,6 +331,10 @@ function configure(flags, pkg) {
     }
   }
 
+  if (flags.cjs) flags.format = 'cjs';
+  if (flags.esm) flags.format = 'esm';
+  if (flags.iife) flags.format = 'iife';
+
   Object.keys(flags).forEach(key => {
     if (key.includes('.')) set(flags, key);
   });

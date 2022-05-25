@@ -53,7 +53,8 @@ Available options:
     -m, --minify        Minify all given JavaScript through esbuild
     -N, --external      Configure esbuild externals, e.g. `-Nlodash`
         --platform      Configure esbuild platform, default is node
-        --format        Configure esbuild format, default is esm
+        --format        Configure esbuild format (default is esm),
+                        use --esm, --cjs or --iife as shortcuts
         --target        Configure esbuild target,
                         set to node10.23 when format is not esm
 
