@@ -129,7 +129,7 @@ describe('extensions', () => {
   test(['should bundle from JSON extensions', 'x.js', 'import x from "./a/sample.json";console.log(x)', {
     bundle: true,
   }], result => {
-    expect(result.source).to.contains('var foo = "bar"');
+    expect(result.source).to.contains('var sample_default = {\n  foo: "bar"\n};');
   }, { keys: ['id', 'name'] });
 
   test(['should render from bundled extensions', 'x.js', 'import x from "./a/template.gql";console.log(x)', {
