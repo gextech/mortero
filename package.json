@@ -41,6 +41,7 @@
     "asciidoctor.js": "^1.5.9",
     "buble": "^0.20.0",
     "chai": "^4.3.4",
+    "chokidar": "^3.5.2",
     "codecov": "^3.8.3",
     "coffeescript": "^2.5.1",
     "ejs": "^3.1.6",
@@ -56,6 +57,7 @@
     "less": "^4.1.1",
     "less-plugin-autoprefix": "^2.0.0",
     "liquid": "^5.1.1",
+    "live-server": "^1.2.1",
     "log-pose": "^0.4.7",
     "micromatch": "^4.0.4",
     "mocha": "^9.1.1",
@@ -73,9 +75,7 @@
     "wargs": "^0.9.6"
   },
   "dependencies": {
-    "chokidar": "^3.5.2",
     "esbuild": "^0.14.14",
-    "live-server": "^1.2.1",
     "talavera": "^0.9.10"
   }
 }
