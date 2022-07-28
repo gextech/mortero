@@ -57,7 +57,7 @@
     "less": "^4.1.1",
     "less-plugin-autoprefix": "^2.0.0",
     "liquid": "^5.1.1",
-    "live-server": "^1.2.1",
+    "live-server": "^1.2.2",
     "log-pose": "^0.4.7",
     "micromatch": "^4.0.4",
     "mocha": "^9.1.1",
