@@ -453,6 +453,10 @@ function watch(src, dest, flags, filter, callback) {
 }
 
 function init(src, dest, flags, length) {
+  if (flags.verbose) {
+    puts('\r{%gray. %s%}\n', TEMP_DIR);
+  }
+
   if (!process.silent) {
     puts('\r{%gray. %s (%s — %s)%}\n', process.name, ms(Date.now() - process.start), process.env.NODE_ENV || 'development');
   }
