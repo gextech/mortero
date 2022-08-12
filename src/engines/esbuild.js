@@ -5,6 +5,7 @@ const {
   keys,
   array,
   fetch,
+  mtime,
   exists,
   resolve,
   extname,
@@ -53,7 +54,7 @@ const Mortero = (entry, external) => ({
       const tmpFile = joinPath(TEMP_DIR, `${path.replace(/\W/g, '_')}@out`);
 
       let params = Source.get(path);
-      if (params && params.dirty === false && exists(tmpFile)) {
+      if (params && params.dirty === false && exists(tmpFile) && (mtime(path) <= mtime(tmpFile))) {
         const buffer = readFile(tmpFile);
         const offset = buffer.indexOf('\n');
 
