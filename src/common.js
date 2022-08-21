@@ -131,6 +131,10 @@ function isDir(src) {
   return exists(src) && fs.statSync(src).isDirectory();
 }
 
+function isFile(src) {
+  return exists(src) && fs.statSync(src).isFile();
+}
+
 function mtime(src) {
   return exists(src) ? fs.statSync(src).mtime : 0;
 }
@@ -283,6 +287,7 @@ module.exports = {
   bytes,
   fetch,
   isDir,
+  isFile,
   exists,
   unlink,
   inspect,

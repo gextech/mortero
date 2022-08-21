@@ -6,7 +6,7 @@ const {
   array,
   fetch,
   mtime,
-  exists,
+  isFile,
   resolve,
   extname,
   dirname,
@@ -49,12 +49,12 @@ const Mortero = (entry, external) => ({
     async function buildSource(path, locals) {
       if (/\.(?:esm?|[mc]js|json)$/.test(path)) return null;
       if (/\.[jt]sx?$/.test(path) && !isLocal(path, entry.options)) return null;
-      if (!exists(path)) throw new Error(`File not found: ${path}`);
+      if (!isFile(path)) throw new Error(`File not found: ${path}`);
 
       const tmpFile = joinPath(TEMP_DIR, `${path.replace(/\W/g, '_')}@out`);
 
       let params = Source.get(path);
-      if (params && params.dirty === false && exists(tmpFile) && (mtime(path) <= mtime(tmpFile))) {
+      if (params && params.dirty === false && isFile(tmpFile) && (mtime(path) <= mtime(tmpFile))) {
         const buffer = readFile(tmpFile);
         const offset = buffer.indexOf('\n');
 
@@ -102,7 +102,7 @@ const Mortero = (entry, external) => ({
     async function fetchSource(path) {
       const tmpFile = joinPath(TEMP_DIR, path.replace(/\W/g, '_'));
 
-      if (!exists(tmpFile)) {
+      if (!isFile(tmpFile)) {
         await fetch(path, tmpFile);
       }
 
@@ -139,11 +139,11 @@ const Mortero = (entry, external) => ({
         ? resolve(args.path.substr(2))
         : resolve(args.path, args.resolveDir);
 
-      fixedModule = getModule(fixedModule) || getModule(args.path, [args.resolveDir].concat(paths));
+      fixedModule = getModule(fixedModule, null) || getModule(args.path, [args.resolveDir].concat(paths));
 
       const name = args.path.split('/')[0];
 
-      if (!fixedModule && name.charAt() !== '.' && !external.includes(name)) {
+      if (!fixedModule && !'~.'.includes(name.charAt()) && !external.includes(name)) {
         fixedModule = await modules(args.path, entry, true);
       }
 

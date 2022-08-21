@@ -33,6 +33,7 @@ const {
   defer,
   fetch,
   array,
+  isFile,
   exists,
   extname,
   dirname,
@@ -128,6 +129,10 @@ function getHooks(tpl, ctx) {
 }
 
 function getModule(src, paths) {
+  if (paths === null && isFile(src)) {
+    return src;
+  }
+
   let file;
   if (paths) {
     const folders = paths.map(x => resolve(x));
@@ -141,9 +146,9 @@ function getModule(src, paths) {
 
     for (let i = 0, c = exts.length; i < c; i += 1) {
       file = joinPath(src + exts[i]);
-      if (exists(file)) return file;
+      if (isFile(file)) return file;
       file = joinPath(src, `index${exts[i]}`);
-      if (exists(file)) return file;
+      if (isFile(file)) return file;
     }
   }
 }
@@ -228,14 +233,14 @@ function getContext(options) {
 
   function locate(tpl, path, ignore) {
     let destFile = joinPath(dest, path);
-    if (exists(destFile)) return push(tpl, ignore, { dest: path });
+    if (isFile(destFile)) return push(tpl, ignore, { dest: path });
 
     for (let i = 0; i < options.root.length; i += 1) {
       destFile = joinPath(options.root[i], path);
-      if (exists(destFile)) return push(tpl, ignore, { src: path });
+      if (isFile(destFile)) return push(tpl, ignore, { src: path });
     }
 
-    if (exists(path)) {
+    if (isFile(path)) {
       const entry = options.tmp[resolve(path)];
 
       if (entry && entry.destination) {
@@ -279,7 +284,7 @@ function isSupported(src, exts = {}) {
 function checkDirty(key, entry) {
   if (!entry) return true;
   if (entry.destination) {
-    return !exists(entry.destination) || (mtime(key) - mtime(entry.destination)) > 0;
+    return !isFile(entry.destination) || (mtime(key) - mtime(entry.destination)) > 0;
   }
   if (entry.modified) return (mtime(key) - entry.modified) > 0;
 }
@@ -361,7 +366,7 @@ function configure(flags, pkg) {
   }));
 
   const ignoreInput = array(flags.ignoreFrom).reduce((memo, x) => {
-    if (exists(x)) {
+    if (isFile(x)) {
       const lines = readFile(x).split('\n');
 
       lines.forEach(line => {
@@ -570,14 +575,14 @@ async function embed(tpl, html, render) {
       const resource = joinPath(dirname(tpl.filepath, tpl.options.cwd), name);
 
       let out = '';
-      if (exists(local)) {
+      if (isFile(local)) {
         out = readFile(local, true);
-      } else if (exists(resource) && (tpl.options.force || !exists(file) || (mtime(resource) - mtime(file)) > 0)) {
+      } else if (isFile(resource) && (tpl.options.force || !isFile(file) || (mtime(resource) - mtime(file)) > 0)) {
         const tmp = await render(resource, tpl);
 
         writeFile(file, tmp.source);
         out = tmp.source;
-      } else if (!exists(file) || tpl.options.force) {
+      } else if (!isFile(file) || tpl.options.force) {
         if (!tpl.options.quiet) {
           puts('\r{%blue fetch%} %s\r', _url);
         }
@@ -600,9 +605,9 @@ async function embed(tpl, html, render) {
         out = readFile(file, true);
       }
 
-      if (exists(resource) && !tpl.children.includes(resource)) {
+      if (isFile(resource) && !tpl.children.includes(resource)) {
         tpl.children.push(resource);
-      } else if (exists(local) && !tpl.children.includes(local)) {
+      } else if (isFile(local) && !tpl.children.includes(local)) {
         tpl.children.push(local);
       }
 
