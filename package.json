@@ -71,7 +71,6 @@
     "stylus": "^0.55.0",
     "svelte": "^3.48.0",
     "testdouble": "^3.16.2",
-    "tosource": "^2.0.0-alpha.3",
     "wargs": "^0.9.6"
   },
   "dependencies": {

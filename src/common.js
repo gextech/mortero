@@ -6,7 +6,6 @@ const path = require('path');
 const glob = require('glob');
 const util = require('util');
 const logpose = require('log-pose');
-const tosource = require('tosource');
 const { exec } = require('child_process');
 
 const SCRIPTS = ['yml', 'yaml', 'json', 'js', 'coffee', 'litcoffee', 'svelte', 'es', 'mjs', 'es6', 'jsx', 'ts', 'tsx'];
@@ -65,14 +64,6 @@ function set(target, key) {
   } else {
     obj[_key] = value;
   }
-}
-
-function expr(value) {
-  if (/^-?\d+(?:\.\d+)?$/.test(value)) return value;
-  if (value === 'false') return false;
-  if (value === 'true') return true;
-  if (value === 'null') return null;
-  return tosource(value);
 }
 
 function caps(value) {
@@ -272,7 +263,6 @@ module.exports = {
   set,
   npm,
   size,
-  expr,
   copy,
   puts,
   warn,

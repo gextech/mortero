@@ -7,7 +7,6 @@ const {
 } = require('./common');
 
 const {
-  globals,
   conditionals,
 } = require('./support');
 
@@ -35,8 +34,7 @@ module.exports = (filepath, source, opts) => {
   }
 
   // replace globals and macros before parsing front-matter
-  options.globals = options.globals || {};
-  source = globals(conditionals(source, options.globals), options.globals);
+  source = conditionals(source, process.env);
 
   let fm;
   let obj;

@@ -185,17 +185,8 @@ describe('esbuild', () => {
   });
 
   describe('globals', () => {
-    test(['should replace from options.globals', 'x.js', 'console.log(process.env.NODE_ENV)', {
-      globals: { NODE_ENV: 'development' },
-    }], result => {
-      expect(result.source).to.contain('console.log("development")');
-    });
-
-    test(['should inline from /* global CONST */ comments', 'x.js', '/* global TEST */console.log(TEST)', {
-      globals: { TEST: '42' },
-    }], result => {
-      expect(result.source).to.contain('var TEST = 42');
-      expect(result.source).to.contain('console.log(TEST)');
+    test(['should replace from options.globals', 'x.js', 'console.log(process.env.NODE_ENV)'], result => {
+      expect(result.source).to.contain('console.log("test")');
     });
   });
 

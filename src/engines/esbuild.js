@@ -1,7 +1,6 @@
 const Source = require('../source');
 
 const {
-  expr,
   keys,
   array,
   fetch,
@@ -215,9 +214,9 @@ function esbuild(params, next, ext) {
     mainFields: ['svelte', 'module', 'main'],
     treeShaking: shake !== false,
     target: !esnext ? target || 'node10.23' : undefined,
-    define: keys(params.options.globals).reduce((memo, k) => {
-      if (typeof params.options.globals[k] !== 'object') {
-        memo[`process.env.${k}`] = expr(params.options.globals[k]);
+    define: keys(process.env).reduce((memo, k) => {
+      if (typeof process.env[k] !== 'object' && k.indexOf('npm_') === -1) {
+        memo[`process.env.${k}`] = JSON.stringify(process.env[k]);
       }
       return memo;
     }, {}),

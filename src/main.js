@@ -612,7 +612,6 @@ async function main({
   flags.minify = flags.minify !== false ? flags.minify || process.env.NODE_ENV === 'production' : false;
   flags.bundle = x => flags.bundle && isBundle(x);
   flags.rename = rename(dest, flags.rename);
-  flags.globals = { ...data, pkg };
   flags.aliases = fixedAliases;
   flags.extensions = fixedExtensions;
 
@@ -627,12 +626,6 @@ async function main({
   flags.root.forEach(dir => {
     if (!exists(dir)) {
       throw new Error(`Invalid source directory, given '${dir}'`);
-    }
-  });
-
-  keys(process.env).forEach(key => {
-    if (key.indexOf('npm_') === -1) {
-      flags.globals[key] = process.env[key];
     }
   });
 

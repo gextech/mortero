@@ -13,7 +13,6 @@ const RE_IMPORT = /(?:^|\b)(?:url\((["']?)([^\s)]+)\1|import\s+(?:([^;]*?)?\s*fr
 const RE_MACROS = /(?:#|<!--|\/[/*])\s*(IF(?:_?NOT|NDEF)?)\s+([\s\S]*?)(?:#|<!--|\/[/*])\s*ENDIF/;
 const RE_LINKS = /(?:(?:href|src)=(["'])(.*?)\1)|url\((["']?)(.*?)\3\)/;
 const RE_INLINE = /\sinline(?:=(["']?)(?:inline|true)\1)?(?:\b|$)/;
-const RE_GLOBAL = /\/\*+\s*global\s+([A-Z_\d\s,]+?)\s*\*+\//g;
 const RE_EXT = /\.(\w+)$(?=\?.*?|$)$/;
 
 const RE_IF = /^\s*(?:#|<!--|\/[/*])\s*IF(?:DEF)?\s*/;
@@ -28,7 +27,6 @@ const {
   puts,
   warn,
   keys,
-  expr,
   mtime,
   defer,
   fetch,
@@ -743,31 +741,7 @@ function load(all, dest, flags = {}, cache = {}) {
   }));
 }
 
-function globals(source, vars) {
-  const values = {};
-
-  keys(vars).forEach(prop => {
-    if (typeof vars[prop] !== 'object') {
-      values[prop] = typeof vars[prop] === 'function'
-        ? String(vars[prop]()).trim()
-        : expr(vars[prop]);
-    }
-  });
-
-  return source
-    .replace(RE_GLOBAL, (_, sub) => {
-      const out = [];
-      sub.split(/[\s,]+/).forEach(k => {
-        if (typeof values[k] !== 'undefined') {
-          out.push(`${k}=${values[k]}`);
-        }
-      });
-
-      return out.length ? `var ${out.join(', ')};` : '';
-    });
-}
-
-function replaceMacro(text, _globals) {
+function replaceMacro(text, params) {
   const lines = text.split(/(?<=\n)/);
 
   let startFound = 0;
@@ -783,7 +757,7 @@ function replaceMacro(text, _globals) {
   const startMatch = RE_VALUES.exec(lines[startFound]);
   const endMatch = RE_END.exec(lines[endFound]);
 
-  const flag = _globals[startMatch[2]] === 'true' || _globals[startMatch[2]] === true;
+  const flag = params[startMatch[2]] === 'true' || params[startMatch[2]] === true;
   const keepBlock = startMatch[1] ? !flag : flag;
 
   if (keepBlock) {
@@ -799,8 +773,8 @@ function replaceMacro(text, _globals) {
   return lines.join('');
 }
 
-function conditionals(text, _globals) {
-  while (RE_MACROS.test(text)) text = replaceMacro(text, _globals);
+function conditionals(text, params) {
+  while (RE_MACROS.test(text)) text = replaceMacro(text, params);
   return text;
 }
 
@@ -824,6 +798,5 @@ module.exports = {
   rename,
   trace,
   load,
-  globals,
   conditionals,
 };
