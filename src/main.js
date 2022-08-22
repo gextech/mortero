@@ -612,6 +612,7 @@ async function main({
   flags.minify = flags.minify !== false ? flags.minify || process.env.NODE_ENV === 'production' : false;
   flags.bundle = x => flags.bundle && isBundle(x);
   flags.rename = rename(dest, flags.rename);
+  flags.globals = { ...data, pkg };
   flags.aliases = fixedAliases;
   flags.extensions = fixedExtensions;
 

@@ -188,6 +188,12 @@ describe('esbuild', () => {
     test(['should replace from options.globals', 'x.js', 'console.log(process.env.NODE_ENV)'], result => {
       expect(result.source).to.contain('console.log("test")');
     });
+
+    test(['should use options.globals as locals', 'x.pug', '= pkg.name + TEST', {
+      globals: { TEST: '42', pkg: { name: 'OSOM' } },
+    }], result => {
+      expect(result.source).to.eql('OSOM42');
+    });
   });
 
   describe('format', () => {
