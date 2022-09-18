@@ -39,12 +39,12 @@ module.exports = function render(params, done) {
 
   const pipeline = params.parts.slice().reverse();
   const extensions = params.options.extensions || {};
-  const knownExtensions = ['es', 'esm', 'cjs', 'umd', 'iife', 'test', 'spec', 'bundle'];
+  const knownExtensions = ['es', 'esm', 'mjs', 'cjs', 'umd', 'iife', 'test', 'spec', 'bundle'];
 
   // automatic-modes based on extensions
   params.parts.forEach(ext => {
     if (ext === 'bundle') params.data.$bundle = true;
-    if (ext === 'es' || ext === 'esm') params.data.$format = 'esm';
+    if (ext === 'es' || ext === 'esm' || ext === 'mjs') params.data.$format = 'esm';
     if (ext === 'umd' || ext === 'cjs' || ext === 'iife') params.data.$format = ext;
   });
 
