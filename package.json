@@ -2,7 +2,7 @@
   "name": "mortero",
   "version": "0.0.82",
   "description": "Used in modern masonry to glue things and build frontages",
-  "main": "bin/cli.js",
+  "main": "bin/lib.js",
   "bin": {
     "mortero": "bin/cli"
   },
@@ -22,13 +22,15 @@
     "html:report": "nyc report -r html",
     "ci:report": "nyc report -r lcov && npm run cover:up",
     "test:run": "NODE_ENV=test npm run mocha --",
-    "test:bin": "npm run build:fast && bin/cli tests/fixtures -qOfXtest -Xbuild -Xcache.json -r '**:{filepath/2}' && node build/a/main",
+    "test:bin": "npm run build:cli && bin/cli tests/fixtures -qOfXtest -Xbuild -Xcache.json -r '**:{filepath/2}' && node build/a/main",
     "test:ci": "npm run cover && npm run ci:report",
     "test": "npm run test:run --",
     "pretest": "npm run lint",
-    "prepare": "npm run build:fast",
-    "build": "esbuild src/index.js --bundle --outfile=bin/cli.js --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --target=node10.23 --log-level=error --log-limit=0",
-    "build:fast": "npm run build -- --external:kramed --external:coffeescript --external:asciidoctor.js --external:handlebars --external:liquid --external:sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte"
+    "prepare": "npm run build",
+    "build": "npm run build:cli && npm run build:lib",
+    "esbuild": "esbuild --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --external:kramed --external:coffeescript --external:asciidoctor.js --external:handlebars --external:liquid --external:sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte --target=node10.23 --log-level=error --log-limit=0",
+    "build:cli": "npm run esbuild -- src/main.js --bundle --outfile=bin/cli.js",
+    "build:lib": "npm run esbuild -- src/index.js --bundle --outfile=bin/lib.js"
   },
   "keywords": [
     "templating",
