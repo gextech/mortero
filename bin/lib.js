@@ -15114,7 +15114,7 @@ var require_package = __commonJS({
   "package.json"(exports2, module2) {
     module2.exports = {
       name: "mortero",
-      version: "0.0.82",
+      version: "0.0.83",
       description: "Used in modern masonry to glue things and build frontages",
       main: "bin/lib.js",
       bin: {
