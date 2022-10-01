@@ -213,6 +213,7 @@ function esbuild(params, next, ext) {
     resolveExtensions: getExtensions(false, params.options.extensions),
     mainFields: ['svelte', 'module', 'main'],
     treeShaking: shake !== false,
+    legalComments: 'inline',
     target: !esnext ? target || 'node10.23' : undefined,
     define: keys(process.env).reduce((memo, k) => {
       if (typeof process.env[k] !== 'object' && k.indexOf('npm_') === -1) {
