@@ -50,6 +50,14 @@ const Mortero = (entry, external) => ({
       if (/\.[jt]sx?$/.test(path) && !isLocal(path, entry.options)) return null;
       if (!isFile(path)) throw new Error(`File not found: ${path}`);
 
+      if (typeof entry.options.resolve === 'function') {
+        const result = entry.options.resolve(path, locals);
+
+        if (typeof result !== 'undefined') {
+          return result;
+        }
+      }
+
       const tmpFile = joinPath(TEMP_DIR, `${path.replace(/\W/g, '_')}@out`);
 
       let params = Source.get(path);
