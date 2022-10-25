@@ -46,7 +46,7 @@ const Mortero = (entry, external) => ({
     }, {});
 
     async function buildSource(path, locals) {
-      if (/\.(?:esm?|[mc]js|json)$/.test(path)) return null;
+      if (/\.(?:esm?|[mc]js|json|(?<!post\.)css)$/.test(path)) return null;
       if (/\.[jt]sx?$/.test(path) && !isLocal(path, entry.options)) return null;
       if (!isFile(path)) throw new Error(`File not found: ${path}`);
 
@@ -247,17 +247,25 @@ function esbuild(params, next, ext) {
     color: true,
     write: false,
     bundle: params.isBundle,
+    outdir: params.options.dest,
     minify: params.options.minify,
     external: params.isBundle ? external : undefined,
     plugins: [Mortero(params, external)],
   }).then(result => {
-    return Source.rewrite(params, result.outputFiles[0].text)
+    const stylesheet = result.outputFiles.find(x => x.path.includes('.css'));
+
+    return Source.rewrite(params, result.outputFiles.find(x => x.path.includes('.js')).text)
       .then(output => {
         params._rewrite = true;
         params.source = output;
         params.source = typeof params.options.rewrite === 'function'
           ? params.options.rewrite(output, params)
           : output;
+
+        if (stylesheet) {
+          params.resources = params.resources || [];
+          params.resources.push(['css', stylesheet.text]);
+        }
         next();
       });
   }).catch(next);
