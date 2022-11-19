@@ -217,7 +217,7 @@ function esbuild(params, next, ext) {
   params.isModule = _module;
   params.isBundle = !_module && _bundle;
 
-  require('esbuild').build({
+  const options = {
     resolveExtensions: getExtensions(false, params.options.extensions),
     mainFields: ['svelte', 'module', 'main'],
     treeShaking: shake !== false,
@@ -247,14 +247,20 @@ function esbuild(params, next, ext) {
     color: true,
     write: false,
     bundle: params.isBundle,
-    outdir: params.options.dest,
     minify: params.options.minify,
     external: params.isBundle ? external : undefined,
     plugins: [Mortero(params, external)],
-  }).then(result => {
-    const stylesheet = result.outputFiles.find(x => x.path.includes('.css'));
+  };
 
-    return Source.rewrite(params, result.outputFiles.find(x => x.path.includes('.js')).text)
+  if (params.options.dest) {
+    options.outdir = params.options.dest;
+  }
+
+  require('esbuild').build(options).then(result => {
+    const stylesheet = result.outputFiles.find(x => x.path.includes('.css'));
+    const javascript = result.outputFiles.find(x => x.path.includes('.js'));
+
+    return Source.rewrite(params, javascript ? javascript.text : '')
       .then(output => {
         params._rewrite = true;
         params.source = output;
