@@ -1,6 +1,4 @@
 const { spawn } = require('child_process');
-const liveserver = require('live-server');
-const chokidar = require('chokidar');
 const wargs = require('wargs');
 
 const { bin, name, version } = require('../package.json');
@@ -268,6 +266,7 @@ function write(set, dest, flags, pending, deferred) {
   });
 }
 
+let liveserver;
 function watch(src, dest, flags, filter, callback) {
   const sources = src.concat(flags.watch !== true ? array(flags.watch)
     .filter(x => typeof x === 'string')
@@ -437,7 +436,7 @@ function watch(src, dest, flags, filter, callback) {
     process.on('SIGINT', () => process.exit());
     process.on('exit', () => puts('\n'));
 
-    const watcher = chokidar.watch(sources, {
+    const watcher = require('chokidar').watch(sources, {
       ignored: /(^|[/\\])\../,
       ignoreInitial: false,
       persistent: true,
@@ -869,6 +868,8 @@ async function main({
         }
 
         if (flags.debug) puts('\n');
+
+        liveserver = liveserver || require('live-server');
 
         const server = liveserver.start(opts).on('error', () => {
           raise('\r{%red. cannot start live-server%}\n');
