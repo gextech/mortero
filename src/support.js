@@ -168,8 +168,8 @@ function trace(error, opts) {
 function include(path, attrs) {
   const suffix = `?t=${process.env.SOURCE_VERSION || Date.now()}`;
 
-  if (path.includes('.css')) return `<link rel="stylesheet" href="${path + suffix}"${attrs}>`;
-  if (path.includes('.js')) return `<script type="module" src="${path + suffix}"${attrs}></script>`;
+  if (path.includes('.css')) return `<link rel="stylesheet" href="${path + suffix}"${attrs}>\n`;
+  if (path.includes('.js')) return `<script type="module" src="${path + suffix}"${attrs}></script>\n`;
 
   throw new Error(`Cannot include '${path}'`);
 }
