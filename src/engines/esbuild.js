@@ -258,7 +258,7 @@ function esbuild(params, next, ext) {
 
   require('esbuild').build(options).then(result => {
     const stylesheet = result.outputFiles.find(x => x.path.includes('.css'));
-    const javascript = result.outputFiles.find(x => x.path.includes('.js'));
+    const javascript = result.outputFiles.find(x => x.path === '<stdout>');
 
     return Source.rewrite(params, javascript ? javascript.text : '')
       .then(output => {
