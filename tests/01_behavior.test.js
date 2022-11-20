@@ -299,7 +299,7 @@ describe('modules', () => {
     import jsf from 'https://esm.sh/json-schema-faker';
     console.log(jsf.generate({ type: 'string' }));
   `], result => {
-    expect(result.source).to.contains('JsonSchemaFaker');
+    expect(result.source).to.contains('alwaysFakeOptionals');
   });
 });
 
