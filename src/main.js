@@ -559,15 +559,9 @@ async function main({
     const README_INFO = readFile(resolve(`${__dirname}/../README.md`)).match(/(?<=```\n)[^]*?(?=\n```)/g);
 
     init(src, dest, { quiet: true });
-    puts(USAGE_INFO.replace('$0', Object.keys(bin)[0]).replace(/\$(\d)/, ($0, x) => README_INFO[parseInt(x, 10) - 1]));
+    puts(USAGE_INFO.replace('$0', keys(bin)[0]).replace(/\$(\d)/, ($0, x) => README_INFO[parseInt(x, 10) - 1]));
     return;
   }
-
-  Object.keys(data).forEach(key => {
-    if (/^[A-Z_][A-Z\d_]*$/.test(key)) {
-      process.env[key] = data[key];
-    }
-  });
 
   if (flags.index) {
     stork(dest, flags);
@@ -626,6 +620,18 @@ async function main({
   flags.root.forEach(dir => {
     if (!exists(dir)) {
       throw new Error(`Invalid source directory, given '${dir}'`);
+    }
+  });
+
+  keys(data).forEach(key => {
+    if (/^[A-Z_][A-Z\d_]*$/.test(key)) {
+      process.env[key] = data[key];
+    }
+  });
+
+  keys(process.env).forEach(key => {
+    if (key.indexOf('npm_') === -1) {
+      flags.globals[key] = process.env[key];
     }
   });
 
@@ -756,7 +762,7 @@ async function main({
         if (typeof item !== 'object') {
           return `<li>${self.alink({ tpl, props: { for: `/${item.replace(/^\//, '')}` }, content: caps(item) }, ctx)}</li>`;
         }
-        return Object.keys(item).reduce((memo, sub) => {
+        return keys(item).reduce((memo, sub) => {
           const value = typeof item[sub] !== 'object'
             ? self.alink({ tpl, props: { for: `/${item[sub].replace(/^\//, '')}` }, content: sub }, ctx)
             : `${sub}${render(item[sub])}`;
