@@ -82,7 +82,10 @@ async function svelte(params, next) {
       if (processed.map) params.sourceMap = processed.map;
     }
 
-    const { js, warnings } = Svelte.compile(params.source, {
+    const { js, css, warnings } = Svelte.compile(params.source, {
+      css: opts.css || 'injected',
+      generate: opts.generate || 'dom',
+      hydratable: opts.hydratable || false,
       filename: params.filepath,
       sourcemap: params.sourceMap,
     });
@@ -96,6 +99,10 @@ async function svelte(params, next) {
       });
     }
 
+    if (css) {
+      params.resources = params.resources || [];
+      params.resources.push(['css', css.code]);
+    }
     params.source = contents;
     next();
   } catch (e) {
