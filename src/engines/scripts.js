@@ -89,6 +89,7 @@ async function svelte(params, next) {
       filename: params.filepath,
       sourcemap: params.sourceMap,
     });
+
     const contents = `${js.code}//# sourceMappingURL=${js.map.toUrl()}`;
 
     if (warnings.length && params.options.verbose) {
@@ -99,7 +100,7 @@ async function svelte(params, next) {
       });
     }
 
-    if (css) {
+    if (css && css.code) {
       params.resources = params.resources || [];
       params.resources.push(['css', css.code]);
     }

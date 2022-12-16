@@ -52,7 +52,7 @@ class Source {
         directory: joinPath(TEMP_DIR, src.replace(/\W/g, '_')),
         extension: parts[0],
         filepath: src,
-        options: {},
+        options: opts,
         source,
         parts,
         slug,
