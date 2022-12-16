@@ -87,6 +87,11 @@ const Mortero = (entry, external) => ({
           params.instance.failure = e;
         }
 
+        if (params.instance.resources) {
+          entry.resources = entry.resources || [];
+          entry.resources.push(...params.instance.resources);
+        }
+
         if (module.exports[params.instance.extension]) {
           params.instance.loader = params.instance.extension;
         }
