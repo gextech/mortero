@@ -151,6 +151,17 @@ function getModule(src, paths) {
   }
 }
 
+function fixMaps(code) {
+  return code.replace(/(# sourceMappingURL=data:application\/json;base64,)(.+)/, (_, prefix, buffer) => {
+    const contents = Buffer.from(buffer, 'base64').toString('ascii');
+    const sourceMap = JSON.parse(contents);
+
+    sourceMap.sources = sourceMap.sources.map(x => (x.includes(':') ? x.split(':')[1] : x));
+
+    return prefix + Buffer.from(JSON.stringify(sourceMap)).toString('base64');
+  });
+}
+
 function isLocal(src, opts) {
   return src.indexOf(opts.cwd) === 0 && !src.includes('node_modules');
 }
@@ -790,6 +801,7 @@ module.exports = {
   isSupported,
   checkDirty,
   filters,
+  fixMaps,
   configure,
   generate,
   plugins,

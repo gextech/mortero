@@ -24,6 +24,7 @@ const {
 const {
   embed,
   modules,
+  fixMaps,
   isLocal,
   getHooks,
   getEngines,
@@ -119,7 +120,7 @@ class Source {
 
       return defer(compileTasks, () => {
         if (this.source !== null && this.options.write !== false) {
-          writeFile(this.destination, this.source);
+          writeFile(this.destination, fixMaps(this.source));
 
           if (this.resources) {
             this.resources.forEach(([kind, contents]) => {
