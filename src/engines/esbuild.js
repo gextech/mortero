@@ -142,14 +142,11 @@ const Mortero = (entry, external) => ({
       if (aliases[args.path]) {
         args.path = aliases[args.path];
         args.alias = true;
-        if (args.path.charAt() === '.') {
-          args.path = resolve(args.path);
-        }
       }
 
       let fixedModule = args.path.indexOf('~/') === 0
         ? resolve(args.path.substr(2))
-        : resolve(args.path, args.resolveDir);
+        : resolve(args.path);
 
       fixedModule = getModule(fixedModule, null) || getModule(args.path, [args.resolveDir].concat(paths));
 
@@ -180,7 +177,7 @@ const Mortero = (entry, external) => ({
       if (!entry.children.includes(path) && !path.includes('node_modules')) {
         entry.children.push(path);
       }
-      return buildSource(path);
+      return buildSource(path, entry.locals);
     });
 
     build.onLoad({ filter: /.*/, namespace: 'resource' }, ({ path }) => {
@@ -244,7 +241,7 @@ function esbuild(params, next, ext) {
     banner,
     footer,
     stdin: {
-      sourcefile: relative(params.filepath).replace(/[^/]+\//g, '../'),
+      sourcefile: params.filepath,
       resolveDir: dirname(params.filepath, params.options.cwd),
       contents: params.source,
       loader: ext,
@@ -263,7 +260,7 @@ function esbuild(params, next, ext) {
 
   require('esbuild').build(options).then(result => {
     const stylesheet = result.outputFiles.find(x => x.path.includes('.css'));
-    const javascript = result.outputFiles.find(x => x.path === '<stdout>');
+    const javascript = result.outputFiles.find(x => x.path.includes('.js') || x.path.includes('<stdout>'));
 
     return Source.rewrite(params, javascript ? javascript.text : '')
       .then(output => {
