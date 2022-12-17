@@ -76,7 +76,7 @@
     "wargs": "^0.9.6"
   },
   "dependencies": {
-    "esbuild": "^0.15.18",
+    "esbuild": "^0.16.8",
     "talavera": "^0.9.10"
   }
 }
