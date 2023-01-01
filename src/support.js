@@ -152,6 +152,7 @@ function getModule(src, paths) {
 }
 
 function fixMaps(code) {
+  code = code.replace(/\/\/ ([^:()]+):(\.\.[^:()]+)\n/g, '// $2\n');
   return code.replace(/(# sourceMappingURL=data:application\/json;base64,)(.+)/, (_, prefix, buffer) => {
     const contents = Buffer.from(buffer, 'base64').toString('ascii');
 
