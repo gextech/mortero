@@ -154,11 +154,29 @@ function getModule(src, paths) {
 function fixMaps(code) {
   return code.replace(/(# sourceMappingURL=data:application\/json;base64,)(.+)/, (_, prefix, buffer) => {
     const contents = Buffer.from(buffer, 'base64').toString('ascii');
-    const sourceMap = JSON.parse(contents);
 
-    sourceMap.sources = sourceMap.sources.map(x => (x.includes(':') ? x.split(':')[1] : x));
+    try {
+      const sourceMap = JSON.parse(contents);
 
-    return prefix + Buffer.from(JSON.stringify(sourceMap)).toString('base64');
+      sourceMap.sources = sourceMap.sources.map(x => (x.includes(':') ? x.split(':')[1] : x));
+
+      return prefix + Buffer.from(JSON.stringify(sourceMap)).toString('base64');
+    } catch (e) {
+      const pos = e.message.match(/position (\d+)/)[1];
+      const char = JSON.stringify(contents.substr(pos, 1));
+      const fixed = char.substr(1, char.length - 2);
+      const chunk = JSON.stringify(contents.replace(/\n/g, '').substr(pos - 25, 50));
+      const sample = chunk.substr(1, chunk.length - 2);
+      const offset = chunk.indexOf(fixed);
+      const error = JSON.stringify(e.message);
+      const msg = error.substr(1, error.length - 2);
+
+      console.debug(`\x1b[31m${msg}\x1b[0m`);
+      console.debug(sample.replace(fixed, `\x1b[33m${fixed}\x1b[0m`));
+      console.debug(`\x1b[31m${Array.from({ length: offset }).join('~')}^\x1b[0m`);
+
+      return _;
+    }
   });
 }
 
