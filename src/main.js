@@ -793,7 +793,7 @@ async function main({
             .concat('**/node_modules'),
           watch: dirs.concat(relative(dest)),
           mount: Object.entries(params)
-            .concat(dirs.map(x => ['/', x]))
+            .concat(dirs.concat(dest).map(x => ['/', x]))
             .concat(array(flags.copy).map(x => {
               const [_src, _dest] = x.split(':');
               const _path = _dest === '.' ? '/' : `/${_dest}`;
