@@ -8,7 +8,7 @@ const util = require('util');
 const logpose = require('log-pose');
 const { exec } = require('child_process');
 
-const SCRIPTS = ['yml', 'yaml', 'json', 'js', 'coffee', 'litcoffee', 'svelte', 'es', 'mjs', 'es6', 'jsx', 'ts', 'tsx'];
+const SCRIPTS = ['yml', 'yaml', 'json', 'js', 'cjs', 'coffee', 'litcoffee', 'svelte', 'es', 'mjs', 'es6', 'jsx', 'ts', 'tsx'];
 const STYLES = ['sass', 'scss', 'css', 'less', 'post', 'stylus'];
 const MARKUP = ['md', 'mkd', 'asciidoc', 'adoc', 'asc', 'pug', 'jade'];
 const META = ['ejs', 'hbs', 'liquid'];
