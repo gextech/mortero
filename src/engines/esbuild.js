@@ -46,10 +46,6 @@ const Mortero = (entry, external) => ({
     }, {});
 
     async function buildSource(path, locals) {
-      if (/\.(?:esm?|[mc]js|json|(?<!post\.)css)$/.test(path)) return null;
-      if (/\.[jt]sx?$/.test(path) && !isLocal(path, entry.options)) return null;
-      if (!isFile(path)) throw new Error(`File not found: ${path}`);
-
       if (typeof entry.options.resolve === 'function') {
         const result = entry.options.resolve(path, locals);
 
@@ -57,6 +53,10 @@ const Mortero = (entry, external) => ({
           return result;
         }
       }
+
+      if (/\.(?:esm?|[mc]js|json|(?<!post\.)css)$/.test(path)) return null;
+      if (/\.[jt]sx?$/.test(path) && !isLocal(path, entry.options)) return null;
+      if (!isFile(path)) throw new Error(`File not found: ${path}`);
 
       const tmpFile = joinPath(TEMP_DIR, `${path.replace(/\W/g, '_')}@out`);
 
@@ -142,6 +142,14 @@ const Mortero = (entry, external) => ({
       if (aliases[args.path]) {
         args.path = aliases[args.path];
         args.alias = true;
+      }
+
+      if (typeof entry.options.locate === 'function') {
+        const result = entry.options.locate(relative(joinPath(args.resolveDir, args.path)));
+
+        if (typeof result !== 'undefined') {
+          return { path: result, namespace: 'file' };
+        }
       }
 
       let fixedModule = args.path.indexOf('~/') === 0
