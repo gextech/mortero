@@ -234,7 +234,7 @@ function esbuild(params, next, ext) {
     legalComments: 'inline',
     target: !esnext ? target || 'node10.23' : undefined,
     define: keys(process.env).reduce((memo, k) => {
-      if (typeof process.env[k] !== 'object' && k.indexOf('npm_') === -1) {
+      if (typeof process.env[k] === 'string' && k.indexOf('npm_') === -1) {
         memo[`process.env.${k}`] = JSON.stringify(process.env[k]);
       }
       return memo;
