@@ -243,6 +243,7 @@ function esbuild(params, next, ext) {
     inject: [].concat(inject || []),
     sourcemap: params.options.debug && params.debug !== false ? 'inline' : undefined,
     sourcesContent: params.options.debug && params.debug !== false,
+    splitting: params.isBundle && !!params.options.dest,
     platform: platform || 'node',
     format: format || 'esm',
     globalName: name,
@@ -281,6 +282,12 @@ function esbuild(params, next, ext) {
         if (stylesheet) {
           params.resources = params.resources || [];
           params.resources.push(['css', stylesheet.text]);
+        }
+        if (javascript) {
+          params.resources = params.resources || [];
+          result.outputFiles.forEach(x => {
+            if (x.path.includes('.js') && x.path !== javascript.path) params.resources.push(['js', x.text, x.path]);
+          });
         }
         next();
       });

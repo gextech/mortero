@@ -128,8 +128,8 @@ class Source {
             writeFile(this.destination, this.source);
 
             if (this.resources) {
-              this.resources.forEach(([kind, contents]) => {
-                writeFile(this.destination.replace(/\.\w+$/, `.${kind}`), contents);
+              this.resources.forEach(([kind, contents, destination]) => {
+                writeFile(destination || this.destination.replace(/\.\w+$/, `.${kind}`), contents);
               });
             }
           }
