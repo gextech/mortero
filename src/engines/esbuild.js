@@ -145,7 +145,7 @@ const Mortero = (entry, external) => ({
       }
 
       if (typeof entry.options.locate === 'function') {
-        const result = entry.options.locate(relative(joinPath(args.resolveDir, args.path)));
+        const result = entry.options.locate(joinPath(args.resolveDir, args.path));
 
         if (typeof result !== 'undefined') {
           return { path: result, namespace: 'file' };
