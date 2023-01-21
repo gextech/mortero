@@ -67,7 +67,7 @@ function pug(params, next) {
 }
 
 function asciidoc(params, next) {
-  const AsciiDoc = require('asciidoctor.js')();
+  const AsciiDoc = require('@asciidoctor/core')();
   const opts = { showtitle: true, ...params.options.asciidoc };
 
   params.source = AsciiDoc.convert(params.source, { mkdirs: true, attributes: opts });

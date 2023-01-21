@@ -28,7 +28,7 @@
     "pretest": "npm run lint",
     "prepare": "npm run build",
     "build": "npm run build:cli && npm run build:lib",
-    "esbuild": "esbuild --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --external:kramed --external:coffeescript --external:asciidoctor.js --external:handlebars --external:liquid --external:sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte --target=node10.23 --log-level=error --log-limit=0",
+    "esbuild": "esbuild --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --external:kramed --external:coffeescript --external:@asciidoctor/core --external:handlebars --external:liquid --external:sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte --target=node10.23 --log-level=error --log-limit=0",
     "build:cli": "npm run esbuild -- src/main.js --bundle --outfile=bin/cli.js",
     "build:lib": "npm run esbuild -- src/index.js --bundle --outfile=bin/lib.js"
   },
@@ -40,7 +40,7 @@
   "author": "Alvaro Cabrera <yo@soypache.co>",
   "license": "MIT",
   "devDependencies": {
-    "asciidoctor.js": "^1.5.9",
+    "@asciidoctor/core": "^2.2.6",
     "buble": "^0.20.0",
     "chai": "^4.3.4",
     "chokidar": "^3.5.2",
@@ -76,7 +76,7 @@
     "wargs": "^0.9.6"
   },
   "dependencies": {
-    "esbuild": "^0.16.8",
+    "esbuild": "^0.17.3",
     "talavera": "^0.9.10"
   }
 }
