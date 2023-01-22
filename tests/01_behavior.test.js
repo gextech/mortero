@@ -138,6 +138,12 @@ describe('extensions', () => {
   }], result => {
     expect(result.source).to.contains('"query {\\n  id name\\n}\\n"');
   }, { keys: ['id', 'name'] });
+
+  test(['should keep source references', 'x.bundle.js', 'import "./a/main";'], result => {
+    expect(result.source).to.contains('// tests/fixtures/a/lib/data.yml');
+    expect(result.source).to.contains('// tests/fixtures/a/lib/module.js');
+    expect(result.source).to.contains('// tests/fixtures/a/main.js');
+  });
 });
 
 describe('esbuild', () => {

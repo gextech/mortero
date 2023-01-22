@@ -24,7 +24,6 @@ const {
 const {
   embed,
   modules,
-  fixMaps,
   isLocal,
   getHooks,
   getEngines,
@@ -120,10 +119,6 @@ class Source {
 
       return defer(compileTasks, () => {
         if (this.source !== null) {
-          if (this.extension === 'js') {
-            this.source = fixMaps(this.source);
-          }
-
           if (this.options.write !== false) {
             writeFile(this.destination, this.source);
 

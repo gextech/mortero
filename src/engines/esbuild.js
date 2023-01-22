@@ -250,8 +250,8 @@ function esbuild(params, next, ext) {
     banner,
     footer,
     stdin: {
-      sourcefile: `:${relative(params.filepath, params.options.dest)}`,
       resolveDir: dirname(params.filepath, params.options.cwd),
+      sourcefile: params.filepath,
       contents: params.source,
       loader: ext,
     },
