@@ -100,7 +100,7 @@ async function svelte(params, next) {
       });
     }
 
-    if (css && css.code) {
+    if (css && css.code && !contents.includes(css.code)) {
       params.resources = params.resources || [];
       params.resources.push(['css', css.code]);
     }
