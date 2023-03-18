@@ -318,8 +318,7 @@ describe('aliases', () => {
 });
 
 describe('paths', () => {
-  test(['should resolve modules from given options.paths', 'x.bundle.js', 'import x from "foo"; console.log(x)', {
-    aliases: { foo: 'example' },
+  test(['should resolve modules from given options.paths', 'x.bundle.js', 'import x from "example"; console.log(x)', {
     paths: ['tests/fixtures/c'],
   }], result => {
     expect(result.source).to.contain('var foo');

@@ -34,16 +34,6 @@ const Mortero = (entry, external) => ({
     }
 
     const paths = array(entry.options.paths);
-    const aliases = keys(entry.options.aliases).reduce((memo, cur) => {
-      let value = entry.options.aliases[cur];
-      if (Object.prototype.toString.call(value) === '[object Object]') {
-        if (value[process.env.NODE_ENV]) value = value[process.env.NODE_ENV];
-        if (value) Object.assign(memo, value);
-      } else {
-        memo[cur] = value;
-      }
-      return memo;
-    }, {});
 
     async function buildSource(path, locals) {
       if (typeof entry.options.resolve === 'function') {
@@ -139,11 +129,6 @@ const Mortero = (entry, external) => ({
         return { path: memoized[args.resolveDir + args.path] };
       }
 
-      if (aliases[args.path]) {
-        args.path = aliases[args.path];
-        args.alias = true;
-      }
-
       if (typeof entry.options.locate === 'function') {
         const result = entry.options.locate(joinPath(args.resolveDir, args.path));
 
@@ -173,10 +158,6 @@ const Mortero = (entry, external) => ({
         const src = joinPath(args.resolveDir, args.path);
 
         return { path: src, namespace: 'resource' };
-      }
-
-      if (args.alias) {
-        return { path: args.path };
       }
     });
 
@@ -227,6 +208,17 @@ function esbuild(params, next, ext) {
   params.isModule = _module;
   params.isBundle = !_module && _bundle;
 
+  const aliases = keys(params.options.aliases).reduce((memo, cur) => {
+    let value = params.options.aliases[cur];
+    if (Object.prototype.toString.call(value) === '[object Object]') {
+      if (value[process.env.NODE_ENV]) value = value[process.env.NODE_ENV];
+      if (value) Object.assign(memo, value);
+    } else {
+      memo[cur] = value;
+    }
+    return memo;
+  }, {});
+
   const options = {
     resolveExtensions: getExtensions(false, params.options.extensions),
     mainFields: ['svelte', 'module', 'main'],
@@ -257,6 +249,7 @@ function esbuild(params, next, ext) {
     },
     color: true,
     write: false,
+    alias: aliases,
     bundle: params.isBundle,
     minify: params.options.minify,
     external: params.isBundle ? external : undefined,
