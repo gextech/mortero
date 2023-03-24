@@ -610,6 +610,7 @@ async function main({
   flags.bundle = x => flags.bundle && isBundle(x);
   flags.rename = rename(dest, flags.rename);
   flags.helpers = flags.helpers ? await dyn(pkg, resolve(flags.helpers)) : null;
+  flags.headers = flags.headers ? [].concat(flags.headers) : [];
   flags.globals = { ...data, pkg };
   flags.aliases = fixedAliases;
   flags.extensions = fixedExtensions;
@@ -814,6 +815,14 @@ async function main({
           middleware: [],
         };
 
+        opts.middleware.push((req, res, _next) => {
+          flags.headers.forEach(header => {
+            const [k, v] = header.split(':');
+            if (k && v) res.setHeader(k, v);
+          });
+          _next();
+        });
+
         if (flags.modules) {
           opts.middleware.push((req, res, _next) => {
             if (req.url.indexOf('/web_modules/') === 0) {
@@ -991,6 +1000,7 @@ module.exports = argv => {
       G: 'ignore-serve',
       X: 'exclude',
       M: 'modules',
+      J: 'headers',
       n: 'online',
       a: 'alias',
       H: 'paths',
