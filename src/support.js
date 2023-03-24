@@ -369,7 +369,7 @@ function configure(flags, pkg) {
 
       lines.forEach(line => {
         if (line.length && line[0] !== '#') {
-          memo.push(line);
+          if (line.charAt() !== '!') memo.push(line);
         }
       });
     }
