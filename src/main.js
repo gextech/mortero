@@ -530,7 +530,7 @@ filetype = "HTML"
 }
 
 function dyn(pkg, mod) {
-  return pkg.type === 'module' || mod.includes('mjs') ? import(mod) : require(mod);
+  return pkg.type === 'module' || mod.includes('.mjs') ? import(mod) : require(mod);
 }
 
 async function main({

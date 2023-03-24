@@ -28,7 +28,7 @@
     "pretest": "npm run lint",
     "prepare": "npm run build",
     "build": "npm run build:cli && npm run build:lib",
-    "esbuild": "esbuild --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --external:kramed --external:coffeescript --external:@asciidoctor/core --external:handlebars --external:liquid --external:sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte --target=node10.23 --log-level=error --log-limit=0",
+    "esbuild": "esbuild --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --external:kramed --external:coffeescript --external:@asciidoctor/core --external:handlebars --external:liquid --external:sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte --target=node14 --log-level=error --log-limit=0",
     "build:cli": "npm run esbuild -- src/main.js --bundle --outfile=bin/cli.js",
     "build:lib": "npm run esbuild -- src/index.js --bundle --outfile=bin/lib.js"
   },
