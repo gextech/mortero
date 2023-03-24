@@ -86,16 +86,20 @@ class Source {
         ? [getHooks(this, context)]
         : [];
 
-      if (this.extension === 'html' && this.options.embed !== false) {
-        compileTasks.push(() => embed(this, this.source, async (src, parent) => {
-          if (!parent.children.includes(src)) {
-            parent.children.push(src);
-          }
+      if (this.extension === 'html') {
+        this.source = this.source.replace(/<code([^<>]*)><var>(\S+)<\/var>/g, '<code $1 data-source="$2">');
 
-          return Source.compileFile(src, locals, this.options);
-        }).then(html => {
-          this.source = html;
-        }));
+        if (this.options.embed !== false) {
+          compileTasks.push(() => embed(this, this.source, async (src, parent) => {
+            if (!parent.children.includes(src)) {
+              parent.children.push(src);
+            }
+
+            return Source.compileFile(src, locals, this.options);
+          }).then(html => {
+            this.source = html;
+          }));
+        }
       }
 
       const _module = this.options.modules;
@@ -278,6 +282,24 @@ class Source {
 
   static highlight(code, lang, opts) {
     const { highlight: hi, ...config } = { highlight: 'highlight.js', ...opts };
+    const src = code.includes('//@') ? code.match(/\/\/@\s*(\S+)/)[1] : null;
+
+    const marks = {
+      '+++': 'inserted',
+      '---': 'deleted',
+    };
+
+    const prefix = src ? `<var>${src}</var>` : '';
+
+    code = code.replace(/\/\/@\s*(\S+)\n/, '');
+    code = code.replace(/\/\/!\s*(\S+)/g, (_, path) => {
+      const buffer = readFile(joinPath(dirname(config.filepath), path));
+
+      if (buffer === false) {
+        throw new Error(`Source not found: ${path}`);
+      }
+      return buffer.replace(/\n$/, '');
+    });
 
     return new Promise((ok, fail) => {
       try {
@@ -313,6 +335,10 @@ class Source {
       } catch (e) {
         fail(e);
       }
+    }).then(out => {
+      return prefix + out.replace(/((?:\+|-){3})([^]+?)\1/gm, ($0, mark, content) => {
+        return `<span class="${marks[mark]}">${content}</span>`;
+      });
     });
   }
 

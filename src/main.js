@@ -656,6 +656,12 @@ async function main({
         throw new Error(`Source not found: ${props.path}`);
       }
 
+      if (props.raw) {
+        return buffer;
+      }
+
+      props.filepath = tpl.filepath;
+
       const lang = extname(props.path, true);
       const code = await Source.highlight(buffer, lang, props);
 

@@ -94,7 +94,7 @@ function getHooks(tpl, ctx) {
         const backup = [];
         const tmp = attrs
           .replace(/"[^]*?"/g, match => backup.push(match) && '"@@str"')
-          .replace(/(?:^|\s)(\w+)(?=\s\w+=|$)/g, ' $1:true')
+          .replace(/(?<![,:])(?:^|\s)(\w+)(?=\s\w+=|$)/g, ' $1:true')
           .replace(/,?\s*(\w+)[=:]/g, ',"$1":')
           .replace(/^,/, '')
           .replace(/\{\s*,/, '{')

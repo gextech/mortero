@@ -36,7 +36,11 @@ function markdown(params, next) {
 
     if (opts.highlight && typeof opts.highlight !== 'function') {
       opts.highlight = (code, lang, end) => {
-        Source.highlight(code, lang, params.options).then(result => end(null, result)).catch(end);
+        Source.highlight(code, lang, {
+          ...opts,
+          highlight: hi,
+          filepath: params.filepath,
+        }).then(result => end(null, result)).catch(end);
       };
     }
 
