@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const redent = require('redent');
 const { expect } = require('chai');
 const exec = require('child_process').exec;
 
@@ -55,6 +56,10 @@ const test = (args, cb, locals) => {
     args[offset].cwd = args[offset].cwd || path.join(__dirname, 'fixtures');
 
     try {
+      if (args[offset - 1].charAt() === '\n') {
+        args[offset - 1] = redent(args[offset - 1]).replace(/\n\s+$/, '\n');
+      }
+
       mortero(...args)(locals, (err, result) => {
         try {
           if (err && !result.failure) {

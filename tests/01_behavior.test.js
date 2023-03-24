@@ -68,11 +68,10 @@ describe('front-matter', () => {
     const actual = result.source.split(/(?<=\n)/);
     const expected = [
       '\n',
-      '       \n',
-      '            \n',
-      '       \n',
-      '    bar\n',
-      '  ',
+      '   \n',
+      '        \n',
+      '   \n',
+      'bar\n',
     ];
 
     expect(actual).to.eql(expected);
@@ -108,6 +107,21 @@ describe('front-matter', () => {
     */
   `], result => {
     expect(result.data).to.eql({ foo: 'bar' });
+  });
+
+  test(['should enable dynamic !include values', 'x.pug', `
+    //-
+      ---
+      files: !include tests/fixtures/**/*.html
+      data: !include tests/fixtures/a/sample.json
+      ---
+    p= files.length
+    p= data.foo
+    != files[0].contents
+  `], result => {
+    expect(result.source).to.contains('<p>1</p>');
+    expect(result.source).to.contains('<p>bar</p>');
+    expect(result.source).to.contains('<h1>It works.</h1>');
   });
 });
 

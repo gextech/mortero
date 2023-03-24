@@ -89,12 +89,12 @@ module.exports = function render(params, done) {
           throw new ReferenceError(`File not found '${_layout}'`);
         }
 
+        delete params.data.$render;
+
         const _params = parse(_layout, readFile(_layout), params.options);
 
         _params.locals = { ..._params.locals, ...params.locals };
         _params.locals.yield = params.source;
-
-        delete params.data.$render;
 
         render(_params, (err, result) => {
           if (!err) {
