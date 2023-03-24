@@ -529,6 +529,10 @@ filetype = "HTML"
   process.stdout.write(toml(entries));
 }
 
+function dyn(pkg, mod) {
+  return pkg.type === 'module' ? import(mod) : require(mod);
+}
+
 async function main({
   _, raw, data, flags, params,
 }) {
@@ -605,6 +609,7 @@ async function main({
   flags.minify = flags.minify !== false ? flags.minify || process.env.NODE_ENV === 'production' : false;
   flags.bundle = x => flags.bundle && isBundle(x);
   flags.rename = rename(dest, flags.rename);
+  flags.helpers = flags.helpers ? await dyn(pkg, resolve(flags.helpers)) : null;
   flags.globals = { ...data, pkg };
   flags.aliases = fixedAliases;
   flags.extensions = fixedExtensions;
@@ -966,7 +971,7 @@ module.exports = argv => {
       progress: null,
     },
     boolean: 'nmqfdVSWEAOMKv',
-    string: 'CeDbcyopPsaBriIGFXLTNHk',
+    string: 'CeDbcyopPsaBriIGFXLTNHkR',
     alias: {
       C: 'cwd',
       D: 'dest',
@@ -978,6 +983,7 @@ module.exports = argv => {
       B: 'bundle',
       r: 'rename',
       T: 'timeout',
+      R: 'helpers',
       L: 'plugins',
       F: 'filter',
       i: 'ignore',

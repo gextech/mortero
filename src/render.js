@@ -31,6 +31,7 @@ module.exports = function render(params, done) {
   }
 
   params.locals = {
+    ...params.options.helpers,
     ...params.options.globals,
     ...params.options.locals,
     ...params.locals,

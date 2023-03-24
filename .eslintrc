@@ -1,12 +1,13 @@
 {
   "env": {
-    "es6": true,
     "node": true,
+    "es2021": true,
     "browser": true
   },
   "extends": "airbnb-base",
   "parserOptions": {
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaVersion": "latest"
   },
   "rules" : {
     "max-len": ["error", {
