@@ -10,6 +10,9 @@
     "bin/*",
     "*.txt"
   ],
+  "engines": {
+    "node": "*"
+  },
   "browser": {
     "rewrite-exports": "./dummy.js"
   },
