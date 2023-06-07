@@ -50,8 +50,8 @@
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^19.0.2",
     "eslint-plugin-import": "^2.24.2",
-    "fs-extra": "^10.0.0",
-    "glob": "^7.1.7",
+    "fs-extra": "^11.1.1",
+    "glob": "^10.2.7",
     "handlebars": "^4.7.7",
     "jpeg-js": ">=0.4.3",
     "js-yaml": "^4.1.0",
@@ -62,21 +62,21 @@
     "live-server": "^1.2.2",
     "log-pose": "^0.4.7",
     "micromatch": "^4.0.4",
-    "mocha": "^9.1.1",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "postcss": "^8.3.6",
     "pug": "^3.0.2",
     "redent": "^3.0.0",
-    "rewrite-exports": "0.0.26",
+    "rewrite-exports": "^0.0.27",
     "rewrite-imports": "^3.0.0",
     "sass": "^1.52.1",
-    "stylus": "^0.55.0",
+    "stylus": "^0.59.0",
     "svelte": "^3.55.0",
     "testdouble": "^3.16.2",
-    "wargs": "^0.9.6"
+    "wargs": "^0.10.0"
   },
   "dependencies": {
-    "esbuild": "^0.17.12",
+    "esbuild": "^0.17.19",
     "talavera": "^0.9.10"
   }
 }
