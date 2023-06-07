@@ -221,7 +221,7 @@ function esbuild(params, next, ext) {
 
   const options = {
     resolveExtensions: getExtensions(false, params.options.extensions),
-    mainFields: ['svelte', 'module', 'main'],
+    mainFields: ['svelte'].concat(platform === 'browser' ? ['browser'] : []).concat(['module', 'main']),
     treeShaking: shake !== false,
     legalComments: 'inline',
     target: !esnext ? target || 'node10.23' : undefined,
