@@ -102,7 +102,7 @@ const Mortero = (entry, external) => ({
     }
 
     async function fetchSource(path) {
-      const tmpFile = joinPath(TEMP_DIR, path.replace(/\W/g, '_'));
+      const tmpFile = joinPath(TEMP_DIR, `${path.replace(/\W/g, '_')}@out`);
 
       if (!isFile(tmpFile)) {
         await fetch(path, tmpFile);
