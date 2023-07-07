@@ -51,10 +51,27 @@ const {
   isSupported,
 } = require('./support');
 
+function reviver(callback) {
+  return (k, v) => {
+    if (!k && typeof v === 'object' && !Array.isArray(v)) {
+      Object.keys(v).forEach(p => {
+        v[callback(p)] = v[p];
+
+        v[p].destination = callback(v[p].destination);
+        v[p].filepath = callback(v[p].filepath);
+        v[p].children = v[p].children.map(x => callback(x));
+
+        delete v[p];
+      });
+    }
+    return v;
+  };
+}
+
 let cache = {};
 if (exists('./cache.json')) {
   try {
-    cache = JSON.parse(readFile('./cache.json'));
+    cache = JSON.parse(readFile('./cache.json'), reviver(resolve));
     keys(cache).forEach(entry => {
       if (Array.isArray(cache[entry].destination)) {
         if (!cache[entry].destination.every(exists)) {
@@ -85,7 +102,7 @@ function sync(flags, bad) {
       bad.forEach(file => {
         delete cache[file];
       });
-      writeFile('./cache.json', JSON.stringify(cache, null, 2));
+      writeFile('./cache.json', JSON.stringify(cache, reviver(relative), 2));
     }, 50);
   }
 }
