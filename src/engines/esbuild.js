@@ -208,7 +208,7 @@ function esbuild(params, next, ext) {
   params.isModule = _module;
   params.isBundle = !_module && _bundle;
 
-  const aliases = keys(params.options.aliases).reduce((memo, cur) => {
+  const aliases = params.isBundle ? keys(params.options.aliases).reduce((memo, cur) => {
     let value = params.options.aliases[cur];
     if (Object.prototype.toString.call(value) === '[object Object]') {
       if (value[process.env.NODE_ENV]) value = value[process.env.NODE_ENV];
@@ -217,7 +217,7 @@ function esbuild(params, next, ext) {
       memo[cur] = value;
     }
     return memo;
-  }, {});
+  }, {}) : undefined;
 
   const options = {
     resolveExtensions: getExtensions(false, params.options.extensions),
@@ -243,7 +243,7 @@ function esbuild(params, next, ext) {
     footer,
     stdin: {
       resolveDir: dirname(params.filepath, params.options.cwd),
-      sourcefile: params.filepath,
+      sourcefile: relative(params.filepath),
       contents: params.source,
       loader: ext,
     },
