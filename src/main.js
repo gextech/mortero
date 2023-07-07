@@ -201,7 +201,7 @@ function debug(filepath, locals, options, bailout) {
   });
 }
 
-function write(set, dest, flags, pending, deferred) {
+function write(set, flags, pending, deferred) {
   return deferred.then(result => {
     let changed;
     result.filter(Array.isArray).forEach(([group, changes]) => {
@@ -378,7 +378,7 @@ function watch(src, dest, flags, filter, callback) {
             });
             compile.missed = [];
 
-            return write(missed, dest, flags, compile.pending, loader(missed, dest, flags));
+            return write(missed, flags, compile.pending, loader(missed, dest, flags));
           }
         })
         .then(() => compile.next && defer(compile.queue))
@@ -917,7 +917,7 @@ async function main({
     const changed = [];
 
     sources.forEach(x => {
-      if (checkDirty(x, cache[x])) {
+      if (!flags.force && checkDirty(x, cache[x])) {
         const found = sources.find(y => cache[y] && cache[y].children && cache[y].children.includes(x));
         if (found && !changed.includes(found)) {
           cache[x] = {
@@ -954,7 +954,7 @@ async function main({
     }
 
     let status = '{%gray. without changes%}';
-    await Promise.resolve().then(() => write(missed, dest, flags, [], loader(missed, dest, flags)))
+    await Promise.resolve().then(() => write(missed, flags, [], loader(missed, dest, flags)))
       .then(() => defer(srcFiles.map(x => () => debug(x, null, flags, true))))
       .then(() => sync(flags, []) || (flags.exec && exec(dest, flags)))
       .then(() => {
