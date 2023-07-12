@@ -1,9 +1,15 @@
-module.exports = [{
+let Talavera;
+try {
+  Talavera = require('talavera');
+} catch (e) {
+  // ignore
+}
+
+module.exports = !Talavera ? [] : [{
   name: 'talavera',
   run: ({
     cwd, dest, flags, setup, filter,
   }) => {
-    const Talavera = require('talavera');
     const talavera = Talavera({
       cwd,
       dest,

@@ -29,7 +29,6 @@
     "test:ci": "npm run cover && npm run ci:report",
     "test": "npm run test:run --",
     "pretest": "npm run lint",
-    "prepare": "npm run build",
     "build": "npm run build:cli && npm run build:lib",
     "esbuild": "esbuild --platform=node --external:buble --external:esbuild --external:chokidar --external:live-server --external:talavera --external:kramed --external:coffeescript --external:@asciidoctor/core --external:handlebars --external:liquid --external:sass --external:postcss --external:stylus --external:less --external:pug --external:ejs --external:svelte --target=node14 --log-level=error --log-limit=0",
     "build:cli": "npm run esbuild -- src/main.js --bundle --outfile=bin/cli.js",
@@ -46,7 +45,6 @@
     "@asciidoctor/core": "^2.2.6",
     "buble": "^0.20.0",
     "chai": "^4.3.4",
-    "chokidar": "^3.5.2",
     "codecov": "^3.8.3",
     "coffeescript": "^2.5.1",
     "ejs": "^3.1.6",
@@ -62,7 +60,6 @@
     "less": "^4.1.1",
     "less-plugin-autoprefix": "^2.0.0",
     "liquid": "^5.1.1",
-    "live-server": "^1.2.2",
     "log-pose": "^0.4.7",
     "micromatch": "^4.0.4",
     "mocha": "^10.2.0",
@@ -78,8 +75,10 @@
     "testdouble": "^3.16.2",
     "wargs": "^0.10.0"
   },
-  "dependencies": {
+  "peerDependencies": {
+    "chokidar": "^3.5.2",
     "esbuild": "^0.18.11",
-    "talavera": "^0.9.10"
+    "talavera": "^0.9.10",
+    "live-server": "^1.2.2"
   }
 }
