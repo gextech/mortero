@@ -1,4 +1,2 @@
-#!/bin/sh
-':' // ; exec "$(command -v nodejs || command -v node)" "$0" "$@"
-; // eslint-disable-line semi-style
+#!/usr/bin/env node
 require('./cli.js')(process.argv.slice(2));
