@@ -1,7 +1,7 @@
 const url = require('url');
 const http = require('http');
 const https = require('https');
-const fs = require('fs-extra');
+const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const util = require('util');
@@ -107,7 +107,7 @@ function inspect(obj) {
 }
 
 function copy(src, dest) {
-  fs.copySync(src, dest);
+  fs.cpSync(src, dest);
 }
 
 function size(src) {
@@ -157,7 +157,12 @@ function readFile(filepath, keep) {
 }
 
 function writeFile(filepath, content) {
-  fs.outputFileSync(filepath, content);
+  const dir = path.dirname(filepath);
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(filepath, content);
   return filepath;
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions  */
 
-const fs = require('fs-extra');
+const fs = require('fs');
 const td = require('testdouble');
 const { expect } = require('chai');
 const Source = require('../src/source');

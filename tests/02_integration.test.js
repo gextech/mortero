@@ -1,12 +1,14 @@
-const { remove } = require('fs-extra');
+const fs = require('fs');
 const { expect } = require('chai');
 const { cli, fixture } = require('./helpers');
 
 /* global beforeEach, describe, it */
 
+const cache = `${__dirname}/fixtures/cache.json`;
+
 describe('CLI', () => {
   beforeEach(() => {
-    remove(`${__dirname}/fixtures/cache.json`);
+    if (fs.existsSync(cache)) fs.rmSync(cache);
   });
 
   it('should validate given sources', cli('', '', ({ stderr }) => {
