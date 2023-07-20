@@ -2,6 +2,7 @@ test: deps
 	@npm test
 
 ci: deps
+	@npm run build
 	@rm -rf node_modules/somedom
 	@CI=true npm test && npm run test:bin
 
