@@ -350,9 +350,9 @@ function configure(flags, pkg) {
   }, {});
 
   const fixedAliases = array(flags.alias).reduce((memo, cur) => {
-    const [from, to] = cur.split(':');
+    const [from, ...to] = cur.split(':');
 
-    memo[from] = to;
+    memo[from] = to.join(':');
     return memo;
   }, {});
 
