@@ -57,7 +57,12 @@ function reviver(callback) {
       Object.keys(v).forEach(p => {
         v[callback(p)] = v[p];
 
-        if (v[p].destination) v[p].destination = callback(v[p].destination);
+        if (v[p].destination) {
+          v[p].destination = Array.isArray(v[p].destination)
+            ? v[p].destination.map(callback)
+            : callback(v[p].destination);
+        }
+
         if (v[p].filepath) v[p].filepath = callback(v[p].filepath);
         if (v[p].children) v[p].children = v[p].children.map(x => callback(x));
 
