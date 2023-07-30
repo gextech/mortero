@@ -235,7 +235,7 @@ function esbuild(params, next, ext) {
     inject: [].concat(inject || []),
     sourcemap: params.options.debug && params.debug !== false ? 'inline' : undefined,
     sourcesContent: params.options.debug && params.debug !== false,
-    splitting: params.isBundle && !!params.options.dest,
+    splitting: params.isBundle && !!params.options.dest && format === 'esm',
     platform: platform || 'node',
     format: format || 'esm',
     globalName: name,
