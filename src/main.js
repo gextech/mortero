@@ -51,22 +51,25 @@ const {
   isSupported,
 } = require('./support');
 
+function compact(entry, callback) {
+  if (entry.destination) {
+    entry.destination = Array.isArray(entry.destination)
+      ? entry.destination.map(x => callback(x))
+      : callback(entry.destination);
+  }
+
+  if (entry.filepath) entry.filepath = callback(entry.filepath);
+  if (entry.children) entry.children = entry.children.map(x => callback(x));
+  return entry;
+}
+
 function reviver(callback) {
   return (k, v) => {
     if (!k && typeof v === 'object' && !Array.isArray(v)) {
       Object.keys(v).forEach(p => {
-        v[callback(p)] = v[p];
-
-        if (v[p].destination) {
-          v[p].destination = Array.isArray(v[p].destination)
-            ? v[p].destination.map(callback)
-            : callback(v[p].destination);
-        }
-
-        if (v[p].filepath) v[p].filepath = callback(v[p].filepath);
-        if (v[p].children) v[p].children = v[p].children.map(x => callback(x));
-
-        delete v[p];
+        const key = callback(p);
+        v[key] = compact(v[p], callback);
+        if (p !== key) delete v[p];
       });
     }
     return v;
@@ -107,7 +110,11 @@ function sync(flags, bad) {
       bad.forEach(file => {
         delete cache[file];
       });
-      writeFile('./cache.json', JSON.stringify(cache, reviver(relative), 2));
+      const backup = {};
+      Object.entries(cache).forEach(([k, v]) => {
+        backup[relative(k)] = compact({ ...v }, relative);
+      });
+      writeFile('./cache.json', JSON.stringify(backup, null, 2));
     }, 50);
   }
 }
