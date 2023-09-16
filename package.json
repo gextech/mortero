@@ -67,17 +67,17 @@
     "postcss": "^8.3.6",
     "pug": "^3.0.2",
     "redent": "^3.0.0",
-    "rewrite-exports": "^0.0.27",
+    "rewrite-exports": "^0.0.28",
     "rewrite-imports": "^3.0.0",
     "sass": "^1.52.1",
     "stylus": "^0.59.0",
-    "svelte": "^3.55.0",
+    "svelte": "^4.2.0",
     "testdouble": "^3.16.2",
     "wargs": "^0.10.0"
   },
   "peerDependencies": {
     "chokidar": "^3.5.2",
-    "esbuild": "^0.18.11",
+    "esbuild": "^0.19.3",
     "live-server": "^1.2.2",
     "talavera": "^0.9.10"
   }
