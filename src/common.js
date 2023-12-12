@@ -107,7 +107,7 @@ function inspect(obj) {
 }
 
 function copy(src, dest) {
-  fs.cpSync(src, dest);
+  fs.cpSync(src, dest, { recursive: true });
 }
 
 function size(src) {
