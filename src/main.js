@@ -59,7 +59,7 @@ function compact(entry, callback) {
   }
 
   if (entry.filepath) entry.filepath = callback(entry.filepath);
-  if (entry.children) entry.children = entry.children.map(x => callback(x));
+  if (entry.children) entry.children = entry.children.reduce((memo, x) => memo.concat(x ? callback(x) : []), []);
   return entry;
 }
 
