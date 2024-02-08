@@ -43,7 +43,7 @@
   "author": "Alvaro Cabrera <yo@soypache.co>",
   "license": "MIT",
   "devDependencies": {
-    "@asciidoctor/core": "^2.2.6",
+    "@asciidoctor/core": "^3.0.3",
     "buble": "^0.20.0",
     "chai": "^4.3.4",
     "codecov": "^3.8.3",
@@ -70,8 +70,8 @@
     "rewrite-exports": "^0.0.28",
     "rewrite-imports": "^3.0.0",
     "sass": "^1.52.1",
-    "stylus": "^0.59.0",
-    "svelte": "^4.2.0",
+    "stylus": "^0.62.0",
+    "svelte": "^3.59.2",
     "testdouble": "^3.16.2",
     "wargs": "^0.10.0"
   },
@@ -79,6 +79,6 @@
     "chokidar": "^3.5.2",
     "esbuild": "^0.19.3",
     "live-server": "^1.2.2",
-    "talavera": "^0.9.10"
+    "talavera": "^0.9.11"
   }
 }
