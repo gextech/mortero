@@ -196,7 +196,7 @@ describe('styles', () => {
         },
       },
     ], result => {
-      expect(result.source).to.contain('-webkit');
+      expect(result.source).to.contain(':-moz');
       expect(result.extension).to.eql('css');
     });
   });
