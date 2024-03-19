@@ -1,3 +1,4 @@
+const vuePlugin = require('esbuild-vue');
 const Source = require('../source');
 
 const {
@@ -253,7 +254,7 @@ function esbuild(params, next, ext) {
     bundle: params.isBundle,
     minify: params.options.minify,
     external: params.isBundle ? external : undefined,
-    plugins: [Mortero(params, external)],
+    plugins: [vuePlugin(), Mortero(params, external)],
   };
 
   if (params.options.dest) {

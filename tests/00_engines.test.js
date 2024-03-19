@@ -99,6 +99,13 @@ describe('scripts', () => {
     });
   });
 
+  describe('Vue', () => {
+    test(['x.bundle.js', 'import X from "./app.vue"; console.log(X)'], result => {
+      expect(result.source).to.contain('var app_default = __vue_component__');
+      expect(result.extension).to.eql('bundle.js');
+    });
+  });
+
   describe('Svelte', () => {
     test(['x.svelte', '<script>export let foo = null;</script>{{foo}}'], result => {
       expect(result.source).to.contain('SvelteComponent');
