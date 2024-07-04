@@ -143,7 +143,7 @@ function basename(filepath, ext) {
     }
     return path.basename(filepath);
   }
-  return path.basename(filepath, ext);
+  return path.basename(filepath, ext || '');
 }
 
 function relative(filepath, base) {
