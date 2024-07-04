@@ -70,6 +70,12 @@ describe('markup', () => {
       expect(result.source).to.contain('</h1>');
       expect(result.extension).to.eql('y');
     });
+
+    test(['x.md', '> [!INFO]\n> osom'], result => {
+      expect(result.source).to.contain('<blockquote class="type-info">');
+      expect(result.source).to.contain('<p>\nosom</p>');
+      expect(result.extension).to.eql('html');
+    });
   });
 
   describe('Pug/Jade', () => {

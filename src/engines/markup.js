@@ -29,7 +29,22 @@ function markdown(params, next) {
     next();
   } else {
     const kramed = require('kramed');
-    const opts = { ...params.options.kramed };
+    const renderer = new kramed.Renderer();
+
+    renderer.blockquote = quote => {
+      if (quote.indexOf('<p>[!') === 0) {
+        let type;
+        const clean = quote.replace(/\[!([A-Z]+)\]/, (_, kind) => {
+          type = kind.toLowerCase();
+          return '';
+        });
+
+        return `<blockquote class="type-${type}">${clean.trim()}</blockquote>`;
+      }
+      return quote;
+    };
+
+    const opts = { ...params.options.kramed, renderer };
     const hi = typeof opts.highlight === 'string'
       ? opts.highlight
       : 'highlight.js';
