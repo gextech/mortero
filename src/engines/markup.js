@@ -39,9 +39,9 @@ function markdown(params, next) {
           return '';
         });
 
-        return `<blockquote class="type-${type}">${clean.trim()}</blockquote>`;
+        return `<blockquote class="is-${type}">${clean.trim()}</blockquote>`;
       }
-      return quote;
+      return `<blockquote>${quote}</blockquote>`;
     };
 
     const opts = { ...params.options.kramed, renderer };
