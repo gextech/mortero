@@ -746,7 +746,7 @@ async function main({
       props.href = (!props.for.includes('://') && (props.for !== '/' ? `.${props.for}` : '.')) || props.for;
       props.target = props.target || props.external ? '_blank' : undefined;
 
-      const attrs = ctx.attributes(props, ['for', 'text', 'external']);
+      const attrs = ctx.attributes(props, ['for', 'text', 'exact', 'external']);
 
       let matches = props.exact && base === url;
       if (!props.exact) {
