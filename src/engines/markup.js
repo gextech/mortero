@@ -1,4 +1,4 @@
-const { joinPath } = require('../common');
+const { dirname, joinPath } = require('../common');
 
 const Source = require('../source');
 
@@ -89,10 +89,12 @@ function pug(params, next) {
   }
 
   if (params.data.$import) {
-    const mod = joinPath(params.options.cwd, params.data.$import);
+    const base = dirname(params.filepath);
+    const mod = joinPath(base === '.' ? params.options.cwd : base, params.data.$import);
 
     import(mod).then(result => {
       Object.assign(params.locals, result);
+      tpl.dependencies.push(mod);
       render();
     }).catch(next);
   } else {
