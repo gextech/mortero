@@ -50,6 +50,7 @@ module.exports = function render(params, done) {
   });
 
   // clean out special locals
+  delete params.locals.$import;
   delete params.locals.$external;
   delete params.locals.$platform;
   delete params.locals.$inject;

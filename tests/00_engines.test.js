@@ -84,6 +84,19 @@ describe('markup', () => {
       expect(result.extension).to.eql('html');
     });
 
+    test(['x.pug', `//-
+  ---
+  $import: helpers.mjs
+  datum: OSOM
+  ---
+h1= datum
+p= truth()
+`], result => {
+      // eslint-disable-next-line no-unused-expressions
+      expect(result.failure).to.be.undefined;
+      expect(result.source).to.eql('\n<h1>OSOM</h1>\n<p>42</p>');
+    });
+
     test(['x.y.pug', 'x y'], result => {
       expect(result.source).to.contain('<x>y</x>');
       expect(result.extension).to.eql('y');

@@ -1,3 +1,5 @@
+const { joinPath } = require('../common');
+
 const Source = require('../source');
 
 // taken from coffee-script source
@@ -80,9 +82,22 @@ function pug(params, next) {
 
   const tpl = Pug.compile(params.source, opts);
 
-  params.source = tpl(params.locals);
-  params.children = params.children.concat(tpl.dependencies);
-  next();
+  function render() {
+    params.source = tpl(params.locals);
+    params.children = params.children.concat(tpl.dependencies);
+    next();
+  }
+
+  if (params.data.$import) {
+    const mod = joinPath(params.options.cwd, params.data.$import);
+
+    import(mod).then(result => {
+      Object.assign(params.locals, result);
+      render();
+    }).catch(next);
+  } else {
+    render();
+  }
 }
 
 function asciidoc(params, next) {
