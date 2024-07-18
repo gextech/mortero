@@ -567,7 +567,7 @@ async function embed(tpl, html, render) {
     const key = _url.replace(/\W/g, '_');
 
     embedTasks.push(async () => {
-      const name = _url.split('#')[0].split('?')[0].replace(base, '.');
+      const name = _url.split(/[#?]/)[0].replace(base, '.').replace('://', '@');
       const file = joinPath(TEMP_DIR, key);
       const local = joinPath(tpl.directory, name);
       const resource = joinPath(dirname(tpl.filepath, tpl.options.cwd), name);
