@@ -579,7 +579,7 @@ async function embed(tpl, html, render) {
 
       let destFile;
       if (params && params[1] === 'download') {
-        destFile = params[3] === 'download' ? local : joinPath(tpl.directory, params[3]);
+        destFile = !params[3] || params[3] === 'download' ? local : joinPath(tpl.directory, params[3]);
       }
 
       let out = '';
