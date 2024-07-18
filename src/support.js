@@ -12,7 +12,8 @@ const RE_SOURCES = /<link[^<>]*?href=(.*?)[^<>]*?>|<script[^<>]*?src=(.*?)[^<>]*
 const RE_IMPORT = /(?:^|\b)(?:url\((["']?)([^\s)]+)\1|import\s+(?:([^;]*?)?\s*from\s+(["'])(.+?)\4))/g;
 const RE_MACROS = /(?:#|<!--|\/[/*])\s*(IF(?:_?NOT|NDEF)?)\s+([\s\S]*?)(?:#|<!--|\/[/*])\s*ENDIF/;
 const RE_LINKS = /(?:(?:href|src)=(["'])(.*?)\1)|url\((["']?)(.*?)\3\)/;
-const RE_INLINE = /\sinline(?:=(["']?)(?:inline|true)\1)?(?:\b|$)/;
+const RE_PARAMS = /\s(inline|download)(?:=(["'])(.+?)\2|[^=]*?)/;
+const RE_STYLESHEET = /\brel=(["'])?(?:stylesheet)\1/;
 const RE_EXT = /\.(\w+)$(?=\?.*?|$)$/;
 
 const RE_IF = /^\s*(?:#|<!--|\/[/*])\s*IF(?:DEF)?\s*/;
@@ -551,7 +552,11 @@ async function embed(tpl, html, render) {
 
   html = html.replace(/<!--[^]*?-->/g, match => comments.push(match) && '<!--!#@@-->');
   html = html.replace(RE_SOURCES, sub => {
-    if (sub.charAt() === '<' && !RE_INLINE.test(sub)) return sub;
+    if (sub.indexOf('<link ') === 0 && !RE_STYLESHEET.test(sub)) return sub;
+
+    const params = sub.match(RE_PARAMS);
+
+    if (sub.charAt() === '<' && !params) return sub;
     if (sub.includes('data:') || sub.length > 250) return sub;
 
     const src = sub.match(RE_LINKS);
@@ -571,6 +576,11 @@ async function embed(tpl, html, render) {
       const file = joinPath(TEMP_DIR, key);
       const local = joinPath(tpl.directory, name);
       const resource = joinPath(dirname(tpl.filepath, tpl.options.cwd), name);
+
+      let destFile;
+      if (params && params[1] === 'download') {
+        destFile = params[3] === 'download' ? local : joinPath(tpl.directory, params[3]);
+      }
 
       let out = '';
       if (isFile(local)) {
@@ -610,7 +620,11 @@ async function embed(tpl, html, render) {
       }
 
       if (sub.includes('<script')) {
-        data[key] = `<script>//<![CDATA[\n${out.toString().replace(/<\/script>/g, '<\\/script>')}\n//]]>`;
+        if (destFile) {
+          data[key] = `<script src="${destFile.replace(tpl.directory, '')}"></script>`;
+        } else {
+          data[key] = `<script>//<![CDATA[\n${out.toString().replace(/<\/script>/g, '<\\/script>')}\n//]]>`;
+        }
       } else if (sub.includes('<link')) {
         out = await embed(tpl, out.toString(), render);
 
@@ -620,7 +634,11 @@ async function embed(tpl, html, render) {
           out = stylesheet(matches[2], out);
         }
 
-        data[key] = `<style>${out.replace(/\s+/g, ' ').trim()}</style>`;
+        if (destFile) {
+          data[key] = `<link rel="stylesheet" href="${destFile.replace(tpl.directory, '')}" />`;
+        } else {
+          data[key] = `<style>${out.replace(/\s+/g, ' ').trim()}</style>`;
+        }
       } else if (sub.includes('url(')) {
         const ext = _url.match(RE_EXT)[1];
 
@@ -632,6 +650,10 @@ async function embed(tpl, html, render) {
         }
 
         data[key] = `url('data:${type};base64,${out.toString('base64')}')`;
+      }
+
+      if (destFile) {
+        writeFile(destFile, out);
       }
     });
     return `/*#!${key}*/`;

@@ -359,12 +359,15 @@ describe('markup', () => {
   test(['should process and embed resources on .html files', 'x.pug', `
 script(src='b/main.js' inline)
 link(rel='stylesheet' inline href='b/home.css')
+link(rel='stylesheet' href='//fonts.googleapis.com/css?family=Montserrat' download='fonts.css')
   `], result => {
-    expect(result.children.length).to.eql(2);
+    expect(result.children.length).to.eql(3);
     expect(result.children[0]).to.contain('main.js');
     expect(result.children[1]).to.contain('home.css');
+    expect(result.children[2]).to.contain('http@fonts.googleapis.com/css');
     expect(result.source).to.contain('console.log');
     expect(result.source).to.contain('color: red');
+    expect(result.source).to.contain('<link rel="stylesheet" href="/fonts.css" />');
   });
 });
 
