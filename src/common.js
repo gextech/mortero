@@ -44,8 +44,8 @@ function get(target, prop, or) {
 
   let value = target;
   while (parts.length) {
-    if (typeof value === 'undefined') return or;
     value = value[parts.shift()];
+    if (typeof value === 'undefined') return or;
   }
   return value;
 }
