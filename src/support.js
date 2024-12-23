@@ -24,6 +24,7 @@ const TEMP_DIR = os.tmpdir();
 
 const {
   set,
+  get,
   npm,
   puts,
   warn,
@@ -66,7 +67,7 @@ function getEngines() {
   return require('./engines');
 }
 
-function getHooks(tpl, ctx) {
+function getHooks(tpl, ctx, data) {
   const _keys = Object.keys(COMPONENTS._);
 
   if (_keys.length !== COMPONENTS.length) {
@@ -84,6 +85,7 @@ function getHooks(tpl, ctx) {
 
   if (tpl) {
     return () => {
+      const locals = { ...data, ...tpl.locals };
       const hookTasks = [];
 
       let matches;
@@ -116,6 +118,7 @@ function getHooks(tpl, ctx) {
       });
 
       return Promise.all(hookTasks).then(results => {
+        tpl.source = tpl.source.replace(/#\[([$\w.]+?)\]/g, (_, $1) => get(locals, $1));
         tpl.source = tpl.source.replace(/<!#@@hook>/g, () => results.shift());
         if (matches) {
           tpl.source = tpl.source.replace(/<\/head|body>|$/, _ => `<script>${readFile(require('talavera').preload)}</script>${_}`);

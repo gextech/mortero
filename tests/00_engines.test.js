@@ -76,6 +76,13 @@ describe('markup', () => {
       expect(result.source).to.contain('<p>\nosom</p>');
       expect(result.extension).to.eql('html');
     });
+
+    test(['locals.md', '> [!INFO]\n> \\#[NODE_ENV] #[a.b.c]', {
+      globals: { NODE_ENV: 42 },
+      locals: { a: { b: { c: -1 } } },
+    }], result => {
+      expect(result.source).to.contain('<p>\n42 -1</p>');
+    });
   });
 
   describe('Pug/Jade', () => {

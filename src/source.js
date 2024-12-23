@@ -83,7 +83,7 @@ class Source {
   compile(locals, context) {
     return this.render(locals).then(() => {
       const compileTasks = isMarkup(this.filepath) && this.source !== null
-        ? [getHooks(this, context)]
+        ? [getHooks(this, context, locals)]
         : [];
 
       if (this.extension === 'html') {
