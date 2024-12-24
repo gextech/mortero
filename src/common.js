@@ -39,6 +39,17 @@ function npm(cmd, opts = {}) {
   });
 }
 
+function get(target, prop, or) {
+  const parts = prop.split('.');
+
+  let value = target;
+  while (parts.length) {
+    value = value[parts.shift()];
+    if (typeof value === 'undefined') return or;
+  }
+  return value;
+}
+
 function set(target, key) {
   const value = RE_JSON.test(target[key])
     ? JSON.parse(target[key])
@@ -266,6 +277,7 @@ module.exports = {
   ms,
   cls,
   set,
+  get,
   npm,
   size,
   copy,

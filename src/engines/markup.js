@@ -33,6 +33,17 @@ function markdown(params, next) {
     const kramed = require('kramed');
     const renderer = new kramed.Renderer();
 
+    renderer.table = (headers, rows) => {
+      return [
+        '<div class="has-table">',
+        '<table>',
+        `<thead>${headers}</thead>`,
+        `<tbody>${rows}</tbody>`,
+        '</table>',
+        '</div>',
+      ].join('');
+    };
+
     renderer.blockquote = quote => {
       if (quote.indexOf('<p>[!') === 0) {
         let type;

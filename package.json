@@ -78,7 +78,7 @@
   },
   "peerDependencies": {
     "chokidar": "^3.5.2",
-    "esbuild": "^0.19.3",
+    "esbuild": "^0.24.2",
     "live-server": "^1.2.2",
     "talavera": "^0.9.11"
   }

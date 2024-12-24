@@ -76,6 +76,39 @@ describe('markup', () => {
       expect(result.source).to.contain('<p>\nosom</p>');
       expect(result.extension).to.eql('html');
     });
+
+    test(['locals.md', '> [!INFO]\n> \\#[NODE_ENV] #[a.b.c]', {
+      globals: { NODE_ENV: 42 },
+      locals: { a: { b: { c: -1 } } },
+    }], result => {
+      expect(result.source).to.contain('<p>\n42 -1</p>');
+    });
+
+    test(['has-table.md', `
+      | x | y | z |
+      |---|---|---|
+      | m | n | o |
+      | j | k | l |
+    `], result => {
+      expect(result.source).to.equal([
+        '<div class="has-table"><table><thead><tr>',
+        '<th>x</th>',
+        '<th>y</th>',
+        '<th>z</th>',
+        '</tr>',
+        '</thead><tbody><tr>',
+        '<td>m</td>',
+        '<td>n</td>',
+        '<td>o</td>',
+        '</tr>',
+        '<tr>',
+        '<td>j</td>',
+        '<td>k</td>',
+        '<td>l</td>',
+        '</tr>',
+        '</tbody></table></div>',
+      ].join('\n'));
+    });
   });
 
   describe('Pug/Jade', () => {
